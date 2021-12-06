@@ -2,7 +2,29 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Asset_', {
-	// refresh: function(frm) {
+	onload: function(frm) {
+		frm.set_query("item_code", function() {
+			return {
+				"filters": {
+					"disabled": 0,
+					"is_fixed_asset": 1,
+					"is_stock_item": 0
+				}
+			};
+		});
 
-	// }
+		frm.set_query("department", function() {
+			return {
+				"filters": {
+					"company": frm.doc.company,
+				}
+			};
+		});
+
+		erpnext.accounts.dimensions.setup_dimension_filters(frm, frm.doctype);
+	},
+
+	company: function(frm) {
+		erpnext.accounts.dimensions.update_dimension(frm, frm.doctype);
+	},
 });
