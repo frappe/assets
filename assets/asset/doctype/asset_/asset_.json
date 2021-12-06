@@ -8,7 +8,7 @@
  "engine": "InnoDB",
  "field_order": [
   "asset_owner",
-  "asset_owned_company",
+  "company",
   "supplier",
   "customer",
   "item_code",
@@ -68,12 +68,12 @@
    "options": "\nCompany\nSupplier\nCustomer"
   },
   {
-    "depends_on": "eval:doc.asset_owner == \"Company\"",
-    "fieldname": "asset_owned_company",
-    "fieldtype": "Link",
-    "label": "Asset Owned Company",
-    "options": "Company"
-   },
+   "depends_on": "eval:doc.asset_owner == \"Company\"",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
   {
    "depends_on": "eval:doc.asset_owner == \"Supplier\"",
    "fieldname": "supplier",
@@ -416,7 +416,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-07 02:17:31.679654",
+ "modified": "2021-12-07 02:19:27.196484",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
