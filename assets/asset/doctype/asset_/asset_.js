@@ -90,4 +90,57 @@ frappe.ui.form.on('Asset_', {
 	calculate_depreciation: function(frm) {
 		frm.toggle_reqd("finance_books", frm.doc.calculate_depreciation);
 	},
+
+	purchase_receipt: (frm) => {
+		frm.trigger('toggle_reference_doc');
+		if (frm.doc.purchase_receipt) {
+			if (frm.doc.item_code) {
+				frappe.db.get_doc('Purchase Receipt', frm.doc.purchase_receipt).then(pr_doc => {
+					frm.events.set_values_from_purchase_doc(frm, 'Purchase Receipt', pr_doc)
+				});
+			} else {
+				frm.set_value('purchase_receipt', '');
+				frappe.msgprint({
+					title: __('Not Allowed'),
+					message: __("Please select Item Code first")
+				});
+			}
+		}
+	},
+
+	purchase_invoice: (frm) => {
+		frm.trigger('toggle_reference_doc');
+		if (frm.doc.purchase_invoice) {
+			if (frm.doc.item_code) {
+				frappe.db.get_doc('Purchase Invoice', frm.doc.purchase_invoice).then(pi_doc => {
+					frm.events.set_values_from_purchase_doc(frm, 'Purchase Invoice', pi_doc)
+				});
+			} else {
+				frm.set_value('purchase_invoice', '');
+				frappe.msgprint({
+					title: __('Not Allowed'),
+					message: __("Please select Item Code first")
+				});
+			}
+		}
+	},
+
+	set_values_from_purchase_doc: function(frm, doctype, purchase_doc) {
+		frm.set_value('company', purchase_doc.company);
+		frm.set_value('purchase_date', purchase_doc.posting_date);
+		const item = purchase_doc.items.find(item => item.item_code === frm.doc.item_code);
+		if (!item) {
+			doctype_field = frappe.scrub(doctype)
+			frm.set_value(doctype_field, '');
+			frappe.msgprint({
+				title: __('Invalid {0}', [__(doctype)]),
+				message: __('The selected {0} does not contain the selected Asset Item.', [__(doctype)]),
+				indicator: 'red'
+			});
+		}
+		frm.set_value('gross_purchase_amount', item.base_net_rate + item.item_tax_amount);
+		frm.set_value('purchase_receipt_amount', item.base_net_rate + item.item_tax_amount);
+		item.asset_location && frm.set_value('location', item.asset_location);
+		frm.set_value('cost_center', item.cost_center || purchase_doc.cost_center);
+	},
 });
