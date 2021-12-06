@@ -42,4 +42,43 @@ frappe.ui.form.on('Asset_', {
 			}
 		});
 	},
+
+	refresh: function(frm) {
+		frm.trigger("toggle_reference_doc");
+	},
+
+	is_existing_asset: function(frm) {
+		frm.trigger("toggle_reference_doc");
+	},
+
+	toggle_reference_doc: function(frm) {
+		if (frm.doc.purchase_receipt && frm.doc.purchase_invoice && frm.doc.docstatus === 1) {
+			frm.set_df_property('purchase_invoice', 'read_only', 1);
+			frm.set_df_property('purchase_receipt', 'read_only', 1);
+		}
+		else if (frm.doc.is_existing_asset) {
+			frm.toggle_reqd('purchase_receipt', 0);
+			frm.toggle_reqd('purchase_invoice', 0);
+			frm.toggle_display('purchase_receipt', 0);
+ 			frm.toggle_display('purchase_invoice', 0);
+		}
+		else if (frm.doc.purchase_receipt) {
+			// if PR is entered, PI is hidden and no longer mandatory
+			frm.toggle_reqd('purchase_invoice', 0);
+			frm.set_df_property('purchase_invoice', 'read_only', 1);
+		}
+		else if (frm.doc.purchase_invoice) {
+			// if PI is entered, PR  is hidden and no longer mandatory
+			frm.toggle_reqd('purchase_receipt', 0);
+			frm.set_df_property('purchase_receipt', 'read_only', 1);
+		}
+		else {
+			frm.toggle_reqd('purchase_receipt', 1);
+			frm.toggle_reqd('purchase_invoice', 1);
+			frm.set_df_property('purchase_receipt', 'read_only', 0);
+			frm.set_df_property('purchase_invoice', 'read_only', 0);
+			frm.toggle_display('purchase_receipt', 1);
+			frm.toggle_display('purchase_invoice', 1);
+		}
+	},
 });
