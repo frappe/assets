@@ -35,6 +35,7 @@ frappe.ui.form.on('Asset_', {
 				filters: { item_code: doc.item_code }
 			}
 		});
+
 		frm.set_query("purchase_invoice", (doc) => {
 			return {
 				query: "erpnext.controllers.queries.get_purchase_invoices",
