@@ -27,4 +27,19 @@ frappe.ui.form.on('Asset_', {
 	company: function(frm) {
 		erpnext.accounts.dimensions.update_dimension(frm, frm.doctype);
 	},
+
+	setup: function(frm) {
+		frm.set_query("purchase_receipt", (doc) => {
+			return {
+				query: "erpnext.controllers.queries.get_purchase_receipts",
+				filters: { item_code: doc.item_code }
+			}
+		});
+		frm.set_query("purchase_invoice", (doc) => {
+			return {
+				query: "erpnext.controllers.queries.get_purchase_invoices",
+				filters: { item_code: doc.item_code }
+			}
+		});
+	},
 });
