@@ -72,6 +72,7 @@
    "fieldname": "company",
    "fieldtype": "Link",
    "label": "Company",
+   "mandatory_depends_on": "eval:doc.asset_owner == \"Company\"",
    "options": "Company"
   },
   {
@@ -79,6 +80,7 @@
    "fieldname": "supplier",
    "fieldtype": "Link",
    "label": "Supplier",
+   "mandatory_depends_on": "eval:doc.asset_owner == \"Supplier\"",
    "options": "Supplier"
   },
   {
@@ -86,6 +88,7 @@
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
+   "mandatory_depends_on": "eval:doc.asset_owner == \"Customer\"",
    "options": "Customer"
   },
   {
@@ -416,7 +419,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-07 02:19:27.196484",
+ "modified": "2021-12-07 02:25:19.530807",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
