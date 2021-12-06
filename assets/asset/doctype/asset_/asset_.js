@@ -46,6 +46,10 @@ frappe.ui.form.on('Asset_', {
 
 	refresh: function(frm) {
 		frm.trigger("toggle_reference_doc");
+
+		if (frm.doc.docstatus == 0) {
+			frm.toggle_reqd("finance_books", frm.doc.calculate_depreciation);
+		}
 	},
 
 	is_existing_asset: function(frm) {
@@ -81,5 +85,9 @@ frappe.ui.form.on('Asset_', {
 			frm.toggle_display('purchase_receipt', 1);
 			frm.toggle_display('purchase_invoice', 1);
 		}
+	},
+
+	calculate_depreciation: function(frm) {
+		frm.toggle_reqd("finance_books", frm.doc.calculate_depreciation);
 	},
 });
