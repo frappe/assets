@@ -29,12 +29,12 @@
   "is_existing_asset",
   "purchase_receipt",
   "purchase_invoice",
-  "available_for_use_date",
   "column_break_2",
   "gross_purchase_amount",
   "purchase_date",
   "depreciation_section",
   "calculate_depreciation",
+  "available_for_use_date",
   "column_break_3",
   "opening_accumulated_depreciation",
   "number_of_depreciations_booked",
@@ -222,10 +222,11 @@
    "options": "Purchase Invoice"
   },
   {
+   "depends_on": "calculate_depreciation",
    "fieldname": "available_for_use_date",
    "fieldtype": "Date",
    "label": "Available-for-use Date",
-   "reqd": 1
+   "mandatory_depends_on": "calculate_depreciation"
   },
   {
    "fieldname": "column_break_2",
@@ -420,7 +421,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-08 03:55:45.666910",
+ "modified": "2021-12-08 04:03:47.330082",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
