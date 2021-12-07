@@ -1,0 +1,99 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2021-12-08 04:59:48.676015",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "asset",
+  "column_break_2",
+  "creation_date",
+  "finance_books_section",
+  "finance_books",
+  "depreciation_schedule_section",
+  "depreciation_schedule",
+  "status",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "label": "Asset",
+   "options": "Asset_"
+  },
+  {
+   "fieldname": "creation_date",
+   "fieldtype": "Date",
+   "label": "Schedule Creation Date"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Depreciation Schedule_",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "finance_books",
+   "fieldtype": "Table",
+   "label": "Finance Books",
+   "options": "Asset Finance Book_"
+  },
+  {
+   "fieldname": "depreciation_schedule",
+   "fieldtype": "Table",
+   "label": "Depreciation Schedule",
+   "options": "Asset Depreciation Schedule"
+  },
+  {
+   "fieldname": "depreciation_schedule_section",
+   "fieldtype": "Section Break",
+   "label": "Depreciation Schedule"
+  },
+  {
+   "fieldname": "finance_books_section",
+   "fieldtype": "Section Break",
+   "label": "Finance Books"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Status",
+   "options": "Draft\nActive\nCancelled",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2021-12-08 05:13:33.446917",
+ "modified_by": "Administrator",
+ "module": "Asset",
+ "name": "Depreciation Schedule_",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
