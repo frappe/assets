@@ -9,8 +9,6 @@
   "asset",
   "column_break_2",
   "creation_date",
-  "finance_books_section",
-  "finance_books",
   "depreciation_schedule_section",
   "depreciation_schedule",
   "status",
@@ -20,13 +18,17 @@
   {
    "fieldname": "asset",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Asset",
-   "options": "Asset_"
+   "options": "Asset_",
+   "reqd": 1
   },
   {
    "fieldname": "creation_date",
    "fieldtype": "Date",
-   "label": "Schedule Creation Date"
+   "in_list_view": 1,
+   "label": "Schedule Creation Date",
+   "reqd": 1
   },
   {
    "fieldname": "amended_from",
@@ -38,26 +40,16 @@
    "read_only": 1
   },
   {
-   "fieldname": "finance_books",
-   "fieldtype": "Table",
-   "label": "Finance Books",
-   "options": "Asset Finance Book_"
-  },
-  {
    "fieldname": "depreciation_schedule",
    "fieldtype": "Table",
    "label": "Depreciation Schedule",
-   "options": "Asset Depreciation Schedule"
+   "options": "Asset Depreciation Schedule",
+   "reqd": 1
   },
   {
    "fieldname": "depreciation_schedule_section",
    "fieldtype": "Section Break",
    "label": "Depreciation Schedule"
-  },
-  {
-   "fieldname": "finance_books_section",
-   "fieldtype": "Section Break",
-   "label": "Finance Books"
   },
   {
    "fieldname": "column_break_2",
@@ -75,7 +67,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-08 05:13:33.446917",
+ "modified": "2021-12-08 19:34:10.480592",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Depreciation Schedule_",
