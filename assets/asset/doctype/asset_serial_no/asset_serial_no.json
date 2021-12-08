@@ -26,13 +26,17 @@
   {
    "fieldname": "asset",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Asset",
-   "options": "Asset_"
+   "options": "Asset_",
+   "reqd": 1
   },
   {
    "fieldname": "serial_no",
    "fieldtype": "Data",
-   "label": "Serial No"
+   "in_list_view": 1,
+   "label": "Serial No",
+   "reqd": 1
   },
   {
    "fieldname": "amended_from",
@@ -58,8 +62,10 @@
   {
    "fieldname": "location",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Location",
-   "options": "Location_"
+   "options": "Location_",
+   "reqd": 1
   },
   {
    "fieldname": "disposal_date",
@@ -113,7 +119,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-08 20:05:08.821512",
+ "modified": "2021-12-08 20:06:49.628963",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Serial No",
