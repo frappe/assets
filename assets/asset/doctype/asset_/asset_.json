@@ -163,7 +163,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Asset Category",
-   "options": "Asset Category",
+   "options": "Asset Category_",
    "read_only": 1
   },
   {
@@ -231,11 +231,11 @@
    "options": "Purchase Invoice"
   },
   {
-   "depends_on": "calculate_depreciation",
+   "depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)",
    "fieldname": "available_for_use_date",
    "fieldtype": "Date",
    "label": "Available-for-use Date",
-   "mandatory_depends_on": "calculate_depreciation"
+   "mandatory_depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)"
   },
   {
    "fieldname": "column_break_2",
@@ -267,6 +267,7 @@
   },
   {
    "default": "0",
+   "depends_on": "eval:!(doc.is_intangible_asset)",
    "fieldname": "calculate_depreciation",
    "fieldtype": "Check",
    "label": "Is Depreciable Asset"
@@ -293,19 +294,22 @@
   {
    "collapsible": 1,
    "collapsible_depends_on": "eval:!(doc.calculate_depreciation)",
-   "depends_on": "calculate_depreciation",
+   "depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)",
    "fieldname": "finance_books_section",
    "fieldtype": "Section Break",
    "label": "Finance Books"
   },
   {
    "columns": 10,
+   "depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)",
    "fieldname": "finance_books",
    "fieldtype": "Table",
    "label": "Finance Books",
+   "mandatory_depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)",
    "options": "Asset Finance Book_"
   },
   {
+   "depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)",
    "fieldname": "schedules",
    "fieldtype": "Link",
    "label": "Depreciation Schedule",
@@ -461,7 +465,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-08 21:09:46.225221",
+ "modified": "2021-12-09 01:06:49.333355",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
