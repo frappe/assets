@@ -57,7 +57,8 @@
    "fieldname": "depreciation_schedule",
    "fieldtype": "Link",
    "label": "Depreciation Schedule",
-   "options": "Depreciation Schedule_"
+   "options": "Depreciation Schedule_",
+   "read_only": 1
   },
   {
    "fieldname": "location",
@@ -119,7 +120,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-08 20:06:49.628963",
+ "modified": "2021-12-08 20:07:27.655693",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Serial No",
