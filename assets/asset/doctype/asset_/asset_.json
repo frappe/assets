@@ -290,6 +290,8 @@
    "no_copy": 1
   },
   {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:!(doc.calculate_depreciation)",
    "depends_on": "calculate_depreciation",
    "fieldname": "finance_books_section",
    "fieldtype": "Section Break",
@@ -451,7 +453,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-08 21:02:28.146279",
+ "modified": "2021-12-08 21:04:58.236105",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
