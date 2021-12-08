@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "field:serial_no",
  "creation": "2021-12-08 19:38:47.178911",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -36,7 +37,8 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Serial No",
-   "reqd": 1
+   "reqd": 1,
+   "unique": 1
   },
   {
    "fieldname": "amended_from",
@@ -120,10 +122,11 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-08 20:07:27.655693",
+ "modified": "2021-12-08 20:09:49.172139",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Serial No",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
