@@ -259,7 +259,7 @@
   },
   {
    "collapsible": 1,
-   "collapsible_depends_on": "eval:doc.calculate_depreciation || doc.is_existing_asset",
+   "collapsible_depends_on": "eval:!(doc.calculate_depreciation)",
    "fieldname": "depreciation_section",
    "fieldtype": "Section Break",
    "label": "Depreciation"
@@ -451,7 +451,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-08 20:55:39.630589",
+ "modified": "2021-12-08 21:02:28.146279",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
