@@ -24,6 +24,7 @@
   "naming_series",
   "asset_name",
   "asset_category",
+  "asset_value",
   "location",
   "custodian",
   "department",
@@ -436,12 +437,18 @@
    "fieldname": "num_of_assets",
    "fieldtype": "Int",
    "label": "Number of Assets"
+  },
+  {
+   "fieldname": "asset_value",
+   "fieldtype": "Currency",
+   "label": "Asset Value",
+   "options": "Company:company:default_currency"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-08 20:49:12.786341",
+ "modified": "2021-12-08 20:51:39.728743",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
