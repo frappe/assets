@@ -35,13 +35,12 @@
   "depreciation_section",
   "calculate_depreciation",
   "available_for_use_date",
+  "schedules",
   "column_break_3",
   "opening_accumulated_depreciation",
   "number_of_depreciations_booked",
   "finance_books_section",
   "finance_books",
-  "depreciation_schedule_section",
-  "schedules",
   "insurance_details",
   "policy_number",
   "insurer",
@@ -295,17 +294,12 @@
    "options": "Asset Finance Book_"
   },
   {
-   "depends_on": "calculate_depreciation",
-   "fieldname": "depreciation_schedule_section",
-   "fieldtype": "Section Break",
-   "label": "Depreciation Schedule"
-  },
-  {
    "fieldname": "schedules",
-   "fieldtype": "Table",
+   "fieldtype": "Link",
    "label": "Depreciation Schedule",
    "no_copy": 1,
-   "options": "Depreciation Schedule"
+   "options": "Depreciation Schedule_",
+   "read_only": 1
   },
   {
    "collapsible": 1,
@@ -421,7 +415,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-08 04:03:47.330082",
+ "modified": "2021-12-08 05:27:22.561246",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
