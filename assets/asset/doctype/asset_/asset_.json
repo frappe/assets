@@ -15,6 +15,9 @@
   "item_name",
   "image",
   "journal_entry_for_scrap",
+  "is_serialized_asset",
+  "is_tangible_asset",
+  "calculate_depreciation",
   "column_break_1",
   "naming_series",
   "asset_name",
@@ -33,7 +36,6 @@
   "gross_purchase_amount",
   "purchase_date",
   "depreciation_section",
-  "calculate_depreciation",
   "available_for_use_date",
   "schedules",
   "column_break_3",
@@ -259,7 +261,7 @@
    "default": "0",
    "fieldname": "calculate_depreciation",
    "fieldtype": "Check",
-   "label": "Calculate Depreciation"
+   "label": "Is Depreciable Asset"
   },
   {
    "fieldname": "column_break_3",
@@ -410,12 +412,24 @@
    "options": "Asset",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_serialized_asset",
+   "fieldtype": "Check",
+   "label": "Is Serialized Asset"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_tangible_asset",
+   "fieldtype": "Check",
+   "label": "Is Tangible Asset"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-08 05:27:22.561246",
+ "modified": "2021-12-08 20:25:40.897092",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
