@@ -10,7 +10,7 @@
   "finance_book",
   "depreciation_method",
   "frequency_of_depreciation",
-  "till_when_does_the_asset_depreciate",
+  "depreciation_period",
   "rate_of_depreciation"
  ],
  "fields": [
@@ -32,15 +32,8 @@
    "fieldname": "frequency_of_depreciation",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "How Often Does the Asset Depreciate?",
+   "label": "Frequency of Depreciation",
    "options": "\nMonthly\nEvery 2 months\nQuarterly\nEvery 4 months\nEvery 5 months\nHalf-Yearly\nEvery 7 months\nEvery 8 months\nEvery 9 months\nEvery 10 months\nEvery 11 months\nYearly",
-   "reqd": 1
-  },
-  {
-   "fieldname": "till_when_does_the_asset_depreciate",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "Till When Does the Asset Depreciate?",
    "reqd": 1
   },
   {
@@ -49,11 +42,18 @@
    "fieldname": "rate_of_depreciation",
    "fieldtype": "Percent",
    "label": "Rate of Depreciation"
+  },
+  {
+   "fieldname": "depreciation_period",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Depreciation Period(In Months)",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-12-08 01:10:01.915405",
+ "modified": "2021-12-09 01:23:54.221698",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Finance Book_",
