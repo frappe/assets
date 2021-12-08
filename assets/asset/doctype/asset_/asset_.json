@@ -17,7 +17,7 @@
   "image",
   "journal_entry_for_scrap",
   "is_serialized_asset",
-  "is_tangible_asset",
+  "is_intangible_asset",
   "is_existing_asset",
   "calculate_depreciation",
   "column_break_1",
@@ -430,12 +430,6 @@
    "label": "Is Serialized Asset"
   },
   {
-   "default": "0",
-   "fieldname": "is_tangible_asset",
-   "fieldtype": "Check",
-   "label": "Is Tangible Asset"
-  },
-  {
    "fieldname": "num_of_assets",
    "fieldtype": "Int",
    "label": "Number of Assets",
@@ -448,12 +442,18 @@
    "label": "Asset Value",
    "options": "Company:company:default_currency",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_intangible_asset",
+   "fieldtype": "Check",
+   "label": "Is Intangible Asset"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-08 21:04:58.236105",
+ "modified": "2021-12-08 21:08:09.464834",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
