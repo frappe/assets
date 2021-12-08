@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "field:location_name",
  "creation": "2021-12-07 04:57:22.443072",
  "doctype": "DocType",
  "editable_grid": 1,
