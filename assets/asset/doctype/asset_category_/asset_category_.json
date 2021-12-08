@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "field:asset_category_name",
  "creation": "2021-12-08 04:11:56.229605",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -65,10 +66,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-12-08 04:27:40.897886",
+ "modified": "2021-12-08 20:16:25.356714",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Category_",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
