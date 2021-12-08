@@ -17,6 +17,7 @@
   "journal_entry_for_scrap",
   "is_serialized_asset",
   "is_tangible_asset",
+  "is_existing_asset",
   "calculate_depreciation",
   "column_break_1",
   "naming_series",
@@ -29,11 +30,10 @@
   "accounting_dimensions_section",
   "cost_center",
   "purchase_details_section",
-  "is_existing_asset",
   "purchase_receipt",
-  "purchase_invoice",
-  "column_break_2",
   "gross_purchase_amount",
+  "column_break_2",
+  "purchase_invoice",
   "purchase_date",
   "depreciation_section",
   "available_for_use_date",
@@ -344,6 +344,7 @@
    "label": "Comprehensive Insurance"
   },
   {
+   "collapsible": 1,
    "fieldname": "maintenance_section",
    "fieldtype": "Section Break",
    "label": "Maintenance"
@@ -429,7 +430,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-08 20:30:09.170245",
+ "modified": "2021-12-08 20:33:55.617566",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
