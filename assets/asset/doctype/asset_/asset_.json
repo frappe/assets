@@ -105,8 +105,9 @@
    "depends_on": "item_code",
    "fetch_from": "item_code.item_name",
    "fieldname": "item_name",
-   "fieldtype": "Read Only",
-   "label": "Item Name"
+   "fieldtype": "Data",
+   "label": "Item Name",
+   "read_only": 1
   },
   {
    "allow_on_submit": 1,
@@ -434,7 +435,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-08 20:44:18.696693",
+ "modified": "2021-12-08 20:46:51.984574",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
