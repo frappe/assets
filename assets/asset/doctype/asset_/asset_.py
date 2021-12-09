@@ -14,6 +14,7 @@ from erpnext.controllers.accounts_controller import AccountsController
 class Asset_(AccountsController):
 	def validate(self):
 		self.validate_asset_values()
+		self.validate_item()
 
 	def validate_asset_values(self):
 		self.validate_purchase_document()
@@ -41,6 +42,21 @@ class Asset_(AccountsController):
 	def validate_available_for_use_date(self):
 		if self.available_for_use_date and getdate(self.available_for_use_date) < getdate(self.purchase_date):
 			frappe.throw(_("Available-for-use Date should be after purchase date"))
+
+	def validate_item(self):
+		item = frappe.get_cached_value("Item",
+			self.item_code,
+			["is_fixed_asset", "is_stock_item", "disabled"],
+			as_dict=1)
+
+		if not item:
+			frappe.throw(_("Item {0} does not exist").format(self.item_code))
+		elif item.disabled:
+			frappe.throw(_("Item {0} has been disabled").format(self.item_code))
+		elif not item.is_fixed_asset:
+			frappe.throw(_("Item {0} must be a Fixed Asset Item").format(self.item_code))
+		elif item.is_stock_item:
+			frappe.throw(_("Item {0} must be a non-stock item").format(self.item_code))
 
 @frappe.whitelist()
 def get_finance_books(asset_category):
