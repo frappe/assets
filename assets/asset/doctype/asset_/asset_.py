@@ -5,6 +5,7 @@ import frappe
 from frappe import _
 from frappe.utils import (
 	cint,
+	flt,
 	getdate,
 	nowdate,
 )
@@ -15,6 +16,8 @@ class Asset_(AccountsController):
 	def validate(self):
 		self.validate_asset_values()
 		self.validate_item()
+
+		self.status = self.get_status()
 
 	def validate_asset_values(self):
 		self.validate_purchase_document()
@@ -57,6 +60,31 @@ class Asset_(AccountsController):
 			frappe.throw(_("Item {0} must be a Fixed Asset Item").format(self.item_code))
 		elif item.is_stock_item:
 			frappe.throw(_("Item {0} must be a non-stock item").format(self.item_code))
+
+	def get_status(self):
+		if self.docstatus == 0:
+			status = "Draft"
+
+		elif self.docstatus == 1:
+			status = "Submitted"
+
+			if self.journal_entry_for_scrap:
+				status = "Scrapped"
+			elif self.finance_books:
+				idx = self.get_default_finance_book_idx() or 0
+
+				expected_value_after_useful_life = self.finance_books[idx].expected_value_after_useful_life
+				value_after_depreciation = self.finance_books[idx].value_after_depreciation
+
+				if flt(value_after_depreciation) <= expected_value_after_useful_life:
+					status = "Fully Depreciated"
+				elif flt(value_after_depreciation) < flt(self.gross_purchase_amount):
+					status = 'Partially Depreciated'
+
+		elif self.docstatus == 2:
+			status = "Cancelled"
+
+		return status
 
 @frappe.whitelist()
 def get_finance_books(asset_category):
