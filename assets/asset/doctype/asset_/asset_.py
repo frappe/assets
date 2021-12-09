@@ -23,6 +23,8 @@ class Asset_(AccountsController):
 		if self.calculate_depreciation:
 			self.validate_depreciation_posting_start_date()
 
+		self.set_status()
+
 	def validate_asset_values(self):
 		self.validate_purchase_document()
 
@@ -97,6 +99,12 @@ class Asset_(AccountsController):
 			status = "Cancelled"
 
 		return status
+
+	def set_status(self, status=None):
+		if not status:
+			status = self.get_status()
+
+		self.db_set("status", status)
 
 @frappe.whitelist()
 def get_finance_books(asset_category):
