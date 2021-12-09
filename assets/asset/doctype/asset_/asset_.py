@@ -19,9 +19,15 @@ class Asset_(AccountsController):
 
 		self.status = self.get_status()
 
+	def on_submit(self):
+		if self.calculate_depreciation:
+			self.validate_depreciation_posting_start_date()
+
 	def validate_asset_values(self):
 		self.validate_purchase_document()
-		self.validate_available_for_use_date()
+
+		if self.calculate_depreciation:
+			self.validate_available_for_use_date()
 
 	def validate_purchase_document(self):
 		if self.is_existing_asset:
@@ -45,6 +51,12 @@ class Asset_(AccountsController):
 	def validate_available_for_use_date(self):
 		if self.available_for_use_date and getdate(self.available_for_use_date) < getdate(self.purchase_date):
 			frappe.throw(_("Available-for-use Date should be after purchase date"))
+
+	def validate_depreciation_posting_start_date(self):
+		for finance_book in self.finance_books:
+			if finance_book.depreciation_posting_start_date == self.available_for_use_date:
+				frappe.throw(_("Row #{}: Depreciation Posting Date should not be equal to Available for Use Date.").format(finance_book.idx),
+					title=_("Incorrect Date"))
 
 	def validate_item(self):
 		item = frappe.get_cached_value("Item",
