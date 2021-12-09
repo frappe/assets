@@ -91,6 +91,26 @@ frappe.ui.form.on('Asset_', {
 		frm.toggle_reqd("finance_books", frm.doc.calculate_depreciation);
 	},
 
+	item_code: function(frm) {
+		if(frm.doc.item_code) {
+			frm.trigger('set_finance_book');
+		}
+	},
+
+	set_finance_book: function(frm) {
+		frappe.call({
+			method: "assets.asset.doctype.asset_.asset_.get_finance_books",
+			args: {
+				asset_category: frm.doc.asset_category
+			},
+			callback: function(r) {
+				if(r.message) {
+					frm.set_value('finance_books', r.message);
+				}
+			}
+		})
+	},
+
 	purchase_receipt: (frm) => {
 		frm.trigger('toggle_reference_doc');
 		if (frm.doc.purchase_receipt) {
