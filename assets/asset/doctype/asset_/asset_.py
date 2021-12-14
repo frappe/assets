@@ -16,6 +16,7 @@ class Asset_(AccountsController):
 	def validate(self):
 		self.validate_asset_values()
 		self.validate_item()
+		self.set_missing_values()
 
 		self.status = self.get_status()
 
@@ -74,6 +75,14 @@ class Asset_(AccountsController):
 			frappe.throw(_("Item {0} must be a Fixed Asset Item").format(self.item_code))
 		elif item.is_stock_item:
 			frappe.throw(_("Item {0} must be a non-stock item").format(self.item_code))
+
+	def set_missing_values(self):
+		if not self.asset_category:
+			self.asset_category = frappe.get_cached_value("Item", self.item_code, "asset_category")
+
+		if not self.get('finance_books'):
+			finance_books = get_finance_books(self.asset_category)
+			self.set('finance_books', finance_books)
 
 	def get_status(self):
 		if self.docstatus == 0:
