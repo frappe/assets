@@ -7,10 +7,6 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "asset_owner",
-  "company",
-  "supplier",
-  "customer",
   "item_code",
   "item_name",
   "num_of_assets",
@@ -26,10 +22,16 @@
   "asset_name",
   "asset_category",
   "asset_value",
+  "disposal_date",
+  "tracking_details_section",
+  "asset_owner",
+  "company",
+  "supplier",
+  "customer",
   "location",
+  "column_break_23",
   "custodian",
   "department",
-  "disposal_date",
   "accounting_dimensions_section",
   "cost_center",
   "purchase_details_section",
@@ -460,12 +462,21 @@
    "fieldname": "is_amortizable_asset",
    "fieldtype": "Check",
    "label": "Is Amortizable Asset"
+  },
+  {
+   "fieldname": "tracking_details_section",
+   "fieldtype": "Section Break",
+   "label": "Tracking Details"
+  },
+  {
+   "fieldname": "column_break_23",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-09 01:06:49.333355",
+ "modified": "2021-12-14 21:53:06.960845",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
