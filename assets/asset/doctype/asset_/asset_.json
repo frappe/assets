@@ -464,6 +464,7 @@
    "label": "Is Amortizable Asset"
   },
   {
+   "collapsible": 1,
    "fieldname": "tracking_details_section",
    "fieldtype": "Section Break",
    "label": "Tracking Details"
@@ -476,7 +477,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-14 21:53:06.960845",
+ "modified": "2021-12-14 21:55:38.475665",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
