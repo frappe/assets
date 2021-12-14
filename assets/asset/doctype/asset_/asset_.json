@@ -150,6 +150,7 @@
    "options": "ACC-ASS-.YYYY.-"
   },
   {
+   "fetch_from": "item_code.item_name",
    "fieldname": "asset_name",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -477,7 +478,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-14 21:58:02.773597",
+ "modified": "2021-12-14 21:59:53.347554",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
