@@ -9,6 +9,7 @@ class AssetMovement_(Document):
 	def validate(self):
 		self.validate_asset()
 		self.validate_movement()
+		self.validate_employee()
 
 	def validate_asset(self):
 		for asset in self.assets:
@@ -85,3 +86,23 @@ class AssetMovement_(Document):
 			if asset.to_employee and asset.target_location:
 				frappe.throw(_("Asset {0} cannot be received at a location and \
 					given to employee in a single movement").format(asset.asset))
+
+	def validate_employee(self):
+		for row in self.assets:
+			if row.from_employee:
+				self.validate_from_employee(row)
+
+			if row.to_employee:
+				self.validate_to_employee(row)
+
+	def validate_from_employee(self, row):
+		current_custodian = frappe.db.get_value("Asset", row.asset, "custodian")
+
+		if current_custodian != row.from_employee:
+			frappe.throw(_("Asset {0} currently belongs to {1}, not {2}.").
+				format(row.asset, current_custodian, row.from_employee))
+
+	def validate_to_employee(self, row):
+		if frappe.db.get_value("Employee", row.to_employee, "company") != self.company:
+			frappe.throw(_("Employee {0} does not belong to the company {1}").
+				format(row.to_employee, self.company))
