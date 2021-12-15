@@ -7,6 +7,7 @@ from frappe.utils import (
 	cint,
 	flt,
 	getdate,
+	get_datetime,
 	nowdate,
 )
 from erpnext.controllers.accounts_controller import AccountsController
@@ -25,6 +26,7 @@ class Asset_(AccountsController):
 			self.validate_depreciation_posting_start_date()
 
 		self.set_status()
+		self.record_asset_receipt()
 
 	def validate_asset_values(self):
 		self.validate_purchase_document()
@@ -114,6 +116,33 @@ class Asset_(AccountsController):
 			status = self.get_status()
 
 		self.db_set("status", status)
+
+	def record_asset_receipt(self):
+		reference_doctype = 'Purchase Receipt' if self.purchase_receipt else 'Purchase Invoice'
+		reference_docname = self.purchase_receipt or self.purchase_invoice
+		transaction_date = getdate(self.purchase_date)
+
+		if reference_docname:
+			posting_date, posting_time = frappe.db.get_value(reference_doctype, reference_docname, ["posting_date", "posting_time"])
+			transaction_date = get_datetime("{} {}".format(posting_date, posting_time))
+
+		assets = [{
+			'asset': self.name,
+			'asset_name': self.asset_name,
+			'target_location': self.location,
+			'to_employee': self.custodian
+		}]
+
+		asset_movement = frappe.get_doc({
+			'doctype': 'Asset Movement',
+			'assets': assets,
+			'purpose': 'Receipt',
+			'company': self.company,
+			'transaction_date': transaction_date,
+			'reference_doctype': reference_doctype,
+			'reference_name': reference_docname
+		}).insert()
+		asset_movement.submit()
 
 @frappe.whitelist()
 def get_finance_books(asset_category):
