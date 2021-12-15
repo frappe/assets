@@ -120,8 +120,7 @@ class Asset_(AccountsController):
 		self.db_set("status", status)
 
 	def record_asset_receipt(self):
-		reference_doctype = 'Purchase Receipt' if self.purchase_receipt else 'Purchase Invoice'
-		reference_docname = self.purchase_receipt or self.purchase_invoice
+		reference_doctype, reference_docname = self.get_purchase_details()
 		transaction_date = getdate(self.purchase_date)
 
 		if reference_docname:
@@ -147,8 +146,16 @@ class Asset_(AccountsController):
 		asset_movement.submit()
 
 	def record_asset_creation_and_purchase(self):
-		create_asset_activity(self.name, self.purchase_date, 'Purchase')
-		create_asset_activity(self.name, getdate(), 'Creation')
+		purchase_doctype, purchase_docname = self.get_purchase_details()
+
+		create_asset_activity(self.name, self.purchase_date, 'Purchase', purchase_doctype, purchase_docname)
+		create_asset_activity(self.name, getdate(), 'Creation', self.doctype, self.name)
+
+	def get_purchase_details(self):
+		purchase_doctype = 'Purchase Receipt' if self.purchase_receipt else 'Purchase Invoice'
+		purchase_docname = self.purchase_receipt or self.purchase_invoice
+
+		return purchase_doctype, purchase_docname
 
 @frappe.whitelist()
 def get_finance_books(asset_category):

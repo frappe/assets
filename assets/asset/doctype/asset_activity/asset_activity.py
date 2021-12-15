@@ -15,12 +15,14 @@ class AssetActivity(Document):
 		if self.activity_date < purchase_date:
 			frappe.throw(_("Asset Activity cannot be performed before {0}").format(purchase_date))
 
-def create_asset_activity(asset, activity_date, activity_type, notes=None):
+def create_asset_activity(asset, activity_date, activity_type, reference_doctype, reference_docname, notes=None):
 	asset_activity = frappe.get_doc({
 		'doctype': 'Asset Activity',
 		'asset': asset,
 		'activity_date': activity_date,
 		'activity_type': activity_type,
+		'reference_doctype': reference_doctype,
+		'reference_docname': reference_docname,
 		'notes': notes
 	})
 	asset_activity.submit()

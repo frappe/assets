@@ -9,7 +9,13 @@
  "field_order": [
   "asset",
   "activity_type",
+  "column_break_3",
   "activity_date",
+  "reference_section",
+  "reference_doctype",
+  "column_break_7",
+  "reference_docname",
+  "details_section",
   "notes",
   "amended_from"
  ],
@@ -50,12 +56,46 @@
    "options": "Asset Activity",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "label": "Reference Document Type",
+   "options": "DocType",
+   "reqd": 1
+  },
+  {
+   "fieldname": "reference_docname",
+   "fieldtype": "Dynamic Link",
+   "label": "Reference Document Name",
+   "options": "reference_doctype",
+   "reqd": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "reference_section",
+   "fieldtype": "Section Break",
+   "label": "Reference"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "details_section",
+   "fieldtype": "Section Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-16 03:58:00.291023",
+ "modified": "2021-12-16 04:57:47.880857",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Activity",
