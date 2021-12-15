@@ -8,8 +8,9 @@
  "engine": "InnoDB",
  "field_order": [
   "asset_name",
-  "activity",
-  "activity_date"
+  "activity_type",
+  "activity_date",
+  "notes"
  ],
  "fields": [
   {
@@ -21,23 +22,29 @@
    "reqd": 1
   },
   {
-   "fieldname": "activity",
-   "fieldtype": "Small Text",
-   "in_list_view": 1,
-   "label": "Activity",
-   "reqd": 1
-  },
-  {
    "fieldname": "activity_date",
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Activity Date",
    "reqd": 1
+  },
+  {
+   "fieldname": "activity_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Activity Type",
+   "options": "\nPurchase\nCreation\nDepreciation\nRepair\nMaintenance\nMovement\nRevaluation\nCancellation\nSale\nDisposal",
+   "reqd": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-12-08 20:15:02.336591",
+ "modified": "2021-12-16 03:50:43.433242",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Activity",
