@@ -19,7 +19,7 @@ class AssetMovement_(Document):
 
 	def validate_asset(self):
 		for asset in self.assets:
-			status, company = frappe.db.get_value("Asset", asset.asset, ["status", "company"])
+			status, company = frappe.db.get_value("Asset_", asset.asset, ["status", "company"])
 
 			if self.purpose == 'Transfer' and status in ("Draft", "Scrapped", "Sold"):
 				frappe.throw(_("Row {0}: {1} asset cannot be transferred.").format(asset.idx, status))
@@ -44,7 +44,7 @@ class AssetMovement_(Document):
 				self.validate_asset_receipt(asset)
 
 	def validate_source_location(self, asset):
-		current_location = frappe.db.get_value("Asset", asset.asset, "location")
+		current_location = frappe.db.get_value("Asset_", asset.asset, "location")
 
 		if not asset.source_location:
 			if not current_location:
@@ -102,7 +102,7 @@ class AssetMovement_(Document):
 				self.validate_to_employee(row)
 
 	def validate_from_employee(self, row):
-		current_custodian = frappe.db.get_value("Asset", row.asset, "custodian")
+		current_custodian = frappe.db.get_value("Asset_", row.asset, "custodian")
 
 		if current_custodian != row.from_employee:
 			frappe.throw(_("Asset {0} currently belongs to {1}, not {2}.").
