@@ -11,6 +11,7 @@ from frappe.utils import (
 	nowdate,
 )
 from erpnext.controllers.accounts_controller import AccountsController
+from assets.asset.doctype.asset_activity.asset_activity import create_asset_activity
 
 
 class Asset_(AccountsController):
@@ -27,6 +28,7 @@ class Asset_(AccountsController):
 
 		self.set_status()
 		self.record_asset_receipt()
+		self.record_asset_creation_and_purchase()
 
 	def validate_asset_values(self):
 		self.validate_purchase_document()
@@ -143,6 +145,10 @@ class Asset_(AccountsController):
 			'reference_name': reference_docname
 		}).insert()
 		asset_movement.submit()
+
+	def record_asset_creation_and_purchase(self):
+		create_asset_activity(self.name, self.purchase_date, 'Purchase')
+		create_asset_activity(self.name, getdate(), 'Creation')
 
 @frappe.whitelist()
 def get_finance_books(asset_category):
