@@ -7,20 +7,12 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "asset_name",
+  "asset",
   "activity_type",
   "activity_date",
   "notes"
  ],
  "fields": [
-  {
-   "fieldname": "asset_name",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Asset Name",
-   "options": "Asset_",
-   "reqd": 1
-  },
   {
    "fieldname": "activity_date",
    "fieldtype": "Date",
@@ -40,11 +32,19 @@
    "fieldname": "notes",
    "fieldtype": "Small Text",
    "label": "Notes"
+  },
+  {
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Asset",
+   "options": "Asset_",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-12-16 03:50:43.433242",
+ "modified": "2021-12-16 03:55:13.825070",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Activity",
