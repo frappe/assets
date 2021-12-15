@@ -11,6 +11,12 @@ class AssetMovement_(Document):
 		self.validate_movement()
 		self.validate_employee()
 
+	def on_submit(self):
+		self.update_asset_location_and_employee()
+
+	def on_cancel(self):
+		self.update_asset_location_and_employee()
+
 	def validate_asset(self):
 		for asset in self.assets:
 			status, company = frappe.db.get_value("Asset", asset.asset, ["status", "company"])
@@ -106,3 +112,39 @@ class AssetMovement_(Document):
 		if frappe.db.get_value("Employee", row.to_employee, "company") != self.company:
 			frappe.throw(_("Employee {0} does not belong to the company {1}").
 				format(row.to_employee, self.company))
+
+	def update_asset_location_and_employee(self):
+		current_location, current_employee = '', ''
+		cond = "1=1"
+
+		for d in self.assets:
+			args = {
+				'asset': d.asset,
+				'company': self.company
+			}
+
+			current_location, current_employee = self.get_current_location_and_employee(args, cond, d.asset)
+
+			frappe.db.set_value('Asset', d.asset, 'location', current_location)
+			frappe.db.set_value('Asset', d.asset, 'custodian', current_employee)
+
+	def get_current_location_and_employee(self, args, cond, asset):
+		# latest entry corresponds to current document's location, employee when transaction date > previous dates
+		# In case of cancellation it corresponds to previous latest document's location, employee
+		latest_movement_entry = frappe.db.sql(
+			"""
+			SELECT asm_item.target_location, asm_item.to_employee
+			FROM `tabAsset Movement Item` asm_item, `tabAsset Movement` asm
+			WHERE
+				asm_item.parent=asm.name and
+				asm_item.asset=%(asset)s and
+				asm.company=%(company)s and
+				asm.docstatus=1 and {0}
+			ORDER BY
+				asm.transaction_date desc limit 1
+			""".format(cond), args)
+
+		if latest_movement_entry:
+			return latest_movement_entry[0][0], latest_movement_entry[0][1]
+		else:
+			frappe.throw(_("Unable to update Employee and Location for Asset {0}").format(asset))
