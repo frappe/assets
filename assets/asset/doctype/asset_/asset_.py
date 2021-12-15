@@ -88,6 +88,15 @@ class Asset_(AccountsController):
 			finance_books = get_finance_books(self.asset_category)
 			self.set('finance_books', finance_books)
 
+		if not self.is_serialized_asset:
+			self.set_initial_asset_value()
+
+	def set_initial_asset_value(self):
+		if self.calculate_depreciation and self.is_existing_asset:
+			self.asset_value = self.gross_purchase_amount - self.opening_accumulated_depreciation
+		else:
+			self.asset_value = self.gross_purchase_amount
+
 	def get_status(self):
 		if self.docstatus == 0:
 			status = "Draft"
