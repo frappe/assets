@@ -10,7 +10,8 @@
   "asset",
   "activity_type",
   "activity_date",
-  "notes"
+  "notes",
+  "amended_from"
  ],
  "fields": [
   {
@@ -40,11 +41,21 @@
    "label": "Asset",
    "options": "Asset_",
    "reqd": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Asset Activity",
+   "print_hide": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [],
- "modified": "2021-12-16 03:55:13.825070",
+ "modified": "2021-12-16 03:58:00.291023",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Activity",
