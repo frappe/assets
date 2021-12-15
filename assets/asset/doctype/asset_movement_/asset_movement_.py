@@ -3,7 +3,9 @@
 
 import frappe
 from frappe import _
+from frappe.utils import getdate
 from frappe.model.document import Document
+from assets.asset.doctype.asset_activity.asset_activity import create_asset_activity
 
 class AssetMovement_(Document):
 	def validate(self):
@@ -13,6 +15,7 @@ class AssetMovement_(Document):
 
 	def on_submit(self):
 		self.update_asset_location_and_employee()
+		self.record_asset_movements()
 
 	def on_cancel(self):
 		self.update_asset_location_and_employee()
@@ -148,3 +151,36 @@ class AssetMovement_(Document):
 			return latest_movement_entry[0][0], latest_movement_entry[0][1]
 		else:
 			frappe.throw(_("Unable to update Employee and Location for Asset {0}").format(asset))
+
+	def record_asset_movements(self):
+		for asset in self.assets:
+			if self.purpose == 'Issue':
+				create_asset_activity(
+					asset,
+					getdate(),
+					'Movement',
+					_("Issued to Employee {0} from {1}").format(asset.to_employee, asset.source_location)
+				)
+			elif self.purpose == 'Receipt':
+				# when asset is first received after purchase
+				if not (asset.from_employee or asset.source_location):
+					create_asset_activity(
+						asset,
+						getdate(),
+						'Movement',
+						_("Received at Location {0}").format(asset.target_location)
+					)
+				else:
+					create_asset_activity(
+						asset,
+						getdate(),
+						'Movement',
+						_("Received at Location {0} from Employee {1}").format(asset.target_location, asset.from_employee)
+					)
+			else:
+				create_asset_activity(
+					asset,
+					getdate(),
+					'Movement',
+					_("Transferred from {0} to {1}").format(asset.source_location, asset.target_location)
+				)
