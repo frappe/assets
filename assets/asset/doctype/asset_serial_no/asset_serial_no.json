@@ -8,14 +8,16 @@
  "engine": "InnoDB",
  "field_order": [
   "asset",
-  "location",
-  "custodian",
   "available_for_use_date",
   "column_break_2",
   "serial_no",
   "asset_value",
-  "department",
   "depreciation_schedule",
+  "tracking_details_section",
+  "location",
+  "custodian",
+  "column_break_10",
+  "department",
   "finance_books_section",
   "finance_books",
   "section_break_6",
@@ -117,12 +119,22 @@
    "fieldtype": "Link",
    "label": "Department",
    "options": "Department"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "tracking_details_section",
+   "fieldtype": "Section Break",
+   "label": "Tracking Details"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-16 08:26:54.058309",
+ "modified": "2021-12-16 08:31:00.456472",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Serial No",
