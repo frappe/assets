@@ -34,6 +34,9 @@ class Asset_(AccountsController):
 		self.validate_purchase_document()
 		self.validate_number_of_assets()
 
+		if self.is_serialized_asset:
+			self.validate_serial_number_naming_series()
+
 		if self.calculate_depreciation:
 			self.validate_available_for_use_date()
 
@@ -59,6 +62,12 @@ class Asset_(AccountsController):
 	def validate_number_of_assets(self):
 		if self.num_of_assets <= 0:
 			frappe.throw(_("Number of Assets needs to be greater than zero."))
+
+	def validate_serial_number_naming_series(self):
+		naming_series = self.get('serial_no_naming_series')
+
+		if "#" in naming_series and "." not in naming_series:
+			frappe.throw(_("Please add a ' . ' before the '#'s in the Serial Number Naming Series."), title=_("Invalid Naming Series"))
 
 	def validate_available_for_use_date(self):
 		if self.available_for_use_date and getdate(self.available_for_use_date) < getdate(self.purchase_date):
