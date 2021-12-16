@@ -32,6 +32,7 @@ class Asset_(AccountsController):
 
 	def validate_asset_values(self):
 		self.validate_purchase_document()
+		self.validate_number_of_assets()
 
 		if self.calculate_depreciation:
 			self.validate_available_for_use_date()
@@ -54,6 +55,10 @@ class Asset_(AccountsController):
 				and self.purchase_invoice
 				and not frappe.db.get_value('Purchase Invoice', self.purchase_invoice, 'update_stock')):
 				frappe.throw(_("Update stock must be enable for the purchase invoice {0}").format(self.purchase_invoice))
+
+	def validate_number_of_assets(self):
+		if self.num_of_assets <= 0:
+			frappe.throw(_("Number of Assets needs to be greater than zero."))
 
 	def validate_available_for_use_date(self):
 		if self.available_for_use_date and getdate(self.available_for_use_date) < getdate(self.purchase_date):
