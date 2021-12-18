@@ -42,8 +42,7 @@ class Asset_(AccountsController):
 
 		if self.is_serialized_asset:
 			self.validate_serial_number_naming_series()
-
-		if self.calculate_depreciation:
+		elif self.calculate_depreciation:
 			self.validate_available_for_use_date()
 
 	def validate_purchase_document(self):
