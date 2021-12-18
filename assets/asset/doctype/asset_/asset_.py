@@ -23,9 +23,6 @@ class Asset_(AccountsController):
 		self.status = self.get_status()
 
 	def on_submit(self):
-		if self.calculate_depreciation:
-			self.validate_depreciation_posting_start_date()
-
 		if self.is_serialized_asset:
 			from assets.asset.doctype.asset_serial_no.asset_serial_no import create_asset_serial_no_docs
 
@@ -33,6 +30,9 @@ class Asset_(AccountsController):
 		else:
 			self.record_asset_receipt()
 			self.record_asset_creation_and_purchase()
+
+			if self.calculate_depreciation:
+				self.validate_depreciation_posting_start_date()
 
 		self.set_status()
 
