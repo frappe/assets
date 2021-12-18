@@ -26,9 +26,15 @@ class Asset_(AccountsController):
 		if self.calculate_depreciation:
 			self.validate_depreciation_posting_start_date()
 
+		if self.is_serialized_asset:
+			from assets.asset.doctype.asset_serial_no.asset_serial_no import create_asset_serial_no_docs
+
+			create_asset_serial_no_docs(self)
+		else:
+			self.record_asset_receipt()
+			self.record_asset_creation_and_purchase()
+
 		self.set_status()
-		self.record_asset_receipt()
-		self.record_asset_creation_and_purchase()
 
 	def validate_asset_values(self):
 		self.validate_purchase_document()
@@ -106,10 +112,21 @@ class Asset_(AccountsController):
 			self.set_initial_asset_value()
 
 	def set_initial_asset_value(self):
+		self.asset_value = self.get_initial_asset_value()
+
+	def get_initial_asset_value(self):
 		if self.calculate_depreciation and self.is_existing_asset:
-			self.asset_value = self.gross_purchase_amount - self.opening_accumulated_depreciation
+			asset_value = self.gross_purchase_amount - self.opening_accumulated_depreciation
 		else:
-			self.asset_value = self.gross_purchase_amount
+			asset_value = self.gross_purchase_amount
+
+		return asset_value
+
+	def set_status(self, status=None):
+		if not status:
+			status = self.get_status()
+
+		self.db_set("status", status)
 
 	def get_status(self):
 		if self.docstatus == 0:
@@ -136,11 +153,14 @@ class Asset_(AccountsController):
 
 		return status
 
-	def set_status(self, status=None):
-		if not status:
-			status = self.get_status()
+	def get_default_finance_book_idx(self):
+		if not self.get('default_finance_book') and self.company:
+			self.default_finance_book = get_default_finance_book(self.company)
 
-		self.db_set("status", status)
+		if self.get('default_finance_book'):
+			for finance_book in self.get('finance_books'):
+				if finance_book.finance_book == self.default_finance_book:
+					return cint(finance_book.idx) - 1
 
 	def record_asset_receipt(self):
 		reference_doctype, reference_docname = self.get_purchase_details()
@@ -171,8 +191,8 @@ class Asset_(AccountsController):
 	def record_asset_creation_and_purchase(self):
 		purchase_doctype, purchase_docname = self.get_purchase_details()
 
-		create_asset_activity(self.name, self.purchase_date, 'Purchase', purchase_doctype, purchase_docname)
-		create_asset_activity(self.name, getdate(), 'Creation', self.doctype, self.name)
+		create_asset_activity(self.name, 'Purchase', purchase_doctype, purchase_docname, self.purchase_date)
+		create_asset_activity(self.name, 'Creation', self.doctype, self.name)
 
 	def get_purchase_details(self):
 		purchase_doctype = 'Purchase Receipt' if self.purchase_receipt else 'Purchase Invoice'
@@ -194,3 +214,18 @@ def get_finance_books(asset_category):
 
 def is_cwip_accounting_enabled(asset_category):
 	return cint(frappe.db.get_value("Asset Category", asset_category, "enable_cwip_accounting"))
+
+def get_default_finance_book(company=None):
+	from erpnext import get_default_company
+
+	if not company:
+		company = get_default_company()
+
+	if not hasattr(frappe.local, 'default_finance_book'):
+		frappe.local.default_finance_book = {}
+
+	if not company in frappe.local.default_finance_book:
+		frappe.local.default_finance_book[company] = frappe.get_cached_value('Company',
+			company,  "default_finance_book")
+
+	return frappe.local.default_finance_book[company]
