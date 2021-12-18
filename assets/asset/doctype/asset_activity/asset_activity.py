@@ -23,7 +23,10 @@ class AssetActivity(Document):
 		if is_serialized_asset and not self.asset_serial_no:
 			frappe.throw(_("Asset Serial No needs to be provided"))
 
-def create_asset_activity(asset, activity_date, activity_type, reference_doctype, reference_docname, asset_serial_no=None, notes=None):
+def create_asset_activity(asset, activity_type, reference_doctype, reference_docname, activity_date=None, asset_serial_no=None, notes=None):
+	if not activity_date:
+		activity_date = getdate()
+
 	asset_activity = frappe.get_doc({
 		'doctype': 'Asset Activity',
 		'asset': asset,

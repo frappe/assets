@@ -157,7 +157,6 @@ class AssetMovement_(Document):
 			if self.purpose == 'Issue':
 				create_asset_activity(
 					asset,
-					getdate(),
 					'Movement',
 					self.doctype,
 					self.name,
@@ -168,7 +167,7 @@ class AssetMovement_(Document):
 				if not (asset.from_employee or asset.source_location):
 					create_asset_activity(
 						asset,
-						getdate(),
+
 						'Movement',
 						self.doctype,
 						self.name,
@@ -177,7 +176,7 @@ class AssetMovement_(Document):
 				else:
 					create_asset_activity(
 						asset,
-						getdate(),
+
 						'Movement',
 						self.doctype,
 						self.name,
@@ -186,7 +185,6 @@ class AssetMovement_(Document):
 			else:
 				create_asset_activity(
 					asset,
-					getdate(),
 					'Movement',
 					self.doctype,
 					self.name,
