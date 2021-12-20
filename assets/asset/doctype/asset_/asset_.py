@@ -177,7 +177,7 @@ class Asset_(AccountsController):
 		}]
 
 		asset_movement = frappe.get_doc({
-			'doctype': 'Asset Movement',
+			'doctype': 'Asset Movement_',
 			'assets': assets,
 			'purpose': 'Receipt',
 			'company': self.company,
