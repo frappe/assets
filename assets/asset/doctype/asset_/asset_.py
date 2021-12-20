@@ -20,7 +20,8 @@ class Asset_(AccountsController):
 		self.validate_item()
 		self.set_missing_values()
 
-		self.status = self.get_status()
+		if not self.is_serialized_asset:
+			self.status = self.get_status()
 
 	def on_submit(self):
 		if self.is_serialized_asset:
@@ -28,13 +29,12 @@ class Asset_(AccountsController):
 
 			create_asset_serial_no_docs(self)
 		else:
-			self.record_asset_receipt()
-			self.record_asset_creation_and_purchase()
-
 			if self.calculate_depreciation:
 				self.validate_depreciation_posting_start_date()
 
-		self.set_status()
+			self.record_asset_receipt()
+			self.record_asset_creation_and_purchase()
+			self.set_status()
 
 	def validate_asset_values(self):
 		self.validate_purchase_document()
