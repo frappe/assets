@@ -33,7 +33,8 @@ class Asset_(AccountsController):
 				self.validate_depreciation_posting_start_date()
 
 			self.record_asset_receipt()
-			self.record_asset_creation_and_purchase()
+			self.record_asset_creation()
+			self.record_asset_purchase()
 			self.set_status()
 
 	def validate_asset_values(self):
@@ -193,7 +194,7 @@ class Asset_(AccountsController):
 		}).insert()
 		asset_movement.submit()
 
-	def record_asset_creation_and_purchase(self):
+	def record_asset_purchase(self):
 		purchase_doctype, purchase_docname = self.get_purchase_details()
 
 		create_asset_activity(
@@ -203,6 +204,8 @@ class Asset_(AccountsController):
 			reference_docname = purchase_docname,
 			activity_date = self.purchase_date
 		)
+
+	def record_asset_creation(self):
 		create_asset_activity(
 			asset = self.name,
 			activity_type = 'Creation',
