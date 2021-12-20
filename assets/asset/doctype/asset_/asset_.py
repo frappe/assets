@@ -196,8 +196,19 @@ class Asset_(AccountsController):
 	def record_asset_creation_and_purchase(self):
 		purchase_doctype, purchase_docname = self.get_purchase_details()
 
-		create_asset_activity(self.name, 'Purchase', purchase_doctype, purchase_docname, self.purchase_date)
-		create_asset_activity(self.name, 'Creation', self.doctype, self.name)
+		create_asset_activity(
+			asset = self.name,
+			activity_type = 'Purchase',
+			reference_doctype = purchase_doctype,
+			reference_docname = purchase_docname,
+			activity_date = self.purchase_date
+		)
+		create_asset_activity(
+			asset = self.name,
+			activity_type = 'Creation',
+			reference_doctype = self.doctype,
+			reference_docname = self.name
+		)
 
 	def get_purchase_details(self):
 		purchase_doctype = 'Purchase Receipt' if self.purchase_receipt else 'Purchase Invoice'

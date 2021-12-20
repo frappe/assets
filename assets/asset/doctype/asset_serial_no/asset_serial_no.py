@@ -14,7 +14,13 @@ class AssetSerialNo(Document):
 		self.record_serial_no_creation()
 
 	def record_serial_no_creation(self):
-		create_asset_activity(self.asset, "Creation", self.doctype, self.name, self.serial_no)
+		create_asset_activity(
+			asset = self.asset,
+			activity_type = "Creation",
+			reference_doctype = self.doctype,
+			reference_docname= self.name,
+			asset_serial_no = self.serial_no
+		)
 
 def create_asset_serial_no_docs(asset):
 	finance_books = []

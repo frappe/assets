@@ -156,37 +156,35 @@ class AssetMovement_(Document):
 		for asset in self.assets:
 			if self.purpose == 'Issue':
 				create_asset_activity(
-					asset,
-					'Movement',
-					self.doctype,
-					self.name,
-					_("Issued to Employee {0} from {1}").format(asset.to_employee, asset.source_location)
+					asset = asset,
+					activity_type = 'Movement',
+					reference_doctype = self.doctype,
+					reference_docname = self.name,
+					notes = _("Issued to Employee {0} from {1}").format(asset.to_employee, asset.source_location)
 				)
 			elif self.purpose == 'Receipt':
 				# when asset is first received after purchase
 				if not (asset.from_employee or asset.source_location):
 					create_asset_activity(
-						asset,
-
-						'Movement',
-						self.doctype,
-						self.name,
-						_("Received at Location {0}").format(asset.target_location)
+						asset = asset,
+						activity_type = 'Movement',
+						reference_doctype = self.doctype,
+						reference_docname = self.name,
+						notes = _("Received at Location {0}").format(asset.target_location)
 					)
 				else:
 					create_asset_activity(
-						asset,
-
-						'Movement',
-						self.doctype,
-						self.name,
-						_("Received at Location {0} from Employee {1}").format(asset.target_location, asset.from_employee)
+						asset = asset,
+						activity_type = 'Movement',
+						reference_doctype = self.doctype,
+						reference_docname = self.name,
+						notes = _("Received at Location {0} from Employee {1}").format(asset.target_location, asset.from_employee)
 					)
 			else:
 				create_asset_activity(
-					asset,
-					'Movement',
-					self.doctype,
-					self.name,
-					_("Transferred from {0} to {1}").format(asset.source_location, asset.target_location)
+					asset = asset,
+					activity_type = 'Movement',
+					reference_doctype = self.doctype,
+					reference_docname = self.name,
+					notes = _("Transferred from {0} to {1}").format(asset.source_location, asset.target_location)
 				)
