@@ -171,7 +171,7 @@ class AssetMovement_(Document):
 		for asset in self.assets:
 			if self.purpose == 'Issue':
 				create_asset_activity(
-					asset = asset,
+					asset = asset.asset,
 					activity_type = 'Movement',
 					reference_doctype = self.doctype,
 					reference_docname = self.name,
@@ -181,7 +181,7 @@ class AssetMovement_(Document):
 				# when asset is first received after purchase
 				if not (asset.from_employee or asset.source_location):
 					create_asset_activity(
-						asset = asset,
+						asset = asset.asset,
 						activity_type = 'Movement',
 						reference_doctype = self.doctype,
 						reference_docname = self.name,
@@ -189,7 +189,7 @@ class AssetMovement_(Document):
 					)
 				else:
 					create_asset_activity(
-						asset = asset,
+						asset = asset.asset,
 						activity_type = 'Movement',
 						reference_doctype = self.doctype,
 						reference_docname = self.name,
@@ -197,7 +197,7 @@ class AssetMovement_(Document):
 					)
 			else:
 				create_asset_activity(
-					asset = asset,
+					asset = asset.asset,
 					activity_type = 'Movement',
 					reference_doctype = self.doctype,
 					reference_docname = self.name,
