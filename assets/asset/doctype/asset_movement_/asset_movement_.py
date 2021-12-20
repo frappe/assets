@@ -165,7 +165,7 @@ class AssetMovement_(Document):
 		if latest_movement_entry:
 			return latest_movement_entry[0][0], latest_movement_entry[0][1]
 		else:
-			frappe.throw(_("Unable to update Employee and Location for Asset {0}").format(frappe.bold(asset)))
+			frappe.throw(_("Unable to update Employee and Location for Asset {0}").format(frappe.bold(args['asset'])))
 
 	def record_asset_movements(self):
 		for asset in self.assets:
