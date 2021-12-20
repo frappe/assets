@@ -118,20 +118,35 @@ class AssetMovement_(Document):
 
 	def update_asset_location_and_employee(self):
 		current_location, current_employee = '', ''
-		cond = "1=1"
+		assets_to_be_updated = self.get_assets_to_be_updated()
 
 		for d in self.assets:
-			args = {
-				'asset': d.asset,
-				'company': self.company
+			if d.asset in assets_to_be_updated:
+				args = {
+					'asset': d.asset,
+					'company': self.company
+				}
+
+				current_location, current_employee = self.get_current_location_and_employee(args)
+
+				frappe.db.set_value('Asset', d.asset, 'location', current_location)
+				frappe.db.set_value('Asset', d.asset, 'custodian', current_employee)
+
+	def get_assets_to_be_updated(self):
+		assets_being_moved = [d.asset for d in self.assets]
+
+		submitted_assets_being_moved = frappe.get_all(
+			"Asset_",
+			filters = {
+				"docstatus": 1,
+				"name": ["in", assets_being_moved]
 			}
+		)
+		return submitted_assets_being_moved
 
-			current_location, current_employee = self.get_current_location_and_employee(args, cond, d.asset)
+	def get_current_location_and_employee(self, args):
+		cond = "1=1"
 
-			frappe.db.set_value('Asset', d.asset, 'location', current_location)
-			frappe.db.set_value('Asset', d.asset, 'custodian', current_employee)
-
-	def get_current_location_and_employee(self, args, cond, asset):
 		# latest entry corresponds to current document's location, employee when transaction date > previous dates
 		# In case of cancellation it corresponds to previous latest document's location, employee
 		latest_movement_entry = frappe.db.sql(
