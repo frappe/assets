@@ -10,7 +10,7 @@ from assets.asset.doctype.asset_activity.asset_activity import create_asset_acti
 
 
 class AssetSerialNo(Document):
-	def validate(self):
+	def after_save(self):
 		self.record_serial_no_creation()
 
 	def record_serial_no_creation(self):
