@@ -48,7 +48,8 @@ class Asset_(AccountsController):
 	def validate_purchase_document(self):
 		if self.is_existing_asset:
 			if self.purchase_invoice:
-				frappe.throw(_("Purchase Invoice cannot be made against an existing asset {0}").format(self.name))
+				frappe.throw(_("Purchase Invoice cannot be made against an existing asset {0}")
+					.format(self.name))
 
 		else:
 			purchase_doc = 'Purchase Invoice' if self.purchase_invoice else 'Purchase Receipt'
@@ -56,13 +57,15 @@ class Asset_(AccountsController):
 			purchase_doc = frappe.get_doc(purchase_doc, purchase_docname)
 
 			if purchase_doc.get('company') != self.company:
-				frappe.throw(_("Company of asset {0} and purchase document {1} doesn't match.").format(self.name, purchase_doc.get('name')))
+				frappe.throw(_("Company of asset {0} and purchase document {1} doesn't match.")
+					.format(self.name, purchase_doc.get('name')))
 
 			if (is_cwip_accounting_enabled(self.asset_category)
 				and not self.purchase_receipt
 				and self.purchase_invoice
 				and not frappe.db.get_value('Purchase Invoice', self.purchase_invoice, 'update_stock')):
-				frappe.throw(_("Update stock must be enable for the purchase invoice {0}").format(self.purchase_invoice))
+				frappe.throw(_("Update stock must be enable for the purchase invoice {0}")
+					.format(self.purchase_invoice))
 
 	def validate_number_of_assets(self):
 		if self.num_of_assets <= 0:
@@ -72,7 +75,8 @@ class Asset_(AccountsController):
 		naming_series = self.get('serial_no_naming_series')
 
 		if "#" in naming_series and "." not in naming_series:
-			frappe.throw(_("Please add a ' . ' before the '#'s in the Serial Number Naming Series."), title=_("Invalid Naming Series"))
+			frappe.throw(_("Please add a ' . ' before the '#'s in the Serial Number Naming Series."),
+				title=_("Invalid Naming Series"))
 
 	def validate_available_for_use_date(self):
 		if self.available_for_use_date and getdate(self.available_for_use_date) < getdate(self.purchase_date):
@@ -81,8 +85,8 @@ class Asset_(AccountsController):
 	def validate_depreciation_posting_start_date(self):
 		for finance_book in self.finance_books:
 			if finance_book.depreciation_posting_start_date == self.available_for_use_date:
-				frappe.throw(_("Row #{}: Depreciation Posting Date should not be equal to Available for Use Date.").format(finance_book.idx),
-					title=_("Incorrect Date"))
+				frappe.throw(_("Row #{}: Depreciation Posting Date should not be equal to Available for Use Date.")
+					.format(finance_book.idx), title=_("Incorrect Date"))
 
 	def validate_item(self):
 		item = frappe.get_cached_value("Item",
@@ -166,7 +170,9 @@ class Asset_(AccountsController):
 		transaction_date = getdate(self.purchase_date)
 
 		if reference_docname:
-			posting_date, posting_time = frappe.db.get_value(reference_doctype, reference_docname, ["posting_date", "posting_time"])
+			posting_date, posting_time = frappe.db.get_value(
+				reference_doctype, reference_docname, ["posting_date", "posting_time"]
+			)
 			transaction_date = get_datetime("{} {}".format(posting_date, posting_time))
 
 		assets = [{
