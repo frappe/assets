@@ -32,9 +32,9 @@ class Asset_(AccountsController):
 			if self.calculate_depreciation:
 				self.validate_depreciation_posting_start_date()
 
-			self.record_asset_receipt()
-			self.record_asset_creation()
 			self.record_asset_purchase()
+			self.record_asset_creation()
+			self.record_asset_receipt()
 			self.set_status()
 
 	def validate_asset_values(self):
@@ -166,6 +166,25 @@ class Asset_(AccountsController):
 				if finance_book.finance_book == self.default_finance_book:
 					return cint(finance_book.idx) - 1
 
+	def record_asset_purchase(self):
+		purchase_doctype, purchase_docname = self.get_purchase_details()
+
+		create_asset_activity(
+			asset = self.name,
+			activity_type = 'Purchase',
+			reference_doctype = purchase_doctype,
+			reference_docname = purchase_docname,
+			activity_date = self.purchase_date
+		)
+
+	def record_asset_creation(self):
+		create_asset_activity(
+			asset = self.name,
+			activity_type = 'Creation',
+			reference_doctype = self.doctype,
+			reference_docname = self.name
+		)
+
 	def record_asset_receipt(self):
 		reference_doctype, reference_docname = self.get_purchase_details()
 		transaction_date = getdate(self.purchase_date)
@@ -193,25 +212,6 @@ class Asset_(AccountsController):
 			'reference_name': reference_docname
 		}).insert()
 		asset_movement.submit()
-
-	def record_asset_purchase(self):
-		purchase_doctype, purchase_docname = self.get_purchase_details()
-
-		create_asset_activity(
-			asset = self.name,
-			activity_type = 'Purchase',
-			reference_doctype = purchase_doctype,
-			reference_docname = purchase_docname,
-			activity_date = self.purchase_date
-		)
-
-	def record_asset_creation(self):
-		create_asset_activity(
-			asset = self.name,
-			activity_type = 'Creation',
-			reference_doctype = self.doctype,
-			reference_docname = self.name
-		)
 
 	def get_purchase_details(self):
 		purchase_doctype = 'Purchase Receipt' if self.purchase_receipt else 'Purchase Invoice'
