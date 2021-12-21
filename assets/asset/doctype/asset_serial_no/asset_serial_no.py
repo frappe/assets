@@ -17,6 +17,7 @@ class AssetSerialNo(Document):
 
 		asset.record_asset_purchase(self.serial_no)
 		asset.record_asset_creation(self)
+		asset.record_asset_receipt(self.serial_no)
 
 def create_asset_serial_no_docs(asset):
 	finance_books = []

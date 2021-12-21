@@ -186,7 +186,7 @@ class Asset_(AccountsController):
 			reference_docname = self.name if not asset_serial_no else asset_serial_no.name
 		)
 
-	def record_asset_receipt(self):
+	def record_asset_receipt(self, serial_no=None):
 		reference_doctype, reference_docname = self.get_purchase_details()
 		transaction_date = getdate(self.purchase_date)
 
@@ -206,6 +206,7 @@ class Asset_(AccountsController):
 		asset_movement = frappe.get_doc({
 			'doctype': 'Asset Movement_',
 			'assets': assets,
+			'serial_no': serial_no,
 			'purpose': 'Receipt',
 			'company': self.company,
 			'transaction_date': transaction_date,
