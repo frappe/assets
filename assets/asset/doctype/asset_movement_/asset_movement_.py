@@ -115,11 +115,19 @@ class AssetMovement_(Document):
 				self.validate_to_employee(row)
 
 	def validate_from_employee(self, row):
-		current_custodian = frappe.db.get_value("Asset_", row.asset, "custodian")
+		current_custodian = self.get_current_custodian(row)
 
 		if current_custodian != row.from_employee:
 			frappe.throw(_("Asset {0} currently belongs to {1}, not {2}.").
 				format(row.asset, current_custodian, row.from_employee))
+
+	def get_current_custodian(self, row):
+		current_custodian, is_serialized_asset = frappe.db.get_value("Asset_", row.asset, ["custodian", "is_serialized_asset"])
+
+		if is_serialized_asset:
+			current_custodian = frappe.db.get_value("Asset Serial No", row.serial_no, "custodian")
+
+		return current_custodian
 
 	def validate_to_employee(self, row):
 		if frappe.db.get_value("Employee", row.to_employee, "company") != self.company:
