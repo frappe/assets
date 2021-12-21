@@ -6,21 +6,17 @@ from frappe.model.document import Document
 from frappe.model.naming import make_autoname
 
 from assets.asset.doctype.asset_.asset_ import get_finance_books
-from assets.asset.doctype.asset_activity.asset_activity import create_asset_activity
 
 
 class AssetSerialNo(Document):
 	def after_save(self):
-		self.record_serial_no_creation()
+		self.record_asset_purchase_creation_and_receipt()
 
-	def record_serial_no_creation(self):
-		create_asset_activity(
-			asset = self.asset,
-			activity_type = "Creation",
-			reference_doctype = self.doctype,
-			reference_docname= self.name,
-			asset_serial_no = self.serial_no
-		)
+	def record_asset_purchase_creation_and_receipt(self):
+		asset = frappe.get_doc("Asset_", self.asset)
+
+		asset.record_asset_purchase(self.serial_no)
+		asset.record_asset_creation(self)
 
 def create_asset_serial_no_docs(asset):
 	finance_books = []

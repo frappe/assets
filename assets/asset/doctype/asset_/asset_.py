@@ -166,23 +166,24 @@ class Asset_(AccountsController):
 				if finance_book.finance_book == self.default_finance_book:
 					return cint(finance_book.idx) - 1
 
-	def record_asset_purchase(self):
+	def record_asset_purchase(self, serial_no=None):
 		purchase_doctype, purchase_docname = self.get_purchase_details()
 
 		create_asset_activity(
 			asset = self.name,
+			asset_serial_no = serial_no,
 			activity_type = 'Purchase',
 			reference_doctype = purchase_doctype,
 			reference_docname = purchase_docname,
 			activity_date = self.purchase_date
 		)
 
-	def record_asset_creation(self):
+	def record_asset_creation(self, asset_serial_no=None):
 		create_asset_activity(
 			asset = self.name,
 			activity_type = 'Creation',
-			reference_doctype = self.doctype,
-			reference_docname = self.name
+			reference_doctype = self.doctype if not asset_serial_no else asset_serial_no.doctype,
+			reference_docname = self.name if not asset_serial_no else asset_serial_no.name
 		)
 
 	def record_asset_receipt(self):
