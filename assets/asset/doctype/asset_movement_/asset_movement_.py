@@ -3,7 +3,6 @@
 
 import frappe
 from frappe import _
-from frappe.utils import getdate
 from frappe.model.document import Document
 from assets.asset.doctype.asset_activity.asset_activity import create_asset_activity
 
