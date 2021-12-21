@@ -142,13 +142,18 @@ class AssetMovement_(Document):
 			if d.asset in assets_to_be_updated:
 				args = {
 					'asset': d.asset,
-					'company': self.company
+					'company': self.company,
+					'serial_no': d.serial_no
 				}
 
 				current_location, current_employee = self.get_current_location_and_employee(args)
 
-				frappe.db.set_value('Asset', d.asset, 'location', current_location)
-				frappe.db.set_value('Asset', d.asset, 'custodian', current_employee)
+				if d.serial_no:
+					frappe.db.set_value('Asset Serial No', d.serial_no, 'location', current_location)
+					frappe.db.set_value('Asset Serial No', d.serial_no, 'custodian', current_employee)
+				else:
+					frappe.db.set_value('Asset_', d.asset, 'location', current_location)
+					frappe.db.set_value('Asset_', d.asset, 'custodian', current_employee)
 
 	def get_assets_to_be_updated(self):
 		assets_being_moved = [d.asset for d in self.assets]
@@ -158,7 +163,8 @@ class AssetMovement_(Document):
 			filters = {
 				"docstatus": 1,
 				"name": ["in", assets_being_moved]
-			}
+			},
+			pluck = "name"
 		)
 		return submitted_assets_being_moved
 
@@ -170,10 +176,11 @@ class AssetMovement_(Document):
 		latest_movement_entry = frappe.db.sql(
 			"""
 			SELECT asm_item.target_location, asm_item.to_employee
-			FROM `tabAsset Movement Item` asm_item, `tabAsset Movement` asm
+			FROM `tabAsset Movement Item_` asm_item, `tabAsset Movement_` asm
 			WHERE
 				asm_item.parent=asm.name and
 				asm_item.asset=%(asset)s and
+				asm_item.serial_no=%(serial_no)s and
 				asm.company=%(company)s and
 				asm.docstatus=1 and {0}
 			ORDER BY
