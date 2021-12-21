@@ -9,7 +9,7 @@ from assets.asset.doctype.asset_.asset_ import get_finance_books
 
 
 class AssetSerialNo(Document):
-	def after_save(self):
+	def on_submit(self):
 		self.record_asset_purchase_creation_and_receipt()
 
 	def record_asset_purchase_creation_and_receipt(self):
