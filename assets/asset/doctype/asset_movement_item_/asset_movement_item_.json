@@ -8,6 +8,7 @@
  "field_order": [
   "company",
   "asset",
+  "serial_no",
   "source_location",
   "from_employee",
   "column_break_2",
@@ -72,12 +73,18 @@
    "label": "Company",
    "options": "Company",
    "read_only": 1
+  },
+  {
+   "fieldname": "serial_no",
+   "fieldtype": "Link",
+   "label": "Serial No",
+   "options": "Asset Serial No"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-12-15 08:03:00.445797",
+ "modified": "2021-12-21 16:00:11.531000",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Movement Item_",
