@@ -21,7 +21,7 @@ class AssetMovement_(Document):
 
 	def validate_asset(self):
 		for asset in self.assets:
-			status, company = frappe.db.get_value("Asset_", asset.asset, ["status", "company"])
+			status, company, is_serialized_asset = frappe.db.get_value("Asset_", asset.asset, ["status", "company", "is_serialized_asset"])
 
 			if self.purpose == 'Transfer' and status in ("Draft", "Scrapped", "Sold"):
 				frappe.throw(_("Row {0}: {1} asset cannot be transferred.").format(asset.idx, status))
@@ -31,6 +31,9 @@ class AssetMovement_(Document):
 
 			if not (asset.source_location or asset.target_location or asset.from_employee or asset.to_employee):
 				frappe.throw(_("Either location or employee must be entered."))
+
+			if is_serialized_asset and not asset.serial_no:
+				frappe.throw(_("Row {0}: Enter Serial No for Asset {1}").format(asset.idx, asset.asset))
 
 	def validate_movement(self):
 		for asset in self.assets:
