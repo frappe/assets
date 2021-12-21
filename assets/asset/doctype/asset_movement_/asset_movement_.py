@@ -49,7 +49,7 @@ class AssetMovement_(Document):
 				self.validate_asset_receipt(asset)
 
 	def validate_source_location(self, asset):
-		current_location = frappe.db.get_value("Asset_", asset.asset, "location")
+		current_location = self.get_current_location(asset)
 
 		if not asset.source_location:
 			if not current_location:
@@ -60,6 +60,14 @@ class AssetMovement_(Document):
 			if current_location != asset.source_location:
 				frappe.throw(_("Asset {0} is currently located at {1}, not {2}.").
 					format(asset.asset, current_location, asset.source_location))
+
+	def get_current_location(self, asset):
+		current_location, is_serialized_asset = frappe.db.get_value("Asset_", asset.asset, ["location", "is_serialized_asset"])
+
+		if is_serialized_asset:
+			current_location = frappe.db.get_value("Asset Serial No", asset.serial_no, "location")
+
+		return current_location
 
 	def validate_asset_issue(self, asset):
 		if asset.target_location:
