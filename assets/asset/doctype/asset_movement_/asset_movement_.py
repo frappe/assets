@@ -23,7 +23,7 @@ class AssetMovement_(Document):
 		for asset in self.assets:
 			status, company, is_serialized_asset = frappe.db.get_value("Asset_", asset.asset, ["status", "company", "is_serialized_asset"])
 
-			if self.purpose == 'Transfer' and status in ("Draft", "Scrapped", "Sold"):
+			if self.purpose == "Transfer" and status in ("Draft", "Scrapped", "Sold"):
 				frappe.throw(_("Row {0}: {1} asset cannot be transferred.").format(asset.idx, status))
 
 			if company != self.company:
@@ -37,12 +37,12 @@ class AssetMovement_(Document):
 
 	def validate_movement(self):
 		for asset in self.assets:
-			if self.purpose in ['Transfer', 'Issue']:
+			if self.purpose in ["Transfer", "Issue"]:
 				self.validate_source_location(asset)
 
-				if self.purpose == 'Issue':
+				if self.purpose == "Issue":
 					self.validate_asset_issue(asset)
-				if self.purpose == 'Transfer':
+				if self.purpose == "Transfer":
 					self.validate_asset_transfer(asset)
 
 			else:
@@ -135,25 +135,25 @@ class AssetMovement_(Document):
 				format(row.to_employee, self.company))
 
 	def update_asset_location_and_employee(self):
-		current_location, current_employee = '', ''
+		current_location, current_employee = "", ""
 		assets_to_be_updated = self.get_assets_to_be_updated()
 
 		for d in self.assets:
 			if d.asset in assets_to_be_updated:
 				args = {
-					'asset': d.asset,
-					'company': self.company,
-					'serial_no': d.serial_no
+					"asset": d.asset,
+					"company": self.company,
+					"serial_no": d.serial_no
 				}
 
 				current_location, current_employee = self.get_current_location_and_employee(args)
 
 				if d.serial_no:
-					frappe.db.set_value('Asset Serial No', d.serial_no, 'location', current_location)
-					frappe.db.set_value('Asset Serial No', d.serial_no, 'custodian', current_employee)
+					frappe.db.set_value("Asset Serial No", d.serial_no, "location", current_location)
+					frappe.db.set_value("Asset Serial No", d.serial_no, "custodian", current_employee)
 				else:
-					frappe.db.set_value('Asset_', d.asset, 'location', current_location)
-					frappe.db.set_value('Asset_', d.asset, 'custodian', current_employee)
+					frappe.db.set_value("Asset_", d.asset, "location", current_location)
+					frappe.db.set_value("Asset_", d.asset, "custodian", current_employee)
 
 	def get_assets_to_be_updated(self):
 		assets_being_moved = [d.asset for d in self.assets]
@@ -190,26 +190,26 @@ class AssetMovement_(Document):
 		if latest_movement_entry:
 			return latest_movement_entry[0][0], latest_movement_entry[0][1]
 		else:
-			frappe.throw(_("Unable to update Employee and Location for Asset {0}").format(frappe.bold(args['asset'])))
+			frappe.throw(_("Unable to update Employee and Location for Asset {0}").format(frappe.bold(args["asset"])))
 
 	def record_asset_movements(self):
 		for asset in self.assets:
-			if self.purpose == 'Issue':
+			if self.purpose == "Issue":
 				create_asset_activity(
 					asset = asset.asset,
 					serial_no = asset.serial_no,
-					activity_type = 'Movement',
+					activity_type = "Movement",
 					reference_doctype = self.doctype,
 					reference_docname = self.name,
 					notes = _("Issued to Employee {0} from {1}").format(asset.to_employee, asset.source_location)
 				)
-			elif self.purpose == 'Receipt':
+			elif self.purpose == "Receipt":
 				# when asset is first received after purchase
 				if not (asset.from_employee or asset.source_location):
 					create_asset_activity(
 						asset = asset.asset,
 						serial_no = asset.serial_no,
-						activity_type = 'Movement',
+						activity_type = "Movement",
 						reference_doctype = self.doctype,
 						reference_docname = self.name,
 						notes = _("Received at Location {0}").format(asset.target_location)
@@ -218,7 +218,7 @@ class AssetMovement_(Document):
 					create_asset_activity(
 						asset = asset.asset,
 						serial_no = asset.serial_no,
-						activity_type = 'Movement',
+						activity_type = "Movement",
 						reference_doctype = self.doctype,
 						reference_docname = self.name,
 						notes = _("Received at Location {0} from Employee {1}").format(asset.target_location, asset.from_employee)
@@ -227,7 +227,7 @@ class AssetMovement_(Document):
 				create_asset_activity(
 					asset = asset.asset,
 					serial_no = asset.serial_no,
-					activity_type = 'Movement',
+					activity_type = "Movement",
 					reference_doctype = self.doctype,
 					reference_docname = self.name,
 					notes = _("Transferred from {0} to {1}").format(asset.source_location, asset.target_location)
