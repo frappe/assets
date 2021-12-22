@@ -24,6 +24,8 @@ class AssetRepair_(Document):
 
 		if self.get('stock_consumption') or self.get('capitalize_repair_cost'):
 			self.increase_asset_value()
+		if self.get('stock_consumption'):
+			self.decrease_stock_quantity()
 
 	def get_asset_doc(self):
 		if self.get('serial_no'):
@@ -74,3 +76,24 @@ class AssetRepair_(Document):
 
 				if self.capitalize_repair_cost:
 					row.value_after_depreciation += self.repair_cost
+
+	def decrease_stock_quantity(self):
+		stock_entry = frappe.get_doc({
+			"doctype": "Stock Entry",
+			"stock_entry_type": "Material Issue",
+			"company": self.company
+		})
+
+		for item in self.get('items'):
+			stock_entry.append('items', {
+				"s_warehouse": self.warehouse,
+				"item_code": item.item_code,
+				"qty": item.qty,
+				"basic_rate": item.rate,
+				"serial_no": item.serial_no
+			})
+
+		stock_entry.insert()
+		stock_entry.submit()
+
+		self.db_set('stock_entry', stock_entry.name)
