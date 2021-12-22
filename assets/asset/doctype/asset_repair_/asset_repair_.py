@@ -6,6 +6,8 @@ from frappe import _
 from frappe.utils import flt
 from frappe.model.document import Document
 
+from assets.asset.doctype.asset_.asset_ import set_status
+
 class AssetRepair_(Document):
 	def validate(self):
 		self.get_asset_doc()
@@ -37,9 +39,9 @@ class AssetRepair_(Document):
 
 	def update_status(self):
 		if self.repair_status == 'Pending':
-			frappe.db.set_value('Asset_', self.asset, 'status', 'Out of Order')
+			frappe.db.set_value(self.asset_doc.doctype, self.asset_doc.name, 'status', 'Out of Order')
 		else:
-			self.asset_doc.set_status()
+			set_status(self.asset_doc)
 
 	def set_total_value(self):
 		for item in self.get('items'):
