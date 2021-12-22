@@ -216,6 +216,7 @@
    "fieldname": "warehouse",
    "fieldtype": "Link",
    "label": "Warehouse",
+   "mandatory_depends_on": "stock_consumption",
    "options": "Warehouse"
   },
   {
@@ -264,7 +265,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-22 10:33:02.786722",
+ "modified": "2021-12-22 10:54:46.142445",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Repair_",
