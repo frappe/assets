@@ -9,6 +9,7 @@ from frappe.model.document import Document
 class AssetRepair_(Document):
 	def validate(self):
 		self.get_asset_doc()
+		self.validate_asset()
 		self.update_status()
 
 		if self.get('stock_consumption'):
@@ -27,6 +28,12 @@ class AssetRepair_(Document):
 			self.asset_doc = frappe.get_doc('Asset Serial No', self.serial_no)
 		else:
 			self.asset_doc = frappe.get_doc('Asset_', self.asset)
+
+	def validate_asset(self):
+		if self.asset_doc.doctype == 'Asset_':
+			if self.asset_doc.is_serialized_asset:
+				frappe.throw(_("Please enter Serial No as {0} is a Serialized Asset")
+					.format(frappe.bold(self.asset)), title=_("Missing Serial No"))
 
 	def update_status(self):
 		if self.repair_status == 'Pending':
