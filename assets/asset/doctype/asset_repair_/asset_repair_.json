@@ -9,9 +9,10 @@
  "field_order": [
   "asset",
   "company",
+  "naming_series",
   "column_break_2",
   "asset_name",
-  "naming_series",
+  "serial_no",
   "section_break_5",
   "failure_date",
   "repair_status",
@@ -260,12 +261,18 @@
    "label": "Consumed Items",
    "mandatory_depends_on": "stock_consumption",
    "options": "Asset Repair Consumed Item_"
+  },
+  {
+   "fieldname": "serial_no",
+   "fieldtype": "Link",
+   "label": "Serial No",
+   "options": "Asset Serial No"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-22 10:54:46.142445",
+ "modified": "2021-12-22 10:59:56.421588",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Repair_",
