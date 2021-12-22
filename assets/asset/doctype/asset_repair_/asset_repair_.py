@@ -19,6 +19,9 @@ class AssetRepair_(Document):
 	def before_submit(self):
 		self.check_repair_status()
 
+		if self.get('stock_consumption') or self.get('capitalize_repair_cost'):
+			self.increase_asset_value()
+
 	def update_status(self):
 		if self.repair_status == 'Pending':
 			frappe.db.set_value('Asset_', self.asset, 'status', 'Out of Order')
@@ -46,3 +49,13 @@ class AssetRepair_(Document):
 	def check_repair_status(self):
 		if self.repair_status == "Pending":
 			frappe.throw(_("Please update Repair Status."))
+
+	def increase_asset_value(self):
+		total_value_of_stock_consumed = self.get_total_value_of_stock_consumed()
+
+		if self.asset_doc.calculate_depreciation:
+			for row in self.asset_doc.finance_books:
+				row.value_after_depreciation += total_value_of_stock_consumed
+
+				if self.capitalize_repair_cost:
+					row.value_after_depreciation += self.repair_cost
