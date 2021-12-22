@@ -76,8 +76,8 @@ class Asset_(AccountsController):
 			purchase_doctype, purchase_docname = self.get_purchase_details()
 			num_of_items_in_purchase_doc = self.get_num_of_items_in_purchase_doc(purchase_doctype, purchase_docname)
 
-			if num_of_items_in_purchase_doc != self.num_of_assets:
-				frappe.throw(_("Number of Assets needs to be equal to the qty of {0} purchased in {1}, \
+			if self.num_of_assets > num_of_items_in_purchase_doc:
+				frappe.throw(_("Number of Assets needs to be less than the qty of {0} purchased in {1}, \
 					which is {2}.").format(frappe.bold(self.item_code), frappe.bold(purchase_docname),
 					frappe.bold(num_of_items_in_purchase_doc)))
 
