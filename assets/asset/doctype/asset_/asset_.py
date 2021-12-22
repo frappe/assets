@@ -72,6 +72,28 @@ class Asset_(AccountsController):
 		if self.num_of_assets <= 0:
 			frappe.throw(_("Number of Assets needs to be greater than zero."))
 
+		if not self.is_existing_asset:
+			purchase_doctype, purchase_docname = self.get_purchase_details()
+			num_of_items_in_purchase_doc = self.get_num_of_items_in_purchase_doc(purchase_doctype, purchase_docname)
+
+			if num_of_items_in_purchase_doc != self.num_of_assets:
+				frappe.throw(_("Number of Assets needs to be equal to the qty of {0} purchased in {1}, \
+					which is {2}.").format(frappe.bold(self.item_code), frappe.bold(purchase_docname),
+					frappe.bold(num_of_items_in_purchase_doc)))
+
+	def get_num_of_items_in_purchase_doc(self, purchase_doctype, purchase_docname):
+		items_doctype = purchase_doctype + "Item"
+
+		num_of_items_in_purchase_doc = frappe.db.get_value(
+			items_doctype,
+			filters = {
+				"parent": purchase_docname,
+				"item_code": self.item_code
+			},
+			pluck = "qty"
+		)
+		return num_of_items_in_purchase_doc
+
 	def validate_serial_number_naming_series(self):
 		naming_series = self.get('serial_no_naming_series')
 
