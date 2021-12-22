@@ -10,8 +10,9 @@ class AssetRepair_(Document):
 		self.asset_doc = frappe.get_doc('Asset_', self.asset)
 		self.update_status()
 
-		if self.get('items'):
+		if self.get('stock_consumption'):
 			self.set_total_value()
+
 		self.calculate_total_repair_cost()
 
 	def update_status(self):
