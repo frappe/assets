@@ -21,7 +21,7 @@ class Asset_(AccountsController):
 		self.set_missing_values()
 
 		if not self.is_serialized_asset:
-			self.status = self.get_status()
+			self.status = get_status(self)
 
 	def on_submit(self):
 		if self.is_serialized_asset:
@@ -35,7 +35,7 @@ class Asset_(AccountsController):
 			self.record_asset_purchase()
 			self.record_asset_creation()
 			self.record_asset_receipt()
-			self.set_status()
+			set_status(self)
 
 	def validate_asset_values(self):
 		self.validate_purchase_document()
@@ -126,37 +126,6 @@ class Asset_(AccountsController):
 
 		return asset_value
 
-	def set_status(self, status=None):
-		if not status:
-			status = self.get_status()
-
-		self.db_set("status", status)
-
-	def get_status(self):
-		if self.docstatus == 0:
-			status = "Draft"
-
-		elif self.docstatus == 1:
-			status = "Submitted"
-
-			if self.journal_entry_for_scrap:
-				status = "Scrapped"
-			elif self.finance_books:
-				idx = self.get_default_finance_book_idx() or 0
-
-				expected_value_after_useful_life = self.finance_books[idx].expected_value_after_useful_life
-				value_after_depreciation = self.finance_books[idx].value_after_depreciation
-
-				if flt(value_after_depreciation) <= expected_value_after_useful_life:
-					status = "Fully Depreciated"
-				elif flt(value_after_depreciation) < flt(self.gross_purchase_amount):
-					status = 'Partially Depreciated'
-
-		elif self.docstatus == 2:
-			status = "Cancelled"
-
-		return status
-
 	def get_default_finance_book_idx(self):
 		if not self.get('default_finance_book') and self.company:
 			self.default_finance_book = get_default_finance_book(self.company)
@@ -235,6 +204,37 @@ def get_finance_books(asset_category):
 
 def is_cwip_accounting_enabled(asset_category):
 	return cint(frappe.db.get_value("Asset Category", asset_category, "enable_cwip_accounting"))
+
+def set_status(asset, status=None):
+	if not status:
+		status = get_status(asset)
+
+	asset.db_set("status", status)
+
+def get_status(asset):
+	if asset.docstatus == 0:
+		status = "Draft"
+
+	elif asset.docstatus == 1:
+		status = "Submitted"
+
+		if asset.journal_entry_for_scrap:
+			status = "Scrapped"
+		elif asset.finance_books:
+			idx = asset.get_default_finance_book_idx() or 0
+
+			expected_value_after_useful_life = asset.finance_books[idx].expected_value_after_useful_life
+			value_after_depreciation = asset.finance_books[idx].value_after_depreciation
+
+			if flt(value_after_depreciation) <= expected_value_after_useful_life:
+				status = "Fully Depreciated"
+			elif flt(value_after_depreciation) < flt(asset.gross_purchase_amount):
+				status = 'Partially Depreciated'
+
+	elif asset.docstatus == 2:
+		status = "Cancelled"
+
+	return status
 
 def get_default_finance_book(company=None):
 	from erpnext import get_default_company

@@ -5,12 +5,16 @@ import frappe
 from frappe.model.document import Document
 from frappe.model.naming import make_autoname
 
-from assets.asset.doctype.asset_.asset_ import get_finance_books
+from assets.asset.doctype.asset_.asset_ import get_finance_books, get_status, set_status
 
 
 class AssetSerialNo(Document):
+	def validate(self):
+		self.status = get_status(self)
+
 	def on_submit(self):
 		self.record_asset_purchase_creation_and_receipt()
+		set_status(self)
 
 	def record_asset_purchase_creation_and_receipt(self):
 		asset = frappe.get_doc("Asset_", self.asset)
