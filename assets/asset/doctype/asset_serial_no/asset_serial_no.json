@@ -23,6 +23,7 @@
   "section_break_6",
   "disposal_date",
   "journal_entry_for_scrap",
+  "status",
   "amended_from"
  ],
  "fields": [
@@ -130,12 +131,24 @@
   {
    "fieldname": "column_break_10",
    "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "no_copy": 1,
+   "options": "Draft\nSubmitted\nPartially Depreciated\nFully Depreciated\nSold\nScrapped\nIn Maintenance\nOut of Order\nIssue\nReceipt",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-16 08:33:27.667482",
+ "modified": "2021-12-22 11:21:39.242965",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Serial No",
