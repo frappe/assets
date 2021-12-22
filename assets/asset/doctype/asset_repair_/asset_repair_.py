@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe import _
 from frappe.utils import flt
 from frappe.model.document import Document
 
@@ -14,6 +15,9 @@ class AssetRepair_(Document):
 			self.set_total_value()
 
 		self.calculate_total_repair_cost()
+
+	def before_submit(self):
+		self.check_repair_status()
 
 	def update_status(self):
 		if self.repair_status == 'Pending':
@@ -38,3 +42,7 @@ class AssetRepair_(Document):
 				total_value_of_stock_consumed += item.amount
 
 		return total_value_of_stock_consumed
+
+	def check_repair_status(self):
+		if self.repair_status == "Pending":
+			frappe.throw(_("Please update Repair Status."))
