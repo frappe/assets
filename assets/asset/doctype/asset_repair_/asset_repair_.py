@@ -8,7 +8,7 @@ from frappe.model.document import Document
 
 class AssetRepair_(Document):
 	def validate(self):
-		self.asset_doc = frappe.get_doc('Asset_', self.asset)
+		self.get_asset_doc()
 		self.update_status()
 
 		if self.get('stock_consumption'):
@@ -21,6 +21,12 @@ class AssetRepair_(Document):
 
 		if self.get('stock_consumption') or self.get('capitalize_repair_cost'):
 			self.increase_asset_value()
+
+	def get_asset_doc(self):
+		if self.get('serial_no'):
+			self.asset_doc = frappe.get_doc('Asset Serial No', self.serial_no)
+		else:
+			self.asset_doc = frappe.get_doc('Asset_', self.asset)
 
 	def update_status(self):
 		if self.repair_status == 'Pending':
