@@ -78,20 +78,9 @@ class Asset_(AccountsController):
 			num_of_items_in_purchase_doc = self.get_num_of_items_in_purchase_doc(purchase_doctype, purchase_docname)
 			num_of_assets_already_created = self.get_num_of_assets_already_created(purchase_doctype, purchase_docname)
 
-			if self.num_of_assets > num_of_items_in_purchase_doc:
-				frappe.throw(_("Number of Assets needs to be less than the qty of {0} purchased in {1}, \
-					which is {2}.").format(frappe.bold(self.item_code), frappe.bold(purchase_docname),
-					frappe.bold(num_of_items_in_purchase_doc)))
-
-			if (num_of_assets_already_created + self.num_of_assets) > num_of_items_in_purchase_doc:
-				max_num_of_assets = num_of_items_in_purchase_doc - num_of_assets_already_created
-
-				frappe.throw(_("The Number of Assets to be created needs to be decreased. \
-					A maximum of {0} Assets can be created now, as only {1} were purchased in {2}, \
-					of which {3} have already been created.")
-					.format(frappe.bold(max_num_of_assets), frappe.bold(num_of_items_in_purchase_doc),
-					frappe.bold(purchase_docname), frappe.bold(num_of_assets_already_created)),
-					title=_("Number of Assets Exceeded Limit"))
+			self.validate_num_of_assets_purchased(num_of_items_in_purchase_doc, purchase_docname)
+			self.validate_total_num_of_assets(num_of_assets_already_created,
+				num_of_items_in_purchase_doc, purchase_docname)
 
 	def get_num_of_items_in_purchase_doc(self, purchase_doctype, purchase_docname):
 		items_doctype = purchase_doctype + "Item"
@@ -118,6 +107,23 @@ class Asset_(AccountsController):
 		num_of_assets_already_created = sum(num_of_assets_already_created)
 
 		return num_of_assets_already_created
+
+	def validate_num_of_assets_purchased(self, num_of_items_in_purchase_doc, purchase_docname):
+		if self.num_of_assets > num_of_items_in_purchase_doc:
+			frappe.throw(_("Number of Assets needs to be less than the qty of {0} purchased in {1}, \
+				which is {2}.").format(frappe.bold(self.item_code), frappe.bold(purchase_docname),
+				frappe.bold(num_of_items_in_purchase_doc)))
+
+	def validate_total_num_of_assets(self, num_of_assets_already_created, num_of_items_in_purchase_doc, purchase_docname):
+		if (num_of_assets_already_created + self.num_of_assets) > num_of_items_in_purchase_doc:
+			max_num_of_assets = num_of_items_in_purchase_doc - num_of_assets_already_created
+
+			frappe.throw(_("The Number of Assets to be created needs to be decreased. \
+				A maximum of {0} Assets can be created now, as only {1} were purchased in {2}, \
+				of which {3} have already been created.")
+				.format(frappe.bold(max_num_of_assets), frappe.bold(num_of_items_in_purchase_doc),
+				frappe.bold(purchase_docname), frappe.bold(num_of_assets_already_created)),
+				title=_("Number of Assets Exceeded Limit"))
 
 	def validate_serial_number_naming_series(self):
 		naming_series = self.get('serial_no_naming_series')
