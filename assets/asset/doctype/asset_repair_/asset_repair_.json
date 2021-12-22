@@ -29,7 +29,7 @@
   "purchase_invoice",
   "stock_consumption_details_section",
   "warehouse",
-  "stock_items",
+  "items",
   "total_repair_cost",
   "stock_entry",
   "asset_depreciation_details_section",
@@ -165,13 +165,6 @@
    "label": "Accounting Details"
   },
   {
-   "fieldname": "stock_items",
-   "fieldtype": "Table",
-   "label": "Stock Items",
-   "mandatory_depends_on": "stock_consumption",
-   "options": "Asset Repair Consumed Item_"
-  },
-  {
    "fieldname": "section_break_23",
    "fieldtype": "Section Break"
   },
@@ -259,12 +252,19 @@
    "label": "Stock Entry",
    "options": "Stock Entry",
    "read_only": 1
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Consumed Items",
+   "mandatory_depends_on": "stock_consumption",
+   "options": "Asset Repair Consumed Item_"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-22 10:17:30.905906",
+ "modified": "2021-12-22 10:33:02.786722",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Repair_",
