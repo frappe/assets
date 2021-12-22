@@ -12,6 +12,7 @@ class AssetRepair_(Document):
 
 		if self.get('items'):
 			self.set_total_value()
+		self.calculate_total_repair_cost()
 
 	def update_status(self):
 		if self.repair_status == 'Pending':
@@ -22,3 +23,17 @@ class AssetRepair_(Document):
 	def set_total_value(self):
 		for item in self.get('items'):
 			item.amount = flt(item.rate) * flt(item.qty)
+
+	def calculate_total_repair_cost(self):
+		self.total_repair_cost = flt(self.repair_cost)
+
+		total_value_of_stock_consumed = self.get_total_value_of_stock_consumed()
+		self.total_repair_cost += total_value_of_stock_consumed
+
+	def get_total_value_of_stock_consumed(self):
+		total_value_of_stock_consumed = 0
+		if self.get('stock_consumption'):
+			for item in self.get('items'):
+				total_value_of_stock_consumed += item.amount
+
+		return total_value_of_stock_consumed
