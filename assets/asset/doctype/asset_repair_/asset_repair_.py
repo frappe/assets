@@ -80,7 +80,7 @@ class AssetRepair_(Document):
 	def increase_asset_value(self):
 		total_value_of_stock_consumed = self.get_total_value_of_stock_consumed()
 
-		if self.asset_doc.calculate_depreciation:
+		if self.is_depreciable_asset():
 			for row in self.asset_doc.finance_books:
 				row.value_after_depreciation += total_value_of_stock_consumed
 
@@ -90,12 +90,18 @@ class AssetRepair_(Document):
 	def decrease_asset_value(self):
 		total_value_of_stock_consumed = self.get_total_value_of_stock_consumed()
 
-		if self.asset_doc.calculate_depreciation:
+		if self.is_depreciable_asset():
 			for row in self.asset_doc.finance_books:
 				row.value_after_depreciation -= total_value_of_stock_consumed
 
 				if self.capitalize_repair_cost:
 					row.value_after_depreciation -= self.repair_cost
+
+	def is_depreciable_asset(self):
+		if self.asset_doc.doctype == "Asset_":
+			return self.asset_doc.calculate_depreciation
+		else:
+			return frappe.db.get_value("Asset_", self.asset_doc.asset, "calculate_depreciation")
 
 	def decrease_stock_quantity(self):
 		stock_entry = frappe.get_doc({
