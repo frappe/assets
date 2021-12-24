@@ -3,10 +3,12 @@
 
 import frappe
 from frappe import _
-from frappe.utils import flt
+from frappe.utils import flt, getdate
 from frappe.model.document import Document
 
-from assets.asset.doctype.asset_.asset_ import set_status
+from assets.asset.doctype.asset_.asset_ import set_status, get_asset_account
+from erpnext.accounts.general_ledger import make_gl_entries
+
 
 class AssetRepair_(Document):
 	def validate(self):
@@ -26,6 +28,8 @@ class AssetRepair_(Document):
 			self.increase_asset_value()
 		if self.get('stock_consumption'):
 			self.decrease_stock_quantity()
+		if self.get('capitalize_repair_cost'):
+			self.make_gl_entries()
 
 	def get_asset_doc(self):
 		if self.get('serial_no'):
@@ -97,3 +101,64 @@ class AssetRepair_(Document):
 		stock_entry.submit()
 
 		self.db_set('stock_entry', stock_entry.name)
+
+	def make_gl_entries(self, cancel=False):
+		if flt(self.repair_cost) > 0:
+			gl_entries = self.get_gl_entries()
+			make_gl_entries(gl_entries, cancel)
+
+	def get_gl_entries(self):
+		gl_entries = []
+		repair_and_maintenance_account = frappe.db.get_value('Company', self.company, 'repair_and_maintenance_account')
+		fixed_asset_account = get_asset_account("fixed_asset_account", asset=self.asset, company=self.company)
+		expense_account = frappe.get_doc('Purchase Invoice', self.purchase_invoice).items[0].expense_account
+
+		gl_entries.append(
+			self.get_gl_dict({
+				"account": expense_account,
+				"credit": self.repair_cost,
+				"credit_in_account_currency": self.repair_cost,
+				"against": repair_and_maintenance_account,
+				"voucher_type": self.doctype,
+				"voucher_no": self.name,
+				"cost_center": self.cost_center,
+				"posting_date": getdate(),
+				"company": self.company
+			}, item=self)
+		)
+
+		if self.get('stock_consumption'):
+			# creating GL Entries for each row in Stock Items based on the Stock Entry created for it
+			stock_entry = frappe.get_doc('Stock Entry', self.stock_entry)
+			for item in stock_entry.items:
+				gl_entries.append(
+					self.get_gl_dict({
+						"account": item.expense_account,
+						"credit": item.amount,
+						"credit_in_account_currency": item.amount,
+						"against": repair_and_maintenance_account,
+						"voucher_type": self.doctype,
+						"voucher_no": self.name,
+						"cost_center": self.cost_center,
+						"posting_date": getdate(),
+						"company": self.company
+					}, item=self)
+				)
+
+		gl_entries.append(
+			self.get_gl_dict({
+				"account": fixed_asset_account,
+				"debit": self.total_repair_cost,
+				"debit_in_account_currency": self.total_repair_cost,
+				"against": expense_account,
+				"voucher_type": self.doctype,
+				"voucher_no": self.name,
+				"cost_center": self.cost_center,
+				"posting_date": getdate(),
+				"against_voucher_type": "Purchase Invoice",
+				"against_voucher": self.purchase_invoice,
+				"company": self.company
+			}, item=self)
+		)
+
+		return gl_entries
