@@ -197,7 +197,7 @@ class AssetMovement_(Document):
 			if self.purpose == "Issue":
 				create_asset_activity(
 					asset = asset.asset,
-					serial_no = asset.serial_no,
+					asset_serial_no = asset.serial_no,
 					activity_type = "Movement",
 					reference_doctype = self.doctype,
 					reference_docname = self.name,
@@ -208,7 +208,7 @@ class AssetMovement_(Document):
 				if not (asset.from_employee or asset.source_location):
 					create_asset_activity(
 						asset = asset.asset,
-						serial_no = asset.serial_no,
+						asset_serial_no = asset.serial_no,
 						activity_type = "Movement",
 						reference_doctype = self.doctype,
 						reference_docname = self.name,
@@ -217,7 +217,7 @@ class AssetMovement_(Document):
 				else:
 					create_asset_activity(
 						asset = asset.asset,
-						serial_no = asset.serial_no,
+						asset_serial_no = asset.serial_no,
 						activity_type = "Movement",
 						reference_doctype = self.doctype,
 						reference_docname = self.name,
@@ -226,7 +226,7 @@ class AssetMovement_(Document):
 			else:
 				create_asset_activity(
 					asset = asset.asset,
-					serial_no = asset.serial_no,
+					asset_serial_no = asset.serial_no,
 					activity_type = "Movement",
 					reference_doctype = self.doctype,
 					reference_docname = self.name,
