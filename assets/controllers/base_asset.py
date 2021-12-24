@@ -35,10 +35,10 @@ class BaseAsset(Document):
 		"""
 			Certain actions should only be performed on Asset Serial No docs or non-serialized Assets.
 		"""
-		if self.doctype == "Asset Serial No" or self.is_serialized_asset:
-			return False
+		if self.doctype == "Asset Serial No" or not self.is_serialized_asset:
+			return True
 
-		return True
+		return False
 
 	def is_depreciable_asset(self):
 		if self.doctype == "Asset_":
