@@ -38,6 +38,9 @@ class AssetRepair_(Document):
 			self.decrease_asset_value()
 		if self.get('stock_consumption'):
 			self.increase_stock_quantity()
+		if self.get('capitalize_repair_cost'):
+			self.ignore_linked_doctypes = ('GL Entry', 'Stock Ledger Entry')
+			self.make_gl_entries(cancel=True)
 
 	def get_asset_doc(self):
 		if self.get('serial_no'):
