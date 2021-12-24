@@ -325,3 +325,29 @@ def get_asset_account(account_name, asset=None, asset_category=None, company=Non
 				.format(account_name.replace('_', ' ').title(), asset_category, company))
 
 	return account
+
+@frappe.whitelist()
+def make_asset_movement(assets, purpose=None):
+	import json
+
+	if isinstance(assets, str):
+		assets = json.loads(assets)
+
+	if len(assets) == 0:
+		frappe.throw(_('Atleast one asset has to be selected.'))
+
+	asset_movement = frappe.new_doc("Asset Movement")
+	asset_movement.quantity = len(assets)
+	asset_movement.purpose = purpose
+
+	for asset in assets:
+		asset = frappe.get_doc('Asset', asset.get('name'))
+		asset_movement.company = asset.get('company')
+		asset_movement.append("assets", {
+			'asset': asset.get('name'),
+			'source_location': asset.get('location'),
+			'from_employee': asset.get('custodian')
+		})
+
+	if asset_movement.get('assets'):
+		return asset_movement.as_dict()
