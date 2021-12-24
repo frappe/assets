@@ -78,16 +78,23 @@ class BaseAsset(Document):
 
 	def get_num_of_items_in_purchase_doc(self, purchase_doctype, purchase_docname):
 		items_doctype = purchase_doctype + " Item"
+		item = self.get_item()
 
 		num_of_items_in_purchase_doc = frappe.db.get_value(
 			items_doctype,
 			{
 				"parent": purchase_docname,
-				"item_code": self.item_code
+				"item_code": item
 			},
 			"qty"
 		)
 		return num_of_items_in_purchase_doc
+
+	def get_item(self):
+		if self.doctype == "Asset_":
+			return self.item_code
+		else:
+			return frappe.db.get_value("Asset_", self.asset, "item_code")
 
 	def get_num_of_assets_already_created(self, purchase_doctype, purchase_docname):
 		purchase_doctype = "purchase_receipt" if purchase_doctype == "Purchase Receipt" else "purchase_invoice"
