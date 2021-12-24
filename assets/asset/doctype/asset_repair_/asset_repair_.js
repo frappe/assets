@@ -66,3 +66,10 @@ frappe.ui.form.on('Asset Repair_', {
 		erpnext.setup_serial_or_batch_no();
 	}
 });
+
+frappe.ui.form.on('Asset Repair Consumed Item', {
+	qty: function(frm, cdt, cdn) {
+		var row = locals[cdt][cdn];
+		frappe.model.set_value(cdt, cdn, 'amount', row.qty * row.rate);
+	},
+});
