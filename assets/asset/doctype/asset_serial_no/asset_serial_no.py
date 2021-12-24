@@ -2,26 +2,12 @@
 # For license information, please see license.txt
 
 import frappe
-from frappe.model.document import Document
+from assets.controllers.base_asset import BaseAsset, get_finance_books
 from frappe.model.naming import make_autoname
 
-from assets.asset.doctype.asset_.asset_ import get_finance_books, get_status, set_status
 
-
-class AssetSerialNo(Document):
-	def validate(self):
-		self.status = get_status(self)
-
-	def on_submit(self):
-		self.record_asset_purchase_creation_and_receipt()
-		set_status(self)
-
-	def record_asset_purchase_creation_and_receipt(self):
-		asset = frappe.get_doc("Asset_", self.asset)
-
-		asset.record_asset_purchase(self.serial_no)
-		asset.record_asset_creation(self)
-		asset.record_asset_receipt(self.serial_no)
+class AssetSerialNo(BaseAsset):
+	pass
 
 def create_asset_serial_no_docs(asset):
 	finance_books = []

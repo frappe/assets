@@ -6,7 +6,7 @@ from frappe import _
 from frappe.utils import flt, getdate, time_diff_in_hours
 from frappe.model.document import Document
 
-from assets.asset.doctype.asset_.asset_ import set_status, get_asset_account
+from assets.controllers.base_asset import get_asset_account
 from erpnext.accounts.general_ledger import make_gl_entries
 
 
@@ -58,7 +58,7 @@ class AssetRepair_(Document):
 		if self.repair_status == 'Pending':
 			frappe.db.set_value(self.asset_doc.doctype, self.asset_doc.name, 'status', 'Out of Order')
 		else:
-			set_status(self.asset_doc)
+			self.asset_doc.set_status()
 
 	def set_total_value(self):
 		for item in self.get('items'):

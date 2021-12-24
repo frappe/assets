@@ -99,7 +99,7 @@ frappe.ui.form.on('Asset_', {
 
 	set_finance_book: function(frm) {
 		frappe.call({
-			method: "assets.asset.doctype.asset_.asset_.get_finance_books",
+			method: "assets.controllers.base_asset.get_finance_books",
 			args: {
 				asset_category: frm.doc.asset_category
 			},
