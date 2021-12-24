@@ -36,6 +36,8 @@ class AssetRepair_(Document):
 
 		if self.get('stock_consumption') or self.get('capitalize_repair_cost'):
 			self.decrease_asset_value()
+		if self.get('stock_consumption'):
+			self.increase_stock_quantity()
 
 	def get_asset_doc(self):
 		if self.get('serial_no'):
@@ -123,6 +125,11 @@ class AssetRepair_(Document):
 		stock_entry.submit()
 
 		self.db_set('stock_entry', stock_entry.name)
+
+	def increase_stock_quantity(self):
+		stock_entry = frappe.get_doc('Stock Entry', self.stock_entry)
+		stock_entry.flags.ignore_links = True
+		stock_entry.cancel()
 
 	def make_gl_entries(self, cancel=False):
 		if flt(self.repair_cost) > 0:
