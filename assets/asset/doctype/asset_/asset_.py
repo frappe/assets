@@ -10,6 +10,8 @@ from assets.controllers.base_asset import BaseAsset
 
 class Asset_(BaseAsset):
 	def validate(self):
+		super().validate()
+
 		self.validate_asset_values()
 		self.validate_item()
 
