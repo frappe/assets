@@ -31,6 +31,12 @@ class AssetRepair_(Document):
 		if self.get('capitalize_repair_cost'):
 			self.make_gl_entries()
 
+	def before_cancel(self):
+		self.get_asset_doc()
+
+		if self.get('stock_consumption') or self.get('capitalize_repair_cost'):
+			self.decrease_asset_value()
+
 	def get_asset_doc(self):
 		if self.get('serial_no'):
 			self.asset_doc = frappe.get_doc('Asset Serial No', self.serial_no)
@@ -80,6 +86,16 @@ class AssetRepair_(Document):
 
 				if self.capitalize_repair_cost:
 					row.value_after_depreciation += self.repair_cost
+
+	def decrease_asset_value(self):
+		total_value_of_stock_consumed = self.get_total_value_of_stock_consumed()
+
+		if self.asset_doc.calculate_depreciation:
+			for row in self.asset_doc.finance_books:
+				row.value_after_depreciation -= total_value_of_stock_consumed
+
+				if self.capitalize_repair_cost:
+					row.value_after_depreciation -= self.repair_cost
 
 	def decrease_stock_quantity(self):
 		stock_entry = frappe.get_doc({
