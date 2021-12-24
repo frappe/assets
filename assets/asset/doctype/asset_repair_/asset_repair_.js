@@ -62,4 +62,7 @@ frappe.ui.form.on('Asset Repair_', {
 		}
 	},
 
+	stock_items_on_form_rendered() {
+		erpnext.setup_serial_or_batch_no();
+	}
 });
