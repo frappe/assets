@@ -3,7 +3,7 @@
 
 import frappe
 from frappe import _
-from frappe.utils import flt, getdate
+from frappe.utils import flt, getdate, time_diff_in_hours
 from frappe.model.document import Document
 
 from assets.asset.doctype.asset_.asset_ import set_status, get_asset_account
@@ -194,3 +194,8 @@ class AssetRepair_(Document):
 		)
 
 		return gl_entries
+
+@frappe.whitelist()
+def get_downtime(failure_date, completion_date):
+	downtime = time_diff_in_hours(completion_date, failure_date)
+	return round(downtime, 2)

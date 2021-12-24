@@ -40,4 +40,26 @@ frappe.ui.form.on('Asset Repair_', {
 			});
 		}
 	},
+
+	repair_status: (frm) => {
+		if (frm.doc.completion_date && frm.doc.repair_status == "Completed") {
+			frappe.call ({
+				method: "erpnext.assets.doctype.asset_repair.asset_repair.get_downtime",
+				args: {
+					"failure_date":frm.doc.failure_date,
+					"completion_date":frm.doc.completion_date
+				},
+				callback: function(r) {
+					if(r.message) {
+						frm.set_value("downtime", r.message + " Hrs");
+					}
+				}
+			});
+		}
+
+		if (frm.doc.repair_status == "Completed") {
+			frm.set_value('completion_date', frappe.datetime.now_datetime());
+		}
+	},
+
 });
