@@ -77,22 +77,23 @@ class BaseAsset(Document):
 		return purchase_doctype, purchase_docname
 
 	def get_num_of_items_in_purchase_doc(self, purchase_doctype, purchase_docname):
-		items_doctype = purchase_doctype + "Item"
+		items_doctype = purchase_doctype + " Item"
 
 		num_of_items_in_purchase_doc = frappe.db.get_value(
 			items_doctype,
-			filters = {
+			{
 				"parent": purchase_docname,
 				"item_code": self.item_code
 			},
-			pluck = "qty"
+			"qty"
 		)
 		return num_of_items_in_purchase_doc
 
 	def get_num_of_assets_already_created(self, purchase_doctype, purchase_docname):
+		purchase_doctype = "purchase_receipt" if purchase_doctype == "Purchase Receipt" else "purchase_invoice"
 		asset_name = self.name if self.doctype == "Asset_" else self.asset
 
-		num_of_assets_already_created = frappe.db.get_value(
+		num_of_assets_already_created = frappe.db.get_all(
 			"Asset_",
 			filters = {
 				purchase_doctype: purchase_docname,
@@ -112,9 +113,9 @@ class BaseAsset(Document):
 
 	def validate_num_of_assets_purchased(self, num_of_assets, num_of_items_in_purchase_doc, purchase_docname):
 		if num_of_assets > num_of_items_in_purchase_doc:
-			frappe.throw(_("Number of Assets needs to be less than the qty of {0} purchased in {1}, \
+			frappe.throw(_("Number of Assets cannot be greater than the qty of {0} purchased in {1}, \
 				which is {2}.").format(frappe.bold(self.item_code), frappe.bold(purchase_docname),
-				frappe.bold(num_of_items_in_purchase_doc)))
+				frappe.bold(int(num_of_items_in_purchase_doc))))
 
 	def validate_total_num_of_assets(self, num_of_assets, num_of_assets_already_created, num_of_items_in_purchase_doc, purchase_docname):
 		if (num_of_assets_already_created + num_of_assets) > num_of_items_in_purchase_doc:
@@ -123,8 +124,8 @@ class BaseAsset(Document):
 			frappe.throw(_("The Number of Assets to be created needs to be decreased. \
 				A maximum of {0} Assets can be created now, as only {1} were purchased in {2}, \
 				of which {3} have already been created.")
-				.format(frappe.bold(max_num_of_assets), frappe.bold(num_of_items_in_purchase_doc),
-				frappe.bold(purchase_docname), frappe.bold(num_of_assets_already_created)),
+				.format(frappe.bold(int(max_num_of_assets)), frappe.bold(int(num_of_items_in_purchase_doc)),
+				frappe.bold(purchase_docname), frappe.bold(int(num_of_assets_already_created))),
 				title=_("Number of Assets Exceeded Limit"))
 
 	def set_missing_values(self):
@@ -133,7 +134,7 @@ class BaseAsset(Document):
 			finance_books = get_finance_books(asset_category)
 			self.set('finance_books', finance_books)
 
-		if self.docstatus == 0 and self.is_not_serialized_asset():
+		if not self.get('asset_value') and self.is_not_serialized_asset():
 			self.set_initial_asset_value()
 
 	def get_asset_category(self):
