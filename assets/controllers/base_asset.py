@@ -136,27 +136,16 @@ class BaseAsset(Document):
 				title=_("Number of Assets Exceeded Limit"))
 
 	def set_missing_values(self):
-		if not self.get('finance_books'):
+		if not self.get('asset_value') and self.is_not_serialized_asset():
+			self.set_initial_asset_value()
+
+		if self.is_depreciable_asset() and not self.get('finance_books'):
 			asset_category = self.get_asset_category()
 			finance_books = get_finance_books(asset_category)
 			self.set('finance_books', finance_books)
 
-		if not self.get('asset_value') and self.is_not_serialized_asset():
-			self.set_initial_asset_value()
-
-	def get_asset_category(self):
-		if self.doctype == "Asset_":
-			if not self.get('asset_category'):
-				asset_category = frappe.get_cached_value("Item", self.item_code, "asset_category")
-				self.set_asset_category(asset_category)
-				return asset_category
-			else:
-				return self.asset_category
-		else:
-			return frappe.get_value("Asset_", self.asset, "asset_category")
-
-	def set_asset_category(self, asset_category):
-		self.asset_category = asset_category
+		elif self.doctype == "Asset_" and not self.get('asset_category'):
+			self.set_asset_category()
 
 	def set_initial_asset_value(self):
 		self.asset_value = self.get_initial_asset_value()
@@ -171,6 +160,19 @@ class BaseAsset(Document):
 			asset_value = gross_purchase_amount
 
 		return asset_value
+
+	def get_asset_category(self):
+		if self.doctype == "Asset_":
+			if not self.get('asset_category'):
+				self.set_asset_category()
+
+			return self.asset_category
+		else:
+			return frappe.get_value("Asset_", self.asset, "asset_category")
+
+	def set_asset_category(self):
+		if not self.get('asset_category'):
+			self.asset_category = frappe.get_cached_value("Item", self.item_code, "asset_category")
 
 	def get_gross_purchase_amount_and_opening_accumulated_depreciation(self):
 		if self.doctype == "Asset_":
