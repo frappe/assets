@@ -15,7 +15,9 @@ class Asset_(BaseAsset):
 		self.validate_asset_values()
 		self.validate_item()
 
-	def on_submit(self):
+	def before_submit(self):
+		super().before_submit()
+
 		if self.is_serialized_asset:
 			from assets.asset.doctype.asset_serial_no.asset_serial_no import create_asset_serial_no_docs
 

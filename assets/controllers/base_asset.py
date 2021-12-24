@@ -21,7 +21,7 @@ class BaseAsset(Document):
 
 			self.status = self.get_status()
 
-	def on_submit(self):
+	def before_submit(self):
 		if self.is_not_serialized_asset():
 			if self.is_depreciable_asset():
 				self.validate_depreciation_posting_start_date()
