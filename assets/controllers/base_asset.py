@@ -201,9 +201,10 @@ class BaseAsset(Document):
 	def record_asset_purchase(self):
 		purchase_doctype, purchase_docname = self.get_purchase_details()
 		serial_no = self.get_serial_no()
+		asset = self.get_asset()
 
 		create_asset_activity(
-			asset = self.name,
+			asset = asset,
 			asset_serial_no = serial_no,
 			activity_type = 'Purchase',
 			reference_doctype = purchase_doctype,
@@ -212,8 +213,12 @@ class BaseAsset(Document):
 		)
 
 	def record_asset_creation(self):
+		asset = self.get_asset()
+		serial_no = self.get_serial_no()
+
 		create_asset_activity(
-			asset = self.name,
+			asset = asset,
+			asset_serial_no = serial_no,
 			activity_type = 'Creation',
 			reference_doctype = self.doctype,
 			reference_docname = self.name
@@ -223,6 +228,8 @@ class BaseAsset(Document):
 		reference_doctype, reference_docname = self.get_purchase_details()
 		transaction_date = getdate(self.get_purchase_date())
 		serial_no = self.get_serial_no()
+		asset = self.get_asset()
+		asset_name, company = self.get_asset_details()
 
 		if reference_docname:
 			posting_date, posting_time = frappe.db.get_value(
@@ -231,8 +238,9 @@ class BaseAsset(Document):
 			transaction_date = get_datetime("{} {}".format(posting_date, posting_time))
 
 		assets = [{
-			'asset': self.name,
-			'asset_name': self.asset_name,
+			'asset': asset,
+			'asset_name': asset_name,
+			'serial_no': serial_no,
 			'target_location': self.location,
 			'to_employee': self.custodian
 		}]
@@ -240,9 +248,8 @@ class BaseAsset(Document):
 		asset_movement = frappe.get_doc({
 			'doctype': 'Asset Movement_',
 			'assets': assets,
-			'serial_no': serial_no,
 			'purpose': 'Receipt',
-			'company': self.company,
+			'company': company,
 			'transaction_date': transaction_date,
 			'reference_doctype': reference_doctype,
 			'reference_name': reference_docname
@@ -254,6 +261,18 @@ class BaseAsset(Document):
 			return None
 		else:
 			return self.serial_no
+
+	def get_asset(self):
+		if self.doctype == "Asset_":
+			return self.name
+		else:
+			return self.asset
+
+	def get_asset_details(self):
+		if self.doctype == "Asset_":
+			return self.asset_name, self.company
+		else:
+			return frappe.db.get_value("Asset_", self.asset, ["asset_name", "company"])
 
 	def set_status(self, status=None):
 		if not status:
