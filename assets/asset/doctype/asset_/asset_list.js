@@ -37,7 +37,7 @@ frappe.listview_settings['Asset_'] = {
 		me.page.add_action_item('Make Asset Movement', function() {
 			const assets = me.get_checked_items();
 			frappe.call({
-				method: "assets.asset.doctype.asset_.asset_.make_asset_movement",
+				method: "assets.controllers.base_asset.make_asset_movement",
 				freeze: true,
 				args:{
 					"assets": assets
