@@ -31,5 +31,24 @@ frappe.listview_settings["Asset Serial No"] = {
 		} else if (doc.status === "Draft") {
 			return [__("Draft"), "red", "status,=,Draft"];
 		}
-	}
+	},
+
+	onload: function(me) {
+		me.page.add_action_item('Make Asset Movement', function() {
+			const assets = me.get_checked_items();
+			frappe.call({
+				method: "assets.controllers.base_asset.make_asset_movement",
+				freeze: true,
+				args:{
+					"assets": assets
+				},
+				callback: function (r) {
+					if (r.message) {
+						var doc = frappe.model.sync(r.message)[0];
+						frappe.set_route("Form", doc.doctype, doc.name);
+					}
+				}
+			});
+		});
+	},
 }
