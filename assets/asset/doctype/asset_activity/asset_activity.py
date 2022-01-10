@@ -30,7 +30,7 @@ def create_asset_activity(asset, activity_type, reference_doctype, reference_doc
 	asset_activity = frappe.get_doc({
 		'doctype': 'Asset Activity',
 		'asset': asset,
-		'asset_serial_no': asset_serial_no,
+		'serial_no': asset_serial_no,
 		'activity_date': activity_date,
 		'activity_type': activity_type,
 		'reference_doctype': reference_doctype,

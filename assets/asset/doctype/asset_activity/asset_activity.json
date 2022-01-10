@@ -10,7 +10,7 @@
   "asset",
   "activity_type",
   "column_break_3",
-  "asset_serial_no",
+  "serial_no",
   "activity_date",
   "reference_section",
   "reference_doctype",
@@ -93,16 +93,16 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "asset_serial_no",
+   "fieldname": "serial_no",
    "fieldtype": "Link",
-   "label": "Asset Serial No",
+   "label": "Serial No",
    "options": "Asset Serial No"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-16 08:04:16.278886",
+ "modified": "2022-01-10 15:46:43.343976",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Activity",
