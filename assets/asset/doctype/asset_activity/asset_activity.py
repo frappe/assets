@@ -6,10 +6,10 @@ from frappe import _
 from frappe.utils import getdate
 from frappe.model.document import Document
 
-from assets.controllers.base_asset import validate_serial_no
-
 class AssetActivity(Document):
 	def validate(self):
+		from assets.controllers.base_asset import validate_serial_no
+
 		self.validate_activity_date()
 		validate_serial_no(self)
 
