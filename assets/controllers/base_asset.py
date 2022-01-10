@@ -388,3 +388,10 @@ def make_asset_movement(assets, purpose=None):
 
 	if asset_movement.get('assets'):
 		return asset_movement.as_dict()
+
+def validate_serial_no(doc):
+	is_serialized_asset = frappe.db.get_value('Asset_', doc.asset, 'is_serialized_asset')
+
+	if is_serialized_asset and not doc.serial_no:
+		frappe.throw(_("Please enter Serial No as {0} is a Serialized Asset")
+			.format(frappe.bold(doc.asset)), title=_("Missing Serial No"))
