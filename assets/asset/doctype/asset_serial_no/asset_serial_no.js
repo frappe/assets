@@ -26,6 +26,11 @@ frappe.ui.form.on('Asset Serial No', {
 					frm.toggle_reqd('finance_books', 0);
 				}
 			});
+		} else {
+			frm.set_df_property('available_for_use_date', 'read_only', 1);
+			frm.set_df_property('finance_books', 'read_only', 1);
+			frm.toggle_reqd('available_for_use_date', 0);
+			frm.toggle_reqd('finance_books', 0);
 		}
 	},
 });
