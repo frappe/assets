@@ -4,5 +4,8 @@
 # import frappe
 from frappe.model.document import Document
 
+from assets.controllers.base_asset import validate_serial_no
+
 class DepreciationSchedule_(Document):
-	pass
+	def validate(self):
+		validate_serial_no(self)
