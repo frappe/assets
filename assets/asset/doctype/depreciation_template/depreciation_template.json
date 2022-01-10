@@ -1,13 +1,13 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:finance_book",
+ "autoname": "field:template_name",
  "creation": "2021-12-08 01:06:42.154322",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "finance_book",
+  "template_name",
   "depreciation_method",
   "frequency_of_depreciation",
   "depreciation_period",
@@ -15,12 +15,6 @@
   "rate_of_depreciation"
  ],
  "fields": [
-  {
-   "fieldname": "finance_book",
-   "fieldtype": "Data",
-   "label": "Name",
-   "unique": 1
-  },
   {
    "fieldname": "depreciation_method",
    "fieldtype": "Select",
@@ -57,14 +51,20 @@
    "label": "Depreciation Period Unit",
    "options": "Months\nYears",
    "reqd": 1
+  },
+  {
+   "fieldname": "template_name",
+   "fieldtype": "Data",
+   "label": "Template Name",
+   "unique": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-12-09 01:47:53.535054",
+ "modified": "2022-01-10 18:22:54.736870",
  "modified_by": "Administrator",
  "module": "Asset",
- "name": "Finance Book_",
+ "name": "Depreciation Template",
  "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [

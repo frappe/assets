@@ -4,5 +4,5 @@
 # import frappe
 from frappe.model.document import Document
 
-class FinanceBook_(Document):
+class DepreciationTemplate(Document):
 	pass
