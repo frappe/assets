@@ -2,12 +2,23 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe import _
+
 from assets.controllers.base_asset import BaseAsset, get_finance_books
 from frappe.model.naming import make_autoname
 
 
 class AssetSerialNo(BaseAsset):
-	pass
+	def validate(self):
+		super().validate()
+		self.validate_asset()
+
+	def validate_asset(self):
+		is_serialized_asset = frappe.db.get_value('Asset_', self.asset, 'is_serialized_asset')
+
+		if not is_serialized_asset:
+			frappe.throw(_("{0} is not a Serialized Asset")
+				.format(frappe.bold(self.asset)), title=_("Invalid Asset"))
 
 def create_asset_serial_no_docs(asset):
 	finance_books = []
