@@ -12,12 +12,20 @@ class AssetSerialNo(BaseAsset):
 		super().validate()
 		self.validate_asset()
 
+	def before_submit(self):
+		super().before_submit()
+		self.validate_location()
+
 	def validate_asset(self):
 		is_serialized_asset = frappe.db.get_value('Asset_', self.asset, 'is_serialized_asset')
 
 		if not is_serialized_asset:
 			frappe.throw(_("{0} is not a Serialized Asset")
 				.format(frappe.bold(self.asset)), title=_("Invalid Asset"))
+
+	def validate_location(self):
+		if not self.location:
+			frappe.throw(_("Please enter Location"), title=_("Missing Field"))
 
 def create_asset_serial_no_docs(asset):
 	finance_books = []
