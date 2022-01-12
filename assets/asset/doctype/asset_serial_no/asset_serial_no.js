@@ -2,6 +2,16 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Asset Serial No', {
+	onload: function(frm) {
+		frm.set_query("asset", function() {
+			return {
+				"filters": {
+					"is_serialized_asset": 1
+				}
+			};
+		});
+	},
+
 	refresh: function(frm) {
 		frm.trigger('toggle_depreciation_fields');
 	},
