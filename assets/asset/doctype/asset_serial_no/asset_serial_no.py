@@ -5,7 +5,6 @@ import frappe
 from frappe import _
 
 from assets.controllers.base_asset import BaseAsset, get_finance_books
-from frappe.model.naming import make_autoname
 
 
 class AssetSerialNo(BaseAsset):
@@ -27,12 +26,15 @@ def create_asset_serial_no_docs(asset):
 
 	asset_value = asset.get_initial_asset_value()
 
-	for _ in range(asset.num_of_assets):
+	for i in range(asset.num_of_assets):
 		serial_no = frappe.get_doc({
 			"doctype": "Asset Serial No",
 			"asset": asset.name,
-			"serial_no": make_autoname(asset.serial_no_naming_series),
+			"serial_no": get_serial_no(asset.name, i),
 			"asset_value": asset_value,
 			"finance_books": finance_books
 		})
-		serial_no.save()
+		serial_no.save(ignore_permissions=True)
+
+def get_serial_no(asset_name, num_of_assets_created):
+	return asset_name + "-" + str(num_of_assets_created + 1)
