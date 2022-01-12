@@ -72,8 +72,7 @@
    "in_list_view": 1,
    "label": "Location",
    "mandatory_depends_on": "eval:!doc.__islocal",
-   "options": "Location_",
-   "reqd": 1
+   "options": "Location_"
   },
   {
    "fieldname": "disposal_date",
@@ -150,7 +149,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-01-12 20:28:51.778315",
+ "modified": "2022-01-12 20:41:48.397695",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Serial No",
