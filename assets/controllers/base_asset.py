@@ -432,3 +432,16 @@ def get_disposal_account_and_cost_center(company):
 		frappe.throw(_("Please set 'Asset Depreciation Cost Center' in Company {0}").format(company))
 
 	return disposal_account, depreciation_cost_center
+
+@frappe.whitelist()
+def create_asset_maintenance(asset, item_code, item_name, asset_category, company):
+	asset_maintenance = frappe.new_doc("Asset Maintenance")
+	asset_maintenance.update({
+		"asset_name": asset,
+		"company": company,
+		"item_code": item_code,
+		"item_name": item_name,
+		"asset_category": asset_category
+	})
+
+	return asset_maintenance
