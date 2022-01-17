@@ -56,7 +56,8 @@ frappe.ui.form.on('Asset_', {
 		if (frm.doc.docstatus == 1) {
 			if (frm.doc.is_serialized_asset) {
 				frm.trigger("toggle_display_create_serial_nos_button");
-			} else {
+			}
+			else {
 				if (in_list(["Submitted", "Partially Depreciated", "Fully Depreciated"], frm.doc.status)) {
 					frm.add_custom_button(__("Transfer Asset"), function() {
 						erpnext.asset.transfer_asset(frm);
@@ -69,8 +70,8 @@ frappe.ui.form.on('Asset_', {
 					frm.add_custom_button(__("Sell Asset"), function() {
 						frm.trigger("make_sales_invoice");
 					}, __("Manage"));
-
-				} else if (frm.doc.status=='Scrapped') {
+				}
+				else if (frm.doc.status=='Scrapped') {
 					frm.add_custom_button(__("Restore Asset"), function() {
 						erpnext.asset.restore_asset(frm);
 					}, __("Manage"));
@@ -186,6 +187,21 @@ frappe.ui.form.on('Asset_', {
 
 	create_asset_serial_nos: function(frm) {
 
+	},
+
+	make_sales_invoice: function(frm) {
+		frappe.call({
+			args: {
+				"asset": frm.doc.name,
+				"item_code": frm.doc.item_code,
+				"company": frm.doc.company
+			},
+			method: "assets.controllers.base_asset.make_sales_invoice",
+			callback: function(r) {
+				var doclist = frappe.model.sync(r.message);
+				frappe.set_route("Form", doclist[0].doctype, doclist[0].name);
+			}
+		})
 	},
 
 	calculate_depreciation: function(frm) {

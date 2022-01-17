@@ -402,3 +402,33 @@ def validate_serial_no(doc):
 	if is_serialized_asset and not doc.serial_no:
 		frappe.throw(_("Please enter Serial No as {0} is a Serialized Asset")
 			.format(frappe.bold(doc.asset)), title=_("Missing Serial No"))
+
+@frappe.whitelist()
+def make_sales_invoice(asset, item_code, company):
+	si = frappe.new_doc("Sales Invoice")
+	si.company = company
+	si.currency = frappe.get_cached_value('Company',  company,  "default_currency")
+	disposal_account, depreciation_cost_center = get_disposal_account_and_cost_center(company)
+
+	si.append("items", {
+		"item_code": item_code,
+		"is_fixed_asset": 1,
+		"asset": asset,
+		"income_account": disposal_account,
+		"cost_center": depreciation_cost_center,
+		"qty": 1
+	})
+	si.set_missing_values()
+
+	return si
+
+def get_disposal_account_and_cost_center(company):
+	disposal_account, depreciation_cost_center = frappe.get_cached_value('Company',  company,
+		["disposal_account", "depreciation_cost_center"])
+
+	if not disposal_account:
+		frappe.throw(_("Please set 'Gain/Loss Account on Asset Disposal' in Company {0}").format(company))
+	if not depreciation_cost_center:
+		frappe.throw(_("Please set 'Asset Depreciation Cost Center' in Company {0}").format(company))
+
+	return disposal_account, depreciation_cost_center
