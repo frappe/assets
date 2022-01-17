@@ -404,6 +404,19 @@ def validate_serial_no(doc):
 			.format(frappe.bold(doc.asset)), title=_("Missing Serial No"))
 
 @frappe.whitelist()
+def transfer_asset(args):
+	args = json.loads(args)
+
+	movement_entry = frappe.new_doc("Asset Movement_")
+	movement_entry.update(args)
+	movement_entry.insert()
+	movement_entry.submit()
+	frappe.db.commit()
+
+	frappe.msgprint(_("Asset Movement record {0} created")
+		.format("<a href='/app/Form/Asset Movement/{0}'>{0}</a>").format(movement_entry.name))
+
+@frappe.whitelist()
 def make_sales_invoice(asset, item_code, company):
 	si = frappe.new_doc("Sales Invoice")
 	si.company = company

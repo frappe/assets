@@ -189,6 +189,23 @@ frappe.ui.form.on('Asset_', {
 
 	},
 
+	transfer_asset: function(frm) {
+		frappe.call({
+			method: "assets.controllers.base_asset.make_asset_movement",
+			freeze: true,
+			args:{
+				"assets": [{ name: frm.doc.name }],
+				"purpose": "Transfer"
+			},
+			callback: function (r) {
+				if (r.message) {
+					var doc = frappe.model.sync(r.message)[0];
+					frappe.set_route("Form", doc.doctype, doc.name);
+				}
+			}
+		});
+	},
+
 	make_sales_invoice: function(frm) {
 		frappe.call({
 			args: {
