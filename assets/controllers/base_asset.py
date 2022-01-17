@@ -435,7 +435,7 @@ def get_disposal_account_and_cost_center(company):
 
 @frappe.whitelist()
 def create_asset_maintenance(asset, item_code, item_name, asset_category, company):
-	asset_maintenance = frappe.new_doc("Asset Maintenance")
+	asset_maintenance = frappe.new_doc("Asset Maintenance_")
 	asset_maintenance.update({
 		"asset_name": asset,
 		"company": company,
@@ -448,7 +448,7 @@ def create_asset_maintenance(asset, item_code, item_name, asset_category, compan
 
 @frappe.whitelist()
 def create_asset_repair(asset, asset_name):
-	asset_repair = frappe.new_doc("Asset Repair")
+	asset_repair = frappe.new_doc("Asset Repair_")
 	asset_repair.update({
 		"asset": asset,
 		"asset_name": asset_name
