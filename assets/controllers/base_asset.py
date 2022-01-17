@@ -455,3 +455,62 @@ def create_asset_repair(asset, asset_name):
 	})
 
 	return asset_repair
+
+@frappe.whitelist()
+def make_journal_entry(asset_name):
+	asset = frappe.get_doc("Asset", asset_name)
+	_, accumulated_depreciation_account, depreciation_expense_account = \
+		get_depreciation_accounts(asset)
+
+	depreciation_cost_center, depreciation_series = frappe.db.get_value("Company", asset.company,
+		["depreciation_cost_center", "series_for_depreciation_entry"])
+	depreciation_cost_center = asset.cost_center or depreciation_cost_center
+
+	je = frappe.new_doc("Journal Entry")
+	je.voucher_type = "Depreciation Entry"
+	je.naming_series = depreciation_series
+	je.company = asset.company
+	je.remark = "Depreciation Entry against asset {0}".format(asset_name)
+
+	je.append("accounts", {
+		"account": depreciation_expense_account,
+		"reference_type": "Asset",
+		"reference_name": asset.name,
+		"cost_center": depreciation_cost_center
+	})
+
+	je.append("accounts", {
+		"account": accumulated_depreciation_account,
+		"reference_type": "Asset",
+		"reference_name": asset.name
+	})
+
+	return je
+
+def get_depreciation_accounts(asset):
+	fixed_asset_account = accumulated_depreciation_account = depreciation_expense_account = None
+
+	accounts = frappe.db.get_value("Asset Category Account_",
+		filters={'parent': asset.asset_category, 'company_name': asset.company},
+		fieldname = ['fixed_asset_account', 'accumulated_depreciation_account',
+			'depreciation_expense_account'], as_dict=1)
+
+	if accounts:
+		fixed_asset_account = accounts.fixed_asset_account
+		accumulated_depreciation_account = accounts.accumulated_depreciation_account
+		depreciation_expense_account = accounts.depreciation_expense_account
+
+	if not accumulated_depreciation_account or not depreciation_expense_account:
+		accounts = frappe.get_cached_value('Company',  asset.company,
+			["accumulated_depreciation_account", "depreciation_expense_account"])
+
+		if not accumulated_depreciation_account:
+			accumulated_depreciation_account = accounts[0]
+		if not depreciation_expense_account:
+			depreciation_expense_account = accounts[1]
+
+	if not fixed_asset_account or not accumulated_depreciation_account or not depreciation_expense_account:
+		frappe.throw(_("Please set Depreciation related Accounts in Asset Category {0} or Company {1}")
+			.format(asset.asset_category, asset.company))
+
+	return fixed_asset_account, accumulated_depreciation_account, depreciation_expense_account

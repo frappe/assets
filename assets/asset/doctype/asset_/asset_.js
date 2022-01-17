@@ -235,6 +235,21 @@ frappe.ui.form.on('Asset_', {
 		});
 	},
 
+	make_journal_entry: function(frm) {
+		frappe.call({
+			method: "assets.controllers.base_asset.make_journal_entry",
+			args: {
+				asset_name: frm.doc.name
+			},
+			callback: function(r) {
+				if (r.message) {
+					var doclist = frappe.model.sync(r.message);
+					frappe.set_route("Form", doclist[0].doctype, doclist[0].name);
+				}
+			}
+		})
+	},
+
 	calculate_depreciation: function(frm) {
 		frm.toggle_reqd("finance_books", frm.doc.calculate_depreciation);
 	},
