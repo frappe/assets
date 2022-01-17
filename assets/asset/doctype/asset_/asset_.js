@@ -55,9 +55,7 @@ frappe.ui.form.on('Asset_', {
 
 		if (frm.doc.docstatus == 1) {
 			if (frm.doc.is_serialized_asset) {
-				frm.add_custom_button(__("Create Serial Numbers"), function() {
-					frm.trigger("create_asset_serial_nos");
-				});
+				frm.trigger("toggle_display_create_serial_nos_button");
 			} else {
 				if (in_list(["Submitted", "Partially Depreciated", "Fully Depreciated"], frm.doc.status)) {
 					frm.add_custom_button(__("Transfer Asset"), function() {
@@ -148,6 +146,46 @@ frappe.ui.form.on('Asset_', {
 			frm.toggle_display('purchase_receipt', 1);
 			frm.toggle_display('purchase_invoice', 1);
 		}
+	},
+
+	toggle_display_create_serial_nos_button: function (frm) {
+		if (!frm.doc.is_existing_asset) {
+			frappe.call({
+				method: "assets.controllers.base_asset.get_purchase_details",
+				args: {
+					asset: frm.doc
+				},
+				callback: function(r) {
+					if(r.message) {
+						frappe.call({
+							method: "assets.controllers.base_asset.get_num_of_items_in_purchase_doc",
+							args: {
+								asset: frm.doc,
+								purchase_doctype: r.message[0],
+								purchase_docname: r.message[1]
+							},
+							callback: function(r) {
+								if(r.message) {
+									if (r.message > frm.doc.num_of_assets) {
+										frm.add_custom_button(__("Create Serial Numbers"), function() {
+											frm.trigger("create_asset_serial_nos");
+										});
+									}
+								}
+							}
+						})
+					}
+				}
+			})
+		} else {
+			frm.add_custom_button(__("Create Serial Numbers"), function() {
+				frm.trigger("create_asset_serial_nos");
+			});
+		}
+	},
+
+	create_asset_serial_nos: function(frm) {
+
 	},
 
 	calculate_depreciation: function(frm) {

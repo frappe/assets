@@ -5,6 +5,7 @@ import frappe
 from frappe import _
 from frappe.utils import flt, cint, nowdate, getdate, get_datetime
 from frappe.model.document import Document
+import json
 
 from assets.asset.doctype.asset_activity.asset_activity import create_asset_activity
 from assets.asset.doctype.asset_category_.asset_category_ import get_asset_category_account
@@ -50,51 +51,16 @@ class BaseAsset(Document):
 		if self.doctype == "Asset_" and self.num_of_assets <= 0:
 			frappe.throw(_("Number of Assets needs to be greater than zero."))
 
-		purchase_doctype, purchase_docname = self.get_purchase_details()
+		purchase_doctype, purchase_docname = get_purchase_details(self)
 
 		if purchase_docname:
-			num_of_items_in_purchase_doc = self.get_num_of_items_in_purchase_doc(purchase_doctype, purchase_docname)
+			num_of_items_in_purchase_doc = get_num_of_items_in_purchase_doc(self, purchase_doctype, purchase_docname)
 			num_of_assets_already_created = self.get_num_of_assets_already_created(purchase_doctype, purchase_docname)
 			num_of_assets = self.get_num_of_assets_in_this_group()
 
 			self.validate_num_of_assets_purchased(num_of_assets, num_of_items_in_purchase_doc, purchase_docname)
 			self.validate_total_num_of_assets(num_of_assets, num_of_assets_already_created,
 				num_of_items_in_purchase_doc, purchase_docname)
-
-	def get_purchase_details(self):
-		if self.doctype == "Asset_":
-			purchase_receipt, purchase_invoice = self.purchase_receipt, self.purchase_invoice
-		else:
-			purchase_receipt, purchase_invoice = frappe.db.get_value(
-				"Asset_",
-				self.asset,
-				["purchase_receipt", "purchase_invoice"]
-			)
-
-		purchase_doctype = 'Purchase Receipt' if purchase_receipt else 'Purchase Invoice'
-		purchase_docname = purchase_receipt or purchase_invoice
-
-		return purchase_doctype, purchase_docname
-
-	def get_num_of_items_in_purchase_doc(self, purchase_doctype, purchase_docname):
-		items_doctype = purchase_doctype + " Item"
-		item = self.get_item()
-
-		num_of_items_in_purchase_doc = frappe.db.get_value(
-			items_doctype,
-			{
-				"parent": purchase_docname,
-				"item_code": item
-			},
-			"qty"
-		)
-		return num_of_items_in_purchase_doc
-
-	def get_item(self):
-		if self.doctype == "Asset_":
-			return self.item_code
-		else:
-			return frappe.db.get_value("Asset_", self.asset, "item_code")
 
 	def get_num_of_assets_already_created(self, purchase_doctype, purchase_docname):
 		purchase_doctype = "purchase_receipt" if purchase_doctype == "Purchase Receipt" else "purchase_invoice"
@@ -365,8 +331,6 @@ def get_finance_books(asset_category):
 
 @frappe.whitelist()
 def make_asset_movement(assets, purpose=None):
-	import json
-
 	if isinstance(assets, str):
 		assets = json.loads(assets)
 
@@ -388,6 +352,49 @@ def make_asset_movement(assets, purpose=None):
 
 	if asset_movement.get('assets'):
 		return asset_movement.as_dict()
+
+@frappe.whitelist()
+def get_purchase_details(asset):
+	if isinstance(asset, str):
+		asset = frappe._dict(json.loads(asset))
+
+	if asset.doctype == "Asset_":
+		purchase_receipt, purchase_invoice = asset.purchase_receipt, asset.purchase_invoice
+	else:
+		purchase_receipt, purchase_invoice = frappe.db.get_value(
+			"Asset_",
+			asset.asset,
+			["purchase_receipt", "purchase_invoice"]
+		)
+
+	purchase_doctype = 'Purchase Receipt' if purchase_receipt else 'Purchase Invoice'
+	purchase_docname = purchase_receipt or purchase_invoice
+
+	return purchase_doctype, purchase_docname
+
+@frappe.whitelist()
+def get_num_of_items_in_purchase_doc(asset, purchase_doctype, purchase_docname):
+	if isinstance(asset, str):
+		asset = frappe._dict(json.loads(asset))
+
+	items_doctype = purchase_doctype + " Item"
+	item = get_item(asset)
+
+	num_of_items_in_purchase_doc = frappe.db.get_value(
+		items_doctype,
+		{
+			"parent": purchase_docname,
+			"item_code": item
+		},
+		"qty"
+	)
+	return num_of_items_in_purchase_doc
+
+def get_item(asset):
+	if asset.doctype == "Asset_":
+		return asset.item_code
+	else:
+		return frappe.db.get_value("Asset_", asset.asset, "item_code")
 
 def validate_serial_no(doc):
 	is_serialized_asset = frappe.db.get_value('Asset_', doc.asset, 'is_serialized_asset')
