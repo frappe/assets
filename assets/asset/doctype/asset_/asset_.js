@@ -167,7 +167,7 @@ frappe.ui.form.on('Asset_', {
 									if (r.message > frm.doc.num_of_assets) {
 										frm.add_custom_button(__("Create Serial Numbers"), function() {
 											frm.trigger("create_asset_serial_nos");
-										});
+										}, __("Manage"));
 									}
 								}
 							}
@@ -183,7 +183,34 @@ frappe.ui.form.on('Asset_', {
 	},
 
 	create_asset_serial_nos: function(frm) {
-
+		var dialog = new frappe.ui.Dialog({
+			title: __("Create Additional Serial Nos"),
+			fields: [
+				{
+					"label": "Number of Serial Nos to be Created",
+					"fieldname": "additional_num_of_assets",
+					"fieldtype": "Int",
+					"reqd": 1,
+					"default": 1
+				},
+			],
+			primary_action_label: __('Create'),
+			primary_action: function() {
+				var data = dialog.get_values();
+				frappe.call({
+					method: "assets.asset.doctype.asset_serial_no.asset_serial_no.create_asset_serial_no_docs",
+					args: {
+						asset: frm.doc.name,
+						num_of_assets: data.additional_num_of_assets
+					},
+					callback: function(r) {
+						dialog.hide();
+						frm.refresh();
+					}
+				});
+			},
+		});
+		dialog.show();
 	},
 
 	transfer_asset: function(frm) {
