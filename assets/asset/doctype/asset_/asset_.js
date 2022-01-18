@@ -54,6 +54,12 @@ frappe.ui.form.on('Asset_', {
 		}
 
 		if (frm.doc.docstatus == 1) {
+			if (!frm.doc.is_serialized_asset) {
+				frm.add_custom_button(__("Split Asset"), function() {
+					frm.trigger("split_asset");
+				}, __("Manage"));
+			}
+
 			if (in_list(["Submitted", "Partially Depreciated", "Fully Depreciated"], frm.doc.status)) {
 				frm.add_custom_button(__("Transfer Asset"), function() {
 					frm.trigger("transfer_asset");
@@ -204,6 +210,44 @@ frappe.ui.form.on('Asset_', {
 					args: {
 						asset: frm.doc.name,
 						num_of_assets: data.additional_num_of_assets
+					},
+					callback: function(r) {
+						dialog.hide();
+						frm.refresh();
+					}
+				});
+			},
+		});
+		dialog.show();
+	},
+
+	split_asset: function(frm) {
+		var dialog = new frappe.ui.Dialog({
+			title: __("Split Asset"),
+			fields: [
+				{
+					"label": "Current Number of Assets",
+					"fieldname": "current_num_of_assets",
+					"fieldtype": "Int",
+					"read_only": 1,
+					"default": frm.doc.num_of_assets
+				},
+				{
+					"label": "Number of Assets to be Separated",
+					"fieldname": "num_of_assets_to_be_separated",
+					"fieldtype": "Int",
+					"reqd": 1,
+					"default": 1
+				},
+			],
+			primary_action_label: __('Split'),
+			primary_action: function() {
+				var data = dialog.get_values();
+				frappe.call({
+					method: "assets.asset.doctype.asset_.asset_.split_asset",
+					args: {
+						asset: frm.doc.name,
+						num_of_assets_to_be_separated: data.num_of_assets_to_be_separated
 					},
 					callback: function(r) {
 						dialog.hide();
