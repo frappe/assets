@@ -13,11 +13,11 @@ class AssetMovement_(Document):
 		self.validate_employee()
 
 	def on_submit(self):
-		self.update_asset_location_and_employee()
+		self.update_asset_location_and_custodian()
 		self.record_asset_movements()
 
 	def on_cancel(self):
-		self.update_asset_location_and_employee()
+		self.update_asset_location_and_custodian()
 
 	def validate_asset(self):
 		for asset in self.assets:
@@ -34,6 +34,9 @@ class AssetMovement_(Document):
 
 			if is_serialized_asset and not asset.serial_no:
 				frappe.throw(_("Row {0}: Enter Serial No for Asset {1}").format(asset.idx, asset.asset))
+
+			if not is_serialized_asset and not asset.num_of_assets:
+				frappe.throw(_("Row {0}: Enter Number of Assets for Asset {1}").format(asset.idx, asset.asset))
 
 	def validate_movement(self):
 		for asset in self.assets:
@@ -134,8 +137,8 @@ class AssetMovement_(Document):
 			frappe.throw(_("Employee {0} does not belong to the company {1}").
 				format(row.to_employee, self.company))
 
-	def update_asset_location_and_employee(self):
-		current_location, current_employee = "", ""
+	def update_asset_location_and_custodian(self):
+		current_location, current_custodian = "", ""
 		assets_to_be_updated = self.get_assets_to_be_updated()
 
 		for d in self.assets:
@@ -146,14 +149,14 @@ class AssetMovement_(Document):
 					"serial_no": d.serial_no
 				}
 
-				current_location, current_employee = self.get_current_location_and_employee(args)
+				current_location, current_custodian = self.get_current_location_and_custodian(args)
 
 				if d.serial_no:
 					frappe.db.set_value("Asset Serial No", d.serial_no, "location", current_location)
-					frappe.db.set_value("Asset Serial No", d.serial_no, "custodian", current_employee)
+					frappe.db.set_value("Asset Serial No", d.serial_no, "custodian", current_custodian)
 				else:
 					frappe.db.set_value("Asset_", d.asset, "location", current_location)
-					frappe.db.set_value("Asset_", d.asset, "custodian", current_employee)
+					frappe.db.set_value("Asset_", d.asset, "custodian", current_custodian)
 
 	def get_assets_to_be_updated(self):
 		assets_being_moved = [d.asset for d in self.assets]
@@ -168,11 +171,11 @@ class AssetMovement_(Document):
 		)
 		return submitted_assets_being_moved
 
-	def get_current_location_and_employee(self, args):
+	def get_current_location_and_custodian(self, args):
 		cond = "1=1"
 
-		# latest entry corresponds to current document's location, employee when transaction date > previous dates
-		# In case of cancellation it corresponds to previous latest document's location, employee
+		# latest entry corresponds to current document's location, custodian when transaction date > previous dates
+		# In case of cancellation it corresponds to previous latest document's location, custodian
 		latest_movement_entry = frappe.db.sql(
 			"""
 			SELECT asm_item.target_location, asm_item.to_employee
@@ -190,7 +193,7 @@ class AssetMovement_(Document):
 		if latest_movement_entry:
 			return latest_movement_entry[0][0], latest_movement_entry[0][1]
 		else:
-			frappe.throw(_("Unable to update Employee and Location for Asset {0}").format(frappe.bold(args["asset"])))
+			frappe.throw(_("Unable to update Custodian and Location for Asset {0}").format(frappe.bold(args["asset"])))
 
 	def record_asset_movements(self):
 		for asset in self.assets:
