@@ -20,7 +20,7 @@ class BaseAsset(Document):
 			if self.is_depreciable_asset():
 				self.validate_available_for_use_date()
 
-			self.status = self.get_status()
+		self.status = self.get_status()
 
 	def before_submit(self):
 		if self.is_not_serialized_asset():
@@ -30,7 +30,8 @@ class BaseAsset(Document):
 			self.record_asset_purchase()
 			self.record_asset_creation()
 			self.record_asset_receipt()
-			self.set_status()
+
+		self.set_status()
 
 	def is_not_serialized_asset(self):
 		"""
@@ -117,7 +118,7 @@ class BaseAsset(Document):
 		self.asset_value = self.get_initial_asset_value()
 
 	def get_initial_asset_value(self):
-		purchase_doc = self.get_purchase_details()
+		purchase_doc = get_purchase_details(self)
 		gross_purchase_amount, opening_accumulated_depreciation = self.get_gross_purchase_amount_and_opening_accumulated_depreciation()
 
 		if self.is_depreciable_asset() and not purchase_doc:
@@ -165,7 +166,7 @@ class BaseAsset(Document):
 					.format(finance_book.idx), title=_("Incorrect Date"))
 
 	def record_asset_purchase(self):
-		purchase_doctype, purchase_docname = self.get_purchase_details()
+		purchase_doctype, purchase_docname = get_purchase_details(self)
 		serial_no = self.get_serial_no()
 		asset = self.get_asset()
 
@@ -191,7 +192,7 @@ class BaseAsset(Document):
 		)
 
 	def record_asset_receipt(self):
-		reference_doctype, reference_docname = self.get_purchase_details()
+		reference_doctype, reference_docname = get_purchase_details(self)
 		transaction_date = getdate(self.get_purchase_date())
 		serial_no = self.get_serial_no()
 		asset = self.get_asset()
