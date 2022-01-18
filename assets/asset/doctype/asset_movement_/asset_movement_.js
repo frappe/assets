@@ -38,6 +38,14 @@ frappe.ui.form.on('Asset Movement_', {
 					status: ["not in", ["Draft"]]
 				}
 			}
+		}),
+		frm.set_query("serial_no", "assets", (doc, cdt, cdn) => {
+			var row = locals[cdt][cdn];
+			return {
+				filters: {
+					asset: row.asset
+				}
+			}
 		})
 	},
 
