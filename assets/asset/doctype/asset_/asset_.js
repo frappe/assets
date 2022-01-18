@@ -60,11 +60,11 @@ frappe.ui.form.on('Asset_', {
 			else {
 				if (in_list(["Submitted", "Partially Depreciated", "Fully Depreciated"], frm.doc.status)) {
 					frm.add_custom_button(__("Transfer Asset"), function() {
-						frm.trigger.transfer_asset(frm);
+						frm.trigger("transfer_asset");
 					}, __("Manage"));
 
 					frm.add_custom_button(__("Scrap Asset"), function() {
-						frm.trigger.scrap_asset(frm);
+						frm.trigger("scrap_asset");
 					}, __("Manage"));
 
 					frm.add_custom_button(__("Sell Asset"), function() {
@@ -73,7 +73,7 @@ frappe.ui.form.on('Asset_', {
 				}
 				else if (frm.doc.status=='Scrapped') {
 					frm.add_custom_button(__("Restore Asset"), function() {
-						frm.trigger.restore_asset(frm);
+						frm.trigger("restore_asset");
 					}, __("Manage"));
 				}
 
@@ -191,11 +191,13 @@ frappe.ui.form.on('Asset_', {
 
 	transfer_asset: function(frm) {
 		frappe.call({
-			method: "assets.controllers.base_asset.make_asset_movement",
+			method: "assets.controllers.base_asset.transfer_asset",
 			freeze: true,
 			args:{
-				"assets": [{ name: frm.doc.name }],
-				"purpose": "Transfer"
+				"asset": frm.doc.name,
+				"purpose": "Transfer",
+				"source_location": frm.doc.location,
+				"company": frm.doc.company
 			},
 			callback: function (r) {
 				if (r.message) {

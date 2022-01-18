@@ -342,7 +342,7 @@ def make_asset_movement(assets, purpose=None):
 	asset_movement.purpose = purpose
 
 	for asset in assets:
-		asset = frappe.get_doc('Asset', asset.get('name'))
+		asset = frappe.get_doc('Asset_', asset.get('name'))
 		asset_movement.company = asset.get('company')
 		asset_movement.append("assets", {
 			'asset': asset.get('name'),
@@ -404,17 +404,18 @@ def validate_serial_no(doc):
 			.format(frappe.bold(doc.asset)), title=_("Missing Serial No"))
 
 @frappe.whitelist()
-def transfer_asset(args):
-	args = json.loads(args)
-
+def transfer_asset(asset, purpose, source_location, company):
 	movement_entry = frappe.new_doc("Asset Movement_")
-	movement_entry.update(args)
-	movement_entry.insert()
-	movement_entry.submit()
-	frappe.db.commit()
+	movement_entry.company = company
+	movement_entry.purpose = purpose
+	movement_entry.transaction_date = get_datetime()
 
-	frappe.msgprint(_("Asset Movement record {0} created")
-		.format("<a href='/app/Form/Asset Movement/{0}'>{0}</a>").format(movement_entry.name))
+	movement_entry.append("assets", {
+		"asset": asset,
+		"source_location": source_location
+	})
+
+	return movement_entry
 
 @frappe.whitelist()
 def make_sales_invoice(asset, item_code, company):
