@@ -5,6 +5,7 @@ import frappe
 from frappe import _
 from frappe.utils import cint
 
+from assets.asset.doctype.asset_activity.asset_activity import create_asset_activity
 from assets.controllers.base_asset import BaseAsset
 
 
@@ -75,3 +76,58 @@ class Asset_(BaseAsset):
 
 def is_cwip_accounting_enabled(asset_category):
 	return cint(frappe.db.get_value("Asset Category", asset_category, "enable_cwip_accounting"))
+
+@frappe.whitelist()
+def split_asset(asset, num_of_assets_to_be_separated):
+	if isinstance(asset, str):
+		asset = frappe.get_doc("Asset_", asset)
+
+	if isinstance(num_of_assets_to_be_separated, str):
+		num_of_assets_to_be_separated = int(num_of_assets_to_be_separated)
+
+	validate_num_of_assets_to_be_separated(asset, num_of_assets_to_be_separated)
+
+	new_asset = create_new_asset(asset, num_of_assets_to_be_separated)
+	update_existing_asset(asset, num_of_assets_to_be_separated)
+
+	record_asset_split(asset, new_asset, num_of_assets_to_be_separated)
+	display_message_on_successfully_splitting_asset(asset, new_asset)
+
+def validate_num_of_assets_to_be_separated(asset, num_of_assets_to_be_separated):
+	if num_of_assets_to_be_separated >= asset.num_of_assets:
+		frappe.throw(_("Number of Assets to be Separated should be less than the total Number of Assets, which is {0}.")
+			.format(frappe.bold(asset.num_of_assets)), title=_("Invalid Number"))
+
+def create_new_asset(asset, num_of_assets_to_be_separated):
+	new_asset = frappe.copy_doc(asset)
+	new_asset.num_of_assets = num_of_assets_to_be_separated
+	new_asset.flags.split_asset = True
+	new_asset.submit()
+	new_asset.flags.split_asset = False
+
+	return new_asset
+
+def update_existing_asset(asset, num_of_assets_to_be_separated):
+	asset.flags.ignore_validate_update_after_submit = True
+	asset.num_of_assets -= num_of_assets_to_be_separated
+	asset.save()
+
+def record_asset_split(asset, new_asset, num_of_assets_to_be_separated):
+	split_assets = [asset.name, new_asset.name]
+	is_plural = "s" if num_of_assets_to_be_separated > 1 else ""
+
+	for split_asset in split_assets:
+		create_asset_activity(
+			asset = split_asset,
+			activity_type = 'Split',
+			reference_doctype = asset.doctype,
+			reference_docname = asset.name,
+			notes = _("{0} asset{1} separated from {2} into {3}.")
+				.format(num_of_assets_to_be_separated, is_plural, asset.name, new_asset.name)
+		)
+
+def display_message_on_successfully_splitting_asset(asset, new_asset):
+	new_asset_link = frappe.bold(frappe.utils.get_link_to_form("Asset_", new_asset.name))
+	message = _("Asset {0} split successfully. New Asset doc: {1}").format(asset.name, new_asset_link)
+
+	frappe.msgprint(message, title="Sucess", indicator="green")

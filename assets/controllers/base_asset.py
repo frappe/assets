@@ -27,9 +27,10 @@ class BaseAsset(Document):
 			if self.is_depreciable_asset():
 				self.validate_depreciation_posting_start_date()
 
-			self.record_asset_purchase()
-			self.record_asset_creation()
-			self.record_asset_receipt()
+			if not self.flags.split_asset:
+				self.record_asset_purchase()
+				self.record_asset_creation()
+				self.record_asset_receipt()
 
 		self.set_status()
 
