@@ -472,7 +472,7 @@ def create_asset_repair(asset, asset_name):
 
 @frappe.whitelist()
 def make_journal_entry(asset_name):
-	asset = frappe.get_doc("Asset", asset_name)
+	asset = frappe.get_doc("Asset_", asset_name)
 	_, accumulated_depreciation_account, depreciation_expense_account = \
 		get_depreciation_accounts(asset)
 
