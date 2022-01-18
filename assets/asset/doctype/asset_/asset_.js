@@ -54,7 +54,7 @@ frappe.ui.form.on('Asset_', {
 		}
 
 		if (frm.doc.docstatus == 1) {
-			if (!frm.doc.is_serialized_asset) {
+			if (!frm.doc.is_serialized_asset && frm.doc.num_of_assets > 1) {
 				frm.add_custom_button(__("Split Asset"), function() {
 					frm.trigger("split_asset");
 				}, __("Manage"));
