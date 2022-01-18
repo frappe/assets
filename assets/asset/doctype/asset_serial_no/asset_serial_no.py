@@ -3,6 +3,7 @@
 
 import frappe
 from frappe import _
+import json
 
 from assets.controllers.base_asset import BaseAsset, get_finance_books
 
@@ -27,14 +28,12 @@ class AssetSerialNo(BaseAsset):
 		if not self.location:
 			frappe.throw(_("Please enter Location"), title=_("Missing Field"))
 
-def create_asset_serial_no_docs(asset):
-	finance_books = []
-	if asset.calculate_depreciation:
-		finance_books = get_finance_books(asset.asset_category)
+@frappe.whitelist()
+def create_asset_serial_no_docs(asset, num_of_assets=None):
+	asset, finance_books, asset_value = get_asset_values(asset)
+	start, total_num_of_assets = get_iteration_limits(asset, num_of_assets)
 
-	asset_value = asset.get_initial_asset_value()
-
-	for i in range(asset.num_of_assets):
+	for i in range(start, total_num_of_assets):
 		serial_no = frappe.get_doc({
 			"doctype": "Asset Serial No",
 			"asset": asset.name,
@@ -43,6 +42,44 @@ def create_asset_serial_no_docs(asset):
 			"finance_books": finance_books
 		})
 		serial_no.save(ignore_permissions=True)
+
+	update_asset(asset, total_num_of_assets)
+	display_message_on_successful_creation(num_of_assets)
+
+def get_asset_values(asset):
+	if isinstance(asset, str):
+		asset = frappe.get_doc("Asset_", asset)
+
+	finance_books = []
+	if asset.calculate_depreciation:
+		finance_books = get_finance_books(asset.asset_category)
+
+	asset_value = asset.get_initial_asset_value()
+
+	return asset, finance_books, asset_value
+
+def get_iteration_limits(asset, num_of_assets):
+	if not num_of_assets:
+		start = 0
+		total_num_of_assets = asset.num_of_assets
+	else:
+		start = asset.num_of_assets
+		total_num_of_assets = int(num_of_assets) + start
+
+	return start, total_num_of_assets
+
+def update_asset(asset, total_num_of_assets):
+	if asset.num_of_assets != total_num_of_assets:
+		asset.flags.ignore_validate_update_after_submit = True
+		asset.num_of_assets = total_num_of_assets
+		asset.save()
+
+def display_message_on_successful_creation(num_of_assets):
+	frappe.msgprint(
+		_("{0} Asset Serial Nos created successfully.").format(num_of_assets),
+		title='Notification',
+		indicator='green'
+	)
 
 def get_serial_no(asset_name, num_of_assets_created):
 	return asset_name + "-" + str(num_of_assets_created + 1)
