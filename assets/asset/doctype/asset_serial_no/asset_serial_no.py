@@ -33,6 +33,7 @@ def create_asset_serial_no_docs(asset, num_of_assets=None):
 	asset, finance_books, asset_value = get_asset_values(asset)
 	start, total_num_of_assets = get_iteration_limits(asset, num_of_assets)
 
+	created_serial_nos = []
 	for i in range(start, total_num_of_assets):
 		serial_no = frappe.get_doc({
 			"doctype": "Asset Serial No",
@@ -43,8 +44,10 @@ def create_asset_serial_no_docs(asset, num_of_assets=None):
 		})
 		serial_no.save(ignore_permissions=True)
 
+		created_serial_nos.append(serial_no.name)
+
 	update_asset(asset, total_num_of_assets)
-	display_message_on_successful_creation(num_of_assets)
+	display_message_on_successful_creation(int(num_of_assets), created_serial_nos)
 
 def get_asset_values(asset):
 	if isinstance(asset, str):
@@ -74,12 +77,17 @@ def update_asset(asset, total_num_of_assets):
 		asset.num_of_assets = total_num_of_assets
 		asset.save()
 
-def display_message_on_successful_creation(num_of_assets):
-	frappe.msgprint(
-		_("{0} Asset Serial Nos created successfully.").format(num_of_assets),
-		title='Notification',
-		indicator='green'
-	)
+def display_message_on_successful_creation(num_of_assets, created_serial_nos):
+	if num_of_assets > 5:
+		message = _("{0} Asset Serial Nos created successfully.").format(frappe.bold(num_of_assets))
+	else:
+		serial_no_links = list(map(lambda d: frappe.utils.get_link_to_form("Asset Serial No", d), created_serial_nos))
+		serial_no_links = frappe.bold(",".join(serial_no_links))
+
+		is_plural = "s" if num_of_assets != 1 else ""
+		message = _("Asset Serial No{0} {1} created successfully.").format(is_plural, serial_no_links)
+
+	frappe.msgprint(message, title="Sucess", indicator="green")
 
 def get_serial_no(asset_name, num_of_assets_created):
 	return asset_name + "-" + str(num_of_assets_created + 1)
