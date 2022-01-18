@@ -155,8 +155,9 @@ class AssetMovement_(Document):
 					frappe.db.set_value("Asset Serial No", d.serial_no, "location", current_location)
 					frappe.db.set_value("Asset Serial No", d.serial_no, "custodian", current_custodian)
 				else:
-					frappe.db.set_value("Asset_", d.asset, "location", current_location)
-					frappe.db.set_value("Asset_", d.asset, "custodian", current_custodian)
+					self.update_asset_doc(d.asset, d.num_of_assets, current_location, current_custodian, d.idx)
+					# frappe.db.set_value("Asset_", d.asset, "location", current_location)
+					# frappe.db.set_value("Asset_", d.asset, "custodian", current_custodian)
 
 	def get_assets_to_be_updated(self):
 		assets_being_moved = [d.asset for d in self.assets]
@@ -194,6 +195,53 @@ class AssetMovement_(Document):
 			return latest_movement_entry[0][0], latest_movement_entry[0][1]
 		else:
 			frappe.throw(_("Unable to update Custodian and Location for Asset {0}").format(frappe.bold(args["asset"])))
+
+	def update_asset_doc(self, asset, num_of_assets, current_location, current_custodian, row_id):
+		if self.docstatus == 1:
+			self.update_asset_on_submission(asset, num_of_assets, current_location, current_custodian, row_id)
+		elif self.docstatus == 2:
+			self.update_asset_on_cancellation()
+
+	def update_asset_on_submission(self, asset, num_of_assets, current_location, current_custodian, row_id):
+		asset_doc = frappe.get_doc("Asset_", asset)
+
+		if num_of_assets < asset_doc.num_of_assets:
+			self.split_asset(asset_doc, num_of_assets, current_location, current_custodian)
+
+		elif num_of_assets == asset_doc.num_of_assets:
+			self.update_exisiting_asset(asset_doc, current_location, current_custodian)
+
+		else:
+			frappe.throw(_("Row {0}: Number of Assets needs to be less than or equal to {1} for {2}").
+				format(row_id, num_of_assets, asset))
+
+	def split_asset(self, asset_doc, num_of_assets, current_location, current_custodian):
+		new_doc = frappe.copy_doc(asset_doc)
+
+		if asset_doc.location != current_location:
+			new_doc.location = current_location
+		if asset_doc.custodian != current_custodian:
+			new_doc.custodian = current_custodian
+
+		new_doc.num_of_assets = num_of_assets
+		asset_doc.flags.ignore_validate_update_after_submit = True
+		asset_doc.num_of_assets -= num_of_assets
+
+		new_doc.submit()
+		asset_doc.save()
+
+	def update_exisiting_asset(self, asset_doc, current_location, current_custodian):
+		asset_doc.flags.ignore_validate_update_after_submit = True
+
+		if asset_doc.location != current_location:
+			asset_doc.location = current_location
+		if asset_doc.custodian != current_custodian:
+			asset_doc.custodian = current_custodian
+
+		asset_doc.save()
+
+	def update_asset_on_cancellation(self):
+		pass
 
 	def record_asset_movements(self):
 		for asset in self.assets:
