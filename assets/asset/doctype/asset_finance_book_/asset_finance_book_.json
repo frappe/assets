@@ -9,8 +9,8 @@
   "finance_book",
   "depreciation_template",
   "depreciation_posting_start_date",
-  "expected_value_after_useful_life",
-  "value_after_depreciation"
+  "salvage_value",
+  "asset_value"
  ],
  "fields": [
   {
@@ -27,35 +27,35 @@
    "label": "Depreciation Posting Start Date"
   },
   {
-   "depends_on": "eval:parent.doctype == 'Asset_'",
-   "fieldname": "expected_value_after_useful_life",
-   "fieldtype": "Currency",
+   "fieldname": "depreciation_template",
+   "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Expected Value After Useful Life",
-   "options": "Company:company:default_currency"
+   "label": "Depreciation Template",
+   "options": "Depreciation Template"
   },
   {
-   "fieldname": "value_after_depreciation",
+   "fieldname": "asset_value",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Value After Depreciation",
+   "label": "Asset Value",
    "no_copy": 1,
    "options": "Company:company:default_currency",
    "print_hide": 1,
    "read_only": 1
   },
   {
-   "fieldname": "depreciation_template",
-   "fieldtype": "Link",
+   "depends_on": "eval:parent.doctype == 'Asset_'",
+   "fieldname": "salvage_value",
+   "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Depreciation Template",
-   "options": "Depreciation Template"
+   "label": "Salvage Value",
+   "options": "Company:company:default_currency"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-01-10 18:42:43.810130",
+ "modified": "2022-01-19 17:59:56.711447",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Finance Book_",
