@@ -13,6 +13,8 @@
   "creation_date",
   "depreciation_schedule_section",
   "depreciation_schedule",
+  "details_section",
+  "notes",
   "status",
   "amended_from"
  ],
@@ -71,12 +73,24 @@
    "fieldtype": "Link",
    "label": "Serial No",
    "options": "Asset Serial No"
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "notes",
+   "fieldname": "details_section",
+   "fieldtype": "Section Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-01-10 15:36:51.068323",
+ "modified": "2022-01-19 17:31:14.007977",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Depreciation Schedule_",
