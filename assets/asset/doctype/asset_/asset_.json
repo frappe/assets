@@ -13,7 +13,6 @@
   "asset_name",
   "asset_category",
   "num_of_assets",
-  "serial_no_naming_series",
   "asset_value",
   "image",
   "disposal_date",
@@ -474,20 +473,12 @@
   {
    "fieldname": "column_break_23",
    "fieldtype": "Column Break"
-  },
-  {
-   "depends_on": "is_serialized_asset",
-   "description": "Example: ABCD.#####",
-   "fieldname": "serial_no_naming_series",
-   "fieldtype": "Data",
-   "label": "Serial Number Naming Series",
-   "mandatory_depends_on": "is_serialized_asset"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-16 06:53:52.515585",
+ "modified": "2022-01-19 17:15:18.603474",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",

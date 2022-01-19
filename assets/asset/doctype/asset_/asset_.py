@@ -13,7 +13,7 @@ class Asset_(BaseAsset):
 	def validate(self):
 		super().validate()
 
-		self.validate_asset_values()
+		self.validate_purchase_document()
 		self.validate_item()
 
 	def before_submit(self):
@@ -23,12 +23,6 @@ class Asset_(BaseAsset):
 			from assets.asset.doctype.asset_serial_no.asset_serial_no import create_asset_serial_no_docs
 
 			create_asset_serial_no_docs(self)
-
-	def validate_asset_values(self):
-		self.validate_purchase_document()
-
-		if self.is_serialized_asset:
-			self.validate_serial_number_naming_series()
 
 	def validate_purchase_document(self):
 		if self.is_existing_asset:
@@ -51,13 +45,6 @@ class Asset_(BaseAsset):
 				and not frappe.db.get_value('Purchase Invoice', self.purchase_invoice, 'update_stock')):
 				frappe.throw(_("Update stock must be enable for the purchase invoice {0}")
 					.format(self.purchase_invoice))
-
-	def validate_serial_number_naming_series(self):
-		naming_series = self.get('serial_no_naming_series')
-
-		if "#" in naming_series and "." not in naming_series:
-			frappe.throw(_("Please add a ' . ' before the '#'s in the Serial Number Naming Series."),
-				title=_("Invalid Naming Series"))
 
 	def validate_item(self):
 		item = frappe.get_cached_value("Item",
