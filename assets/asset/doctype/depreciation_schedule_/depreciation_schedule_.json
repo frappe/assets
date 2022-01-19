@@ -48,8 +48,7 @@
    "fieldname": "depreciation_schedule",
    "fieldtype": "Table",
    "label": "Depreciation Schedule",
-   "options": "Asset Depreciation Schedule",
-   "reqd": 1
+   "options": "Asset Depreciation Schedule"
   },
   {
    "fieldname": "depreciation_schedule_section",
@@ -90,7 +89,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-01-19 17:31:14.007977",
+ "modified": "2022-01-19 22:48:43.154236",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Depreciation Schedule_",
