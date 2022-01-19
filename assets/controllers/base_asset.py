@@ -16,11 +16,15 @@ class BaseAsset(Document):
 		self.validate_number_of_assets()
 		self.set_missing_values()
 
-		if self.is_not_serialized_asset():
-			if self.is_depreciable_asset():
-				self.validate_available_for_use_date()
+		if self.is_not_serialized_asset() and self.is_depreciable_asset():
+			self.validate_available_for_use_date()
 
 		self.status = self.get_status()
+
+	def after_insert(self):
+		if self.is_not_serialized_asset() and self.is_depreciable_asset() and not self.depreciation_schedule:
+			self.create_depreciation_schedule()
+			self.save()
 
 	def before_submit(self):
 		if self.is_not_serialized_asset():
@@ -153,6 +157,20 @@ class BaseAsset(Document):
 
 		if self.available_for_use_date and getdate(self.available_for_use_date) < getdate(purchase_date):
 			frappe.throw(_("Available-for-use Date should be after purchase date"))
+
+	def create_depreciation_schedule(self):
+		depr_schedule = frappe.new_doc("Depreciation Schedule_")
+
+		if self.doctype == "Asset_":
+			depr_schedule.asset = self.name
+		else:
+			depr_schedule.asset = self.asset
+			depr_schedule.serial_no = self.serial_no
+
+		depr_schedule.creation_date = getdate()
+		depr_schedule.save()
+
+		self.depreciation_schedule = depr_schedule.name
 
 	def get_purchase_date(self):
 		if self.doctype == "Asset_":
