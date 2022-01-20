@@ -6,7 +6,6 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "finance_book",
   "schedule_date",
   "depreciation_amount",
   "column_break_3",
@@ -17,14 +16,6 @@
   "depreciation_method"
  ],
  "fields": [
-  {
-   "fieldname": "finance_book",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Finance Book",
-   "options": "Finance Book",
-   "read_only": 1
-  },
   {
    "fieldname": "schedule_date",
    "fieldtype": "Date",
@@ -93,7 +84,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-01-19 20:44:17.467579",
+ "modified": "2022-01-21 00:23:44.642618",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Depreciation Schedule",
