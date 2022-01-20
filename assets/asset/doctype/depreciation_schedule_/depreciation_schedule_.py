@@ -27,7 +27,7 @@ class DepreciationSchedule_(Document):
 				asset_life = self.get_asset_life_in_months(depr_template)
 
 				depr_start_date = available_for_use_date
-				depr_end_date = self.get_depreciation_end_date(depr_start_date, asset_life, date_of_sale)
+				depr_end_date = self.get_depreciation_end_date(available_for_use_date, asset_life, date_of_sale)
 
 				depr_in_one_day = self.get_depreciation_in_one_day(available_for_use_date, asset_life, depr_start_date, depreciable_value)
 
@@ -76,11 +76,11 @@ class DepreciationSchedule_(Document):
 		else:
 			return (depreciation_template.asset_life * 12)
 
-	def get_depreciation_end_date(self, depr_start_date, asset_life, date_of_sale):
+	def get_depreciation_end_date(self, available_for_use_date, asset_life, date_of_sale):
 		if date_of_sale:
 			return date_of_sale
 
-		day_after_depr_end_date = add_months(depr_start_date, asset_life)
+		day_after_depr_end_date = add_months(available_for_use_date, asset_life)
 		depr_end_date = add_days(day_after_depr_end_date, -1)
 
 		return depr_end_date
