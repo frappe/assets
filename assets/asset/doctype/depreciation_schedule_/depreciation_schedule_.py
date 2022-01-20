@@ -29,12 +29,12 @@ class DepreciationSchedule_(Document):
 				frequency_of_depr = self.get_frequency_of_depreciation_in_months(depr_template.frequency_of_depreciation)
 				depr_period = self.get_depreciation_period_in_months(depr_template)
 
-				depr_end_date = self.get_depreciation_end_date(available_for_use_date, depr_period, date_of_sale)
-
 				depr_start_date = available_for_use_date
-				schedule_date = row.depreciation_posting_start_date
+				depr_end_date = self.get_depreciation_end_date(depr_start_date, depr_period, date_of_sale)
 
 				depr_in_one_day = self.get_depreciation_in_one_day(available_for_use_date, depr_period, depr_start_date, depreciable_value)
+
+				schedule_date = row.depreciation_posting_start_date
 
 				while schedule_date < depr_end_date:
 					self.create_depreciation_entry(schedule_date, depr_start_date, depr_in_one_day, row.finance_book)
@@ -77,11 +77,11 @@ class DepreciationSchedule_(Document):
 		else:
 			return (depreciation_template.depreciation_period * 12)
 
-	def get_depreciation_end_date(self, available_for_use_date, depr_period, date_of_sale):
+	def get_depreciation_end_date(self, depr_start_date, depr_period, date_of_sale):
 		if date_of_sale:
 			return date_of_sale
 
-		day_after_depr_end_date = add_months(available_for_use_date, depr_period)
+		day_after_depr_end_date = add_months(depr_start_date, depr_period)
 		depr_end_date = add_days(day_after_depr_end_date, -1)
 
 		return depr_end_date
