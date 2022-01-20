@@ -3,7 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
-from frappe.utils import add_months, date_diff
+from frappe.utils import add_months, date_diff, add_days
 
 from assets.controllers.base_asset import validate_serial_no
 
@@ -39,7 +39,7 @@ class DepreciationSchedule_(Document):
 				while schedule_date < depr_end_date:
 					self.create_depreciation_entry(schedule_date, depr_start_date, depr_in_one_day, row.finance_book)
 
-					depr_start_date = schedule_date
+					depr_start_date = add_days(schedule_date, 1)
 					schedule_date = add_months(schedule_date, frequency_of_depr)
 
 				# for the final row
@@ -85,7 +85,7 @@ class DepreciationSchedule_(Document):
 
 	def get_depreciation_in_one_day(self, available_for_use_date, depr_period, depr_start_date, depreciable_value):
 		depr_end_date = add_months(available_for_use_date, depr_period)
-		depr_period_in_days = date_diff(depr_end_date, depr_start_date) + 1
+		depr_period_in_days = date_diff(depr_end_date, depr_start_date)
 
 		return depreciable_value / depr_period_in_days
 
