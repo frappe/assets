@@ -16,7 +16,7 @@ class DepreciationSchedule_(Document):
 		self.make_depreciation_schedule(date_of_sale)
 
 	def make_depreciation_schedule(self, date_of_sale):
-		finance_books, available_for_use_date, purchase_value = self.get_depr_details()
+		finance_books, available_for_use_date, purchase_value, opening_accumulated_depr = self.get_depr_details()
 
 		for row in finance_books:
 			depreciable_value = purchase_value - row.salvage_value
@@ -26,10 +26,10 @@ class DepreciationSchedule_(Document):
 				frequency_of_depr = self.get_frequency_of_depreciation_in_months(depr_template.frequency_of_depreciation)
 				asset_life = self.get_asset_life_in_months(depr_template)
 
-				depr_start_date = available_for_use_date
-				depr_end_date = self.get_depreciation_end_date(available_for_use_date, asset_life, date_of_sale)
+				depr_in_one_day = self.get_depreciation_in_one_day(available_for_use_date, asset_life, depreciable_value)
 
-				depr_in_one_day = self.get_depreciation_in_one_day(available_for_use_date, asset_life, depr_start_date, depreciable_value)
+				depr_start_date = self.get_depreciation_start_date(available_for_use_date, opening_accumulated_depr, depr_in_one_day)
+				depr_end_date = self.get_depreciation_end_date(available_for_use_date, asset_life, date_of_sale)
 
 				schedule_date = row.depreciation_posting_start_date
 
@@ -45,12 +45,16 @@ class DepreciationSchedule_(Document):
 	def get_depr_details(self):
 		if self.serial_no:
 			doc = frappe.get_doc("Asset Serial No", self.serial_no)
-			purchase_value = frappe.get_value("Asset_", self.asset, "gross_purchase_amount")
+			purchase_value, opening_accumulated_depr = frappe.get_value(
+				"Asset_",
+				self.asset,
+				["gross_purchase_amount", "opening_accumulated_depreciation"]
+			)
 		else:
 			doc = frappe.get_doc("Asset_", self.asset)
-			purchase_value = doc.gross_purchase_amount
+			purchase_value, opening_accumulated_depr = doc.gross_purchase_amount, doc.opening_accumulated_depreciation
 
-		return doc.finance_books, doc.available_for_use_date, purchase_value
+		return doc.finance_books, doc.available_for_use_date, purchase_value, opening_accumulated_depr
 
 	def get_frequency_of_depreciation_in_months(self, frequency_of_depreciation):
 		frequency_in_months = {
@@ -76,6 +80,13 @@ class DepreciationSchedule_(Document):
 		else:
 			return (depreciation_template.asset_life * 12)
 
+	def get_depreciation_start_date(self, available_for_use_date, opening_accumulated_depr, depr_in_one_day):
+		if not opening_accumulated_depr:
+			return available_for_use_date
+		else:
+			days_of_depr_booked = int(opening_accumulated_depr / depr_in_one_day)
+			return add_days(available_for_use_date, days_of_depr_booked)
+
 	def get_depreciation_end_date(self, available_for_use_date, asset_life, date_of_sale):
 		if date_of_sale:
 			return date_of_sale
@@ -85,9 +96,9 @@ class DepreciationSchedule_(Document):
 
 		return depr_end_date
 
-	def get_depreciation_in_one_day(self, available_for_use_date, asset_life, depr_start_date, depreciable_value):
+	def get_depreciation_in_one_day(self, available_for_use_date, asset_life, depreciable_value):
 		depr_end_date = add_months(available_for_use_date, asset_life)
-		asset_life_in_days = date_diff(depr_end_date, depr_start_date)
+		asset_life_in_days = date_diff(depr_end_date, available_for_use_date)
 
 		return depreciable_value / asset_life_in_days
 
