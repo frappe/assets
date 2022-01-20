@@ -81,7 +81,10 @@ class DepreciationSchedule_(Document):
 		if date_of_sale:
 			return date_of_sale
 
-		return add_months(available_for_use_date, depr_period)
+		day_after_depr_end_date = add_months(available_for_use_date, depr_period)
+		depr_end_date = add_days(day_after_depr_end_date, -1)
+
+		return depr_end_date
 
 	def get_depreciation_in_one_day(self, available_for_use_date, depr_period, depr_start_date, depreciable_value):
 		depr_end_date = add_months(available_for_use_date, depr_period)
