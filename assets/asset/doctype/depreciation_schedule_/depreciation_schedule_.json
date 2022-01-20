@@ -8,9 +8,10 @@
  "engine": "InnoDB",
  "field_order": [
   "asset",
-  "serial_no",
-  "column_break_2",
   "creation_date",
+  "column_break_2",
+  "serial_no",
+  "finance_book",
   "depreciation_schedule_section",
   "depreciation_schedule",
   "details_section",
@@ -84,12 +85,18 @@
    "fieldname": "notes",
    "fieldtype": "Small Text",
    "label": "Notes"
+  },
+  {
+   "fieldname": "finance_book",
+   "fieldtype": "Link",
+   "label": "Finance Book",
+   "options": "Finance Book"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-01-19 22:48:43.154236",
+ "modified": "2022-01-21 00:21:47.026940",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Depreciation Schedule_",
