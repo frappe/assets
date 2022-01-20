@@ -10,8 +10,8 @@
   "template_name",
   "depreciation_method",
   "frequency_of_depreciation",
-  "depreciation_period",
-  "depreciation_period_unit",
+  "asset_life",
+  "asset_life_unit",
   "rate_of_depreciation"
  ],
  "fields": [
@@ -39,29 +39,29 @@
    "label": "Rate of Depreciation"
   },
   {
-   "fieldname": "depreciation_period",
-   "fieldtype": "Int",
-   "in_list_view": 1,
-   "label": "Depreciation Period",
-   "reqd": 1
-  },
-  {
-   "fieldname": "depreciation_period_unit",
-   "fieldtype": "Select",
-   "label": "Depreciation Period Unit",
-   "options": "Months\nYears",
-   "reqd": 1
-  },
-  {
    "fieldname": "template_name",
    "fieldtype": "Data",
    "label": "Template Name",
    "unique": 1
+  },
+  {
+   "fieldname": "asset_life",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Asset Life",
+   "reqd": 1
+  },
+  {
+   "fieldname": "asset_life_unit",
+   "fieldtype": "Select",
+   "label": "Asset Life Unit",
+   "options": "Months\nYears",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-01-10 18:22:54.736870",
+ "modified": "2022-01-20 19:48:49.540359",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Depreciation Template",
