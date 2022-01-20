@@ -16,13 +16,10 @@ class DepreciationSchedule_(Document):
 		self.make_depreciation_schedule(date_of_sale)
 
 	def make_depreciation_schedule(self, date_of_sale):
-		asset = frappe.get_doc("Asset_", self.asset)
-		initial_asset_value = asset.get_initial_asset_value()
-
-		finance_books, available_for_use_date = self.get_depr_details(asset)
+		finance_books, available_for_use_date, purchase_value = self.get_depr_details()
 
 		for row in finance_books:
-			depreciable_value = initial_asset_value - row.salvage_value
+			depreciable_value = purchase_value - row.salvage_value
 			depr_template = frappe.get_doc("Depreciation Template", row.depreciation_template)
 
 			if depr_template.depreciation_method == "Straight Line":
@@ -45,13 +42,15 @@ class DepreciationSchedule_(Document):
 				# for the final row
 				self.create_depreciation_entry(depr_end_date, depr_start_date, depr_in_one_day, row.finance_book)
 
-	def get_depr_details(self, asset):
+	def get_depr_details(self):
 		if self.serial_no:
 			doc = frappe.get_doc("Asset Serial No", self.serial_no)
+			purchase_value = frappe.get_value("Asset_", self.asset, "gross_purchase_amount")
 		else:
-			doc = asset
+			doc = frappe.get_doc("Asset_", self.asset)
+			purchase_value = doc.gross_purchase_amount
 
-		return doc.finance_books, doc.available_for_use_date
+		return doc.finance_books, doc.available_for_use_date, purchase_value
 
 	def get_frequency_of_depreciation_in_months(self, frequency_of_depreciation):
 		frequency_in_months = {
