@@ -19,6 +19,9 @@ class BaseAsset(Document):
 		if self.is_not_serialized_asset() and self.is_depreciable_asset():
 			self.validate_available_for_use_date()
 
+			if self.status not in ["Partially Depreciated", "Fully Depreciated"]:
+				self.set_asset_value_for_finance_books()
+
 		self.status = self.get_status()
 
 	def after_insert(self):
@@ -157,6 +160,11 @@ class BaseAsset(Document):
 
 		if self.available_for_use_date and getdate(self.available_for_use_date) < getdate(purchase_date):
 			frappe.throw(_("Available-for-use Date should be after purchase date"))
+
+	def set_asset_value_for_finance_books(self):
+		for row in self.finance_books:
+			if not row.asset_value:
+				row.asset_value = self.asset_value
 
 	def create_depreciation_schedule(self):
 		depr_schedule = frappe.new_doc("Depreciation Schedule_")
