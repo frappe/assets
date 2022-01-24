@@ -167,20 +167,6 @@ class BaseAsset(Document):
 			if not row.asset_value:
 				row.asset_value = self.asset_value
 
-	# def create_depreciation_schedule(self):
-	# 	depr_schedule = frappe.new_doc("Depreciation Schedule_")
-
-	# 	if self.doctype == "Asset_":
-	# 		depr_schedule.asset = self.name
-	# 	else:
-	# 		depr_schedule.asset = self.asset
-	# 		depr_schedule.serial_no = self.serial_no
-
-	# 	depr_schedule.creation_date = getdate()
-	# 	depr_schedule.save()
-
-	# 	self.depreciation_schedule = depr_schedule.name
-
 	def get_purchase_date(self):
 		if self.doctype == "Asset_":
 			return self.purchase_date
