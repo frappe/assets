@@ -3,10 +3,11 @@
 
 import frappe
 from frappe import _
-from frappe.utils import cint
+from frappe.utils import cint, get_link_to_form
 
 from assets.asset.doctype.asset_activity.asset_activity import create_asset_activity
 from assets.controllers.base_asset import BaseAsset
+from frappe.utils.data import getdate
 
 
 class Asset_(BaseAsset):
@@ -78,6 +79,10 @@ def split_asset(asset, num_of_assets_to_be_separated):
 	validate_num_of_assets_to_be_separated(asset, num_of_assets_to_be_separated)
 
 	new_asset = create_new_asset(asset, num_of_assets_to_be_separated)
+
+	if new_asset.calculate_depreciation:
+		submit_copies_of_depreciation_schedules(new_asset.name, asset.name)
+
 	update_existing_asset(asset, num_of_assets_to_be_separated)
 
 	record_asset_split(asset, new_asset, num_of_assets_to_be_separated)
@@ -96,6 +101,74 @@ def create_new_asset(asset, num_of_assets_to_be_separated):
 	new_asset.flags.split_asset = False
 
 	return new_asset
+
+def submit_copies_of_depreciation_schedules(new_asset, original_asset):
+	new_schedules = frappe.get_all(
+		"Depreciation Schedule_",
+		filters = {
+			"asset": new_asset
+		},
+		fields = ["name", "finance_book"]
+	)
+
+	map_to_original_schedules = get_map_to_original_schedules(original_asset, new_schedules)
+
+	for schedule in new_schedules:
+		ds = frappe.get_doc("Depreciation Schedule_", schedule["name"])
+
+		ds.notes = _("This is a copy of {0} created when Asset {1} was split to form Asset {2}.").format(
+			get_link_to_form("Depreciation Schedule_", map_to_original_schedules[ds.name]),
+			get_link_to_form("Asset_", original_asset),
+			get_link_to_form("Asset_", new_asset)
+		)
+		ds.submit()
+
+def get_map_to_original_schedules(original_asset, new_schedules):
+	"""
+		Returns dictionary in the form {new_ds1: original_ds1, new_ds2: original_ds2...}
+	"""
+	original_schedules = frappe.get_all(
+		"Depreciation Schedule_",
+		filters = {
+			"asset": original_asset
+		},
+		fields = ["name", "finance_book"]
+	)
+
+	new_schedules_dict = turn_list_of_dicts_to_dicts(new_schedules)
+	original_schedules_dict = turn_list_of_dicts_to_dicts(original_schedules)
+	map_to_original_schedules = merge_dictionaries(new_schedules_dict, original_schedules_dict, new_schedules)
+
+	return map_to_original_schedules
+
+def turn_list_of_dicts_to_dicts(schedules):
+	"""
+		Converts [{"name": name1, "finance_book": fb1}, ...] into {fb1: name1, ...}
+	"""
+	schedules_dict = {}
+	for schedule in schedules:
+		schedules_dict.update({
+			schedule["finance_book"]: schedule["name"]
+		})
+
+	return schedules_dict
+
+def merge_dictionaries(new_schedules_dict, original_schedules_dict, new_schedules):
+	"""
+		Converts {fb1: name1, fb2: name2...} and {fb1: name3, fb2: name4...} into {name1: name3, name2: name4...}
+	"""
+	finance_books = get_finance_books(new_schedules)
+
+	map_to_original_schedules = {}
+	for finance_book in finance_books:
+		map_to_original_schedules.update({
+			new_schedules_dict[finance_book]: original_schedules_dict[finance_book]
+		})
+
+	return map_to_original_schedules
+
+def get_finance_books(new_schedules):
+	return [schedule['finance_book'] for schedule in new_schedules]
 
 def update_existing_asset(asset, num_of_assets_to_be_separated):
 	asset.flags.ignore_validate_update_after_submit = True
@@ -117,7 +190,7 @@ def record_asset_split(asset, new_asset, num_of_assets_to_be_separated):
 		)
 
 def display_message_on_successfully_splitting_asset(asset, new_asset):
-	new_asset_link = frappe.bold(frappe.utils.get_link_to_form("Asset_", new_asset.name))
+	new_asset_link = frappe.bold(get_link_to_form("Asset_", new_asset.name))
 	message = _("Asset {0} split successfully. New Asset doc: {1}").format(asset.name, new_asset_link)
 
 	frappe.msgprint(message, title="Sucess", indicator="green")
