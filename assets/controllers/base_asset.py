@@ -9,6 +9,7 @@ import json
 
 from assets.asset.doctype.asset_activity.asset_activity import create_asset_activity
 from assets.asset.doctype.asset_category_.asset_category_ import get_asset_category_account
+from assets.asset.doctype.depreciation_schedule_.depreciation_schedule_ import create_depreciation_schedules
 
 
 class BaseAsset(Document):
@@ -25,9 +26,8 @@ class BaseAsset(Document):
 		self.status = self.get_status()
 
 	def after_insert(self):
-		if self.is_not_serialized_asset() and self.is_depreciable_asset() and not self.depreciation_schedule:
-			self.create_depreciation_schedule()
-			self.save()
+		if self.is_not_serialized_asset() and self.is_depreciable_asset():
+			create_depreciation_schedules(self)
 
 	def before_submit(self):
 		if self.is_not_serialized_asset():
@@ -166,19 +166,19 @@ class BaseAsset(Document):
 			if not row.asset_value:
 				row.asset_value = self.asset_value
 
-	def create_depreciation_schedule(self):
-		depr_schedule = frappe.new_doc("Depreciation Schedule_")
+	# def create_depreciation_schedule(self):
+	# 	depr_schedule = frappe.new_doc("Depreciation Schedule_")
 
-		if self.doctype == "Asset_":
-			depr_schedule.asset = self.name
-		else:
-			depr_schedule.asset = self.asset
-			depr_schedule.serial_no = self.serial_no
+	# 	if self.doctype == "Asset_":
+	# 		depr_schedule.asset = self.name
+	# 	else:
+	# 		depr_schedule.asset = self.asset
+	# 		depr_schedule.serial_no = self.serial_no
 
-		depr_schedule.creation_date = getdate()
-		depr_schedule.save()
+	# 	depr_schedule.creation_date = getdate()
+	# 	depr_schedule.save()
 
-		self.depreciation_schedule = depr_schedule.name
+	# 	self.depreciation_schedule = depr_schedule.name
 
 	def get_purchase_date(self):
 		if self.doctype == "Asset_":
