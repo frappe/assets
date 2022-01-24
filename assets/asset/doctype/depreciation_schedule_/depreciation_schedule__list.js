@@ -1,0 +1,14 @@
+frappe.listview_settings['Depreciation Schedule_'] = {
+	add_fields: ['status'],
+	get_indicator: function (doc) {
+		if (doc.status === "Active") {
+			return [__("Active"), "green", "status,=,Active"];
+
+		} else if (doc.status === "Cancelled") {
+			return [__("Cancelled"), "grey", "status,=,Cancelled"];
+
+		} else if (doc.status === "Draft") {
+			return [__("Draft"), "red", "status,=,Draft"];
+		}
+	}
+}
