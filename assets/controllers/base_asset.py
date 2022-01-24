@@ -33,6 +33,7 @@ class BaseAsset(Document):
 		if self.is_not_serialized_asset():
 			if self.is_depreciable_asset():
 				self.validate_depreciation_posting_start_date()
+				self.submit_depreciation_schedules()
 
 			if not self.flags.split_asset:
 				self.record_asset_purchase()
@@ -192,6 +193,25 @@ class BaseAsset(Document):
 				frappe.throw(_("Row #{}: Depreciation Posting Date should not be equal to Available for Use Date.")
 					.format(finance_book.idx), title=_("Incorrect Date"))
 
+	def submit_depreciation_schedules(self):
+		filters = {
+			"asset": self.get_asset(),
+			"serial_no": self.get_serial_no()
+		}
+
+		depreciation_schedules = frappe.get_all(
+			"Depreciation Schedule_",
+			filters = filters,
+			fields = ["name", "status"]
+		)
+
+		for schedule in depreciation_schedules:
+			if schedule["status"] == "Draft":
+				ds = frappe.get_doc("Depreciation Schedule_", schedule["name"])
+				ds.submit()
+			elif schedule["status"] == "Active":
+				frappe.set_value("Depreciation Schedule_", schedule["name"], "status", "Cancelled")
+
 	def record_asset_purchase(self):
 		purchase_doctype, purchase_docname = get_purchase_details(self)
 		serial_no = self.get_serial_no()
@@ -252,7 +272,7 @@ class BaseAsset(Document):
 
 	def get_serial_no(self):
 		if self.doctype == "Asset_":
-			return None
+			return ""
 		else:
 			return self.serial_no
 
@@ -286,12 +306,12 @@ class BaseAsset(Document):
 			elif self.finance_books:
 				idx = self.get_default_finance_book_idx() or 0
 
-				expected_value_after_useful_life = self.finance_books[idx].expected_value_after_useful_life
-				value_after_depreciation = self.finance_books[idx].value_after_depreciation
+				salvage_value = self.finance_books[idx].salvage_value
+				asset_value = self.finance_books[idx].asset_value
 
-				if flt(value_after_depreciation) <= expected_value_after_useful_life:
+				if flt(asset_value) <= salvage_value:
 					status = "Fully Depreciated"
-				elif flt(value_after_depreciation) < flt(self.gross_purchase_amount):
+				elif flt(asset_value) < flt(self.gross_purchase_amount):
 					status = 'Partially Depreciated'
 
 		elif self.docstatus == 2:
