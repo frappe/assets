@@ -12,6 +12,12 @@ class DepreciationSchedule_(Document):
 
 		validate_serial_no(self)
 
+	def before_submit(self):
+		self.set_status("Active")
+
+	def set_status(self, status):
+		self.db_set("status", status)
+
 def create_depreciation_schedules(asset, date_of_sale=None):
 	purchase_value, opening_accumulated_depr = get_depr_details(asset)
 
