@@ -34,6 +34,7 @@ def create_depreciation_schedules(asset, date_of_sale=None):
 		depr_schedule.finance_book = row.finance_book
 
 		make_depreciation_schedule(depr_schedule, asset, row, purchase_value, opening_accumulated_depr, date_of_sale)
+		set_accumulated_depreciation(depr_schedule)
 
 		depr_schedule.save()
 
@@ -133,3 +134,10 @@ def create_depreciation_entry(depr_schedule, schedule_date, depr_start_date, dep
 			"schedule_date": schedule_date,
 			"depreciation_amount": depr_amount
 		})
+
+def set_accumulated_depreciation(depr_schedule):
+	accumulated_depr_amount = 0
+
+	for schedule in depr_schedule.depreciation_schedule:
+		accumulated_depr_amount += schedule.depreciation_amount
+		schedule.accumulated_depreciation_amount = accumulated_depr_amount
