@@ -54,10 +54,10 @@ def get_depr_details(asset):
 def make_depreciation_schedule(depr_schedule, asset, finance_book, purchase_value, opening_accumulated_depr, date_of_sale):
 	depreciable_value = purchase_value - finance_book.salvage_value
 
-	depr_method, frequency_of_depr, asset_life, asset_life_unit = frappe.get_value(
+	depr_method, frequency_of_depr, asset_life, asset_life_unit, rate_of_depr = frappe.get_value(
 		"Depreciation Template",
 		finance_book.depreciation_template,
-		["depreciation_method", "frequency_of_depreciation", "asset_life", "asset_life_unit"]
+		["depreciation_method", "frequency_of_depreciation", "asset_life", "asset_life_unit", "rate_of_depreciation"]
 	)
 
 	if depr_method == "Straight Line":
@@ -82,10 +82,14 @@ def make_depreciation_schedule(depr_schedule, asset, finance_book, purchase_valu
 		depr_amount = get_depr_amount_for_slm(schedule_date, depr_start_date, depr_in_one_day)
 		create_depreciation_entry(depr_schedule, schedule_date, depr_amount)
 
-	elif depr_method == "Double Declining Balance":
-		rate_of_depr = get_rate_of_depr_for_ddb(asset_life, asset_life_unit)
+	elif depr_method in ["Double Declining Balance", "Written Down Value"]:
+		if depr_method == "Double Declining Balance":
+			rate_of_depr = get_rate_of_depr_for_ddb(asset_life, asset_life_unit)
+			beginning_book_value = purchase_value
+		else:
+			rate_of_depr /= 100
+			beginning_book_value = depreciable_value
 
-		beginning_book_value = purchase_value
 		ending_book_value = beginning_book_value
 		validate_beginning_book_value(beginning_book_value, finance_book.salvage_value)
 
