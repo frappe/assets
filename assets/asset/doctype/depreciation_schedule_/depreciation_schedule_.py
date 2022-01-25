@@ -4,6 +4,7 @@
 import frappe
 from frappe.model.document import Document
 from frappe.utils import add_months, date_diff, add_days, getdate
+from frappe import _
 
 
 class DepreciationSchedule_(Document):
@@ -71,13 +72,43 @@ def make_depreciation_schedule(depr_schedule, asset, finance_book, purchase_valu
 		schedule_date = finance_book.depreciation_posting_start_date
 
 		while schedule_date < depr_end_date:
-			create_depreciation_entry(depr_schedule, schedule_date, depr_start_date, depr_in_one_day)
+			depr_amount = get_depr_amount_for_slm(schedule_date, depr_start_date, depr_in_one_day)
+			create_depreciation_entry(depr_schedule, schedule_date, depr_amount)
 
 			depr_start_date = add_days(schedule_date, 1)
 			schedule_date = add_months(schedule_date, frequency_of_depr)
 
 		# for the final row
-		create_depreciation_entry(depr_schedule, depr_end_date, depr_start_date, depr_in_one_day)
+		depr_amount = get_depr_amount_for_slm(schedule_date, depr_start_date, depr_in_one_day)
+		create_depreciation_entry(depr_schedule, schedule_date, depr_amount)
+
+	elif depr_method == "Double Declining Balance":
+		rate_of_depr = get_rate_of_depr_for_ddb(asset_life, asset_life_unit)
+
+		beginning_book_value = purchase_value
+		ending_book_value = beginning_book_value
+		validate_beginning_book_value(beginning_book_value, finance_book.salvage_value)
+
+		schedule_date = finance_book.depreciation_posting_start_date
+		final_schedule_date = get_final_schedule_date(asset_life, asset_life_unit, asset.available_for_use_date, date_of_sale)
+
+		frequency_of_depr = get_frequency_of_depreciation_in_months(frequency_of_depr)
+
+		while beginning_book_value >= finance_book.salvage_value:
+			if schedule_date <= final_schedule_date:
+				# beginning book value for each depreciation is the ending book value of the previous one
+				beginning_book_value = ending_book_value
+				depr_amount = rate_of_depr * beginning_book_value
+
+				create_depreciation_entry(depr_schedule, schedule_date, depr_amount)
+
+				ending_book_value = beginning_book_value - depr_amount
+
+				# for the next depreciation
+				schedule_date = add_months(schedule_date, frequency_of_depr)
+			else:
+				adjust_final_depreciation_amount(depr_schedule, ending_book_value, beginning_book_value, finance_book.salvage_value)
+				break
 
 def get_frequency_of_depreciation_in_months(frequency_of_depreciation):
 	frequency_in_months = {
@@ -125,15 +156,45 @@ def get_depreciation_in_one_day(available_for_use_date, asset_life, depreciable_
 
 	return depreciable_value / asset_life_in_days
 
-def create_depreciation_entry(depr_schedule, schedule_date, depr_start_date, depr_in_one_day):
+def get_depr_amount_for_slm(schedule_date, depr_start_date, depr_in_one_day):
 	depr_period = date_diff(schedule_date, depr_start_date) + 1
 	depr_amount = depr_in_one_day * depr_period
 
+	return depr_amount
+
+def create_depreciation_entry(depr_schedule, schedule_date, depr_amount):
 	if depr_amount > 0:
 		depr_schedule.append("depreciation_schedule", {
 			"schedule_date": schedule_date,
 			"depreciation_amount": depr_amount
 		})
+
+def get_rate_of_depr_for_ddb(asset_life, asset_life_unit):
+	asset_life_in_years = get_asset_life_in_years(asset_life, asset_life_unit)
+	rate_of_depr = 2 / asset_life_in_years
+
+	return rate_of_depr
+
+def get_asset_life_in_years(asset_life, asset_life_unit):
+	if asset_life_unit == "Years":
+		return asset_life
+	else:
+		return (asset_life / 12)
+
+def validate_beginning_book_value(beginning_book_value, salvage_value):
+	if beginning_book_value <= salvage_value:
+		frappe.throw(_("Salvage Value cannot be greater than or equal to Gross Purchase Amount."))
+
+def get_final_schedule_date(asset_life, asset_life_unit, available_for_use_date, date_of_sale):
+	asset_life_in_months = get_asset_life_in_months(asset_life, asset_life_unit)
+	depr_end_date = get_depreciation_end_date(available_for_use_date, asset_life_in_months, date_of_sale)
+	final_schedule_date = add_days(depr_end_date, 1)
+
+	return final_schedule_date
+
+def adjust_final_depreciation_amount(depr_schedule, ending_book_value, beginning_book_value, salvage_value):
+	if ending_book_value != salvage_value:
+		depr_schedule.depreciation_schedule[-1].depreciation_amount = beginning_book_value - salvage_value
 
 def set_accumulated_depreciation(depr_schedule):
 	accumulated_depr_amount = 0
