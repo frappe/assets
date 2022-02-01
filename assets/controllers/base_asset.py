@@ -241,17 +241,19 @@ class BaseAsset(Document):
 
 	def record_asset_purchase(self):
 		purchase_doctype, purchase_docname = get_purchase_details(self)
-		serial_no = self.get_serial_no()
-		asset = self.get_asset()
 
-		create_asset_activity(
-			asset = asset,
-			asset_serial_no = serial_no,
-			activity_type = 'Purchase',
-			reference_doctype = purchase_doctype,
-			reference_docname = purchase_docname,
-			activity_date = self.get_purchase_date()
-		)
+		if purchase_docname:
+			serial_no = self.get_serial_no()
+			asset = self.get_asset()
+
+			create_asset_activity(
+				asset = asset,
+				asset_serial_no = serial_no,
+				activity_type = 'Purchase',
+				reference_doctype = purchase_doctype,
+				reference_docname = purchase_docname,
+				activity_date = self.get_purchase_date()
+			)
 
 	def record_asset_creation(self):
 		asset = self.get_asset()
