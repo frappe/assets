@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "field:template_name",
- "creation": "2021-12-08 01:06:42.154322",
+ "creation": "2022-01-31 20:58:23.887877",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -12,7 +12,8 @@
   "frequency_of_depreciation",
   "asset_life",
   "asset_life_unit",
-  "rate_of_depreciation"
+  "rate_of_depreciation",
+  "amended_from"
  ],
  "fields": [
   {
@@ -57,11 +58,21 @@
    "label": "Asset Life Unit",
    "options": "Months\nYears",
    "reqd": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Depreciation Template",
+   "print_hide": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [],
- "modified": "2022-01-20 19:48:49.540359",
+ "modified": "2022-02-01 23:16:37.749669",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Depreciation Template",
@@ -82,5 +93,6 @@
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC"
+ "sort_order": "DESC",
+ "states": []
 }
