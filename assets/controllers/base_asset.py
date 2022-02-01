@@ -9,7 +9,11 @@ import json
 
 from assets.asset.doctype.asset_activity.asset_activity import create_asset_activity
 from assets.asset.doctype.asset_category_.asset_category_ import get_asset_category_account
-from assets.asset.doctype.depreciation_schedule_.depreciation_schedule_ import create_depreciation_schedules
+from assets.asset.doctype.depreciation_schedule_.depreciation_schedule_ import (
+	create_depreciation_schedules,
+	create_schedule_for_finance_book,
+	delete_existing_schedules
+)
 
 
 class BaseAsset(Document):
@@ -20,8 +24,10 @@ class BaseAsset(Document):
 		if self.is_not_serialized_asset() and self.is_depreciable_asset():
 			self.validate_available_for_use_date()
 
-			if self.status not in ["Partially Depreciated", "Fully Depreciated"]:
+			if self.is_new():
 				self.set_asset_value_for_finance_books()
+			else:
+				self.create_schedules_if_depr_details_have_been_updated()
 
 		self.status = self.get_status()
 
@@ -161,6 +167,33 @@ class BaseAsset(Document):
 
 		if self.available_for_use_date and getdate(self.available_for_use_date) < getdate(purchase_date):
 			frappe.throw(_("Available-for-use Date should be after purchase date"))
+
+	def create_schedules_if_depr_details_have_been_updated(self):
+		if self.has_value_changed("available_for_use_date") or self.has_value_changed("gross_purchase_amount"):
+			delete_existing_schedules(self)
+			create_depreciation_schedules(self)
+			self.set_asset_value_for_finance_books()
+			return
+
+		doc_before_save = self.get_doc_before_save()
+
+		if doc_before_save.get("finance_books") != self.get("finance_books"):
+			previous_finance_books = doc_before_save.get("finance_books")
+
+			has_updated_fb = False
+			for fb in self.finance_books:
+				if fb not in previous_finance_books:
+					has_updated_fb = True
+					delete_existing_schedules(self, fb)
+					create_schedule_for_finance_book(self, fb)
+				else:
+					previous_finance_books.remove(fb)
+
+			for fb in previous_finance_books:
+				delete_existing_schedules(self, fb)
+
+			if has_updated_fb:
+				self.set_asset_value_for_finance_books()
 
 	def set_asset_value_for_finance_books(self):
 		for row in self.finance_books:

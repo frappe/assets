@@ -23,21 +23,27 @@ def create_depreciation_schedules(asset, date_of_sale=None):
 	purchase_value, opening_accumulated_depr = get_depr_details(asset)
 
 	for row in asset.get('finance_books'):
-		depr_schedule = frappe.new_doc("Depreciation Schedule_")
+		create_schedule_for_finance_book(asset, row, purchase_value, opening_accumulated_depr, date_of_sale)
 
-		if asset.doctype == "Asset_":
-			depr_schedule.asset = asset.name
-		else:
-			depr_schedule.asset = asset.asset
-			depr_schedule.serial_no = asset.serial_no
+def create_schedule_for_finance_book(asset, row, purchase_value=None, opening_accumulated_depr=None, date_of_sale=None):
+	if not purchase_value or not not opening_accumulated_depr:
+		purchase_value, opening_accumulated_depr = get_depr_details(asset)
 
-		depr_schedule.creation_date = getdate()
-		depr_schedule.finance_book = row.finance_book
+	depr_schedule = frappe.new_doc("Depreciation Schedule_")
 
-		make_depreciation_schedule(depr_schedule, asset, row, purchase_value, opening_accumulated_depr, date_of_sale)
-		set_accumulated_depreciation(depr_schedule)
+	if asset.doctype == "Asset_":
+		depr_schedule.asset = asset.name
+	else:
+		depr_schedule.asset = asset.asset
+		depr_schedule.serial_no = asset.serial_no
 
-		depr_schedule.save()
+	depr_schedule.creation_date = getdate()
+	depr_schedule.finance_book = row.finance_book
+
+	make_depreciation_schedule(depr_schedule, asset, row, purchase_value, opening_accumulated_depr, date_of_sale)
+	set_accumulated_depreciation(depr_schedule)
+
+	depr_schedule.save()
 
 def get_depr_details(asset):
 	if asset.doctype == "Asset_":
@@ -206,3 +212,33 @@ def set_accumulated_depreciation(depr_schedule):
 	for schedule in depr_schedule.depreciation_schedule:
 		accumulated_depr_amount += schedule.depreciation_amount
 		schedule.accumulated_depreciation_amount = accumulated_depr_amount
+
+def delete_existing_schedules(asset, finance_book=None):
+	asset, serial_no = get_asset_and_serial_no(asset)
+
+	filters = {
+		"asset": asset,
+		"serial_no": serial_no,
+		"status": "Draft"
+	}
+
+	if finance_book:
+		filters.update({"finance_book": finance_book})
+
+	depr_schedules = frappe.get_all(
+		"Depreciation Schedule_",
+		filters = filters,
+		pluck = "name"
+	)
+
+	if depr_schedules:
+		frappe.db.delete(
+			"Depreciation Schedule_",
+			{"name": ["in", depr_schedules]}
+		)
+
+def get_asset_and_serial_no(asset):
+	if asset.doctype == "Asset_":
+		return asset.name, ""
+	else:
+		return asset.asset, asset.serial_no
