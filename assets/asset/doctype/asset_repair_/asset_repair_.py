@@ -87,20 +87,20 @@ class AssetRepair_(Document):
 
 		if self.is_depreciable_asset():
 			for row in self.asset_doc.finance_books:
-				row.value_after_depreciation += total_value_of_stock_consumed
+				row.asset_value += total_value_of_stock_consumed
 
 				if self.capitalize_repair_cost:
-					row.value_after_depreciation += self.repair_cost
+					row.asset_value += self.repair_cost
 
 	def decrease_asset_value(self):
 		total_value_of_stock_consumed = self.get_total_value_of_stock_consumed()
 
 		if self.is_depreciable_asset():
 			for row in self.asset_doc.finance_books:
-				row.value_after_depreciation -= total_value_of_stock_consumed
+				row.asset_value -= total_value_of_stock_consumed
 
 				if self.capitalize_repair_cost:
-					row.value_after_depreciation -= self.repair_cost
+					row.asset_value -= self.repair_cost
 
 	def is_depreciable_asset(self):
 		if self.asset_doc.doctype == "Asset_":
