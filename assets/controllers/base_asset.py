@@ -178,10 +178,10 @@ class BaseAsset(Document):
 		doc_before_save = self.get_doc_before_save()
 
 		if self.has_updated_finance_books(doc_before_save):
-			previous_finance_books = doc_before_save.get("finance_books")
+			old_finance_books = doc_before_save.get("finance_books")
 
-			self.create_new_schedules_for_new_finance_books(previous_finance_books)
-			self.delete_schedules_belonging_to_deleted_finance_books(previous_finance_books)
+			self.create_new_schedules_for_new_finance_books(old_finance_books)
+			self.delete_schedules_belonging_to_deleted_finance_books(old_finance_books)
 
 			self.set_asset_value_for_finance_books()
 
@@ -193,16 +193,16 @@ class BaseAsset(Document):
 	def has_updated_finance_books(self, doc_before_save):
 		return doc_before_save.get("finance_books") != self.get("finance_books")
 
-	def create_new_schedules_for_new_finance_books(self, previous_finance_books):
+	def create_new_schedules_for_new_finance_books(self, old_finance_books):
 		for fb in self.finance_books:
-			if fb not in previous_finance_books:
+			if fb not in old_finance_books:
 				delete_existing_schedules(self, fb)
 				create_schedule_for_finance_book(self, fb)
 			else:
-				previous_finance_books.remove(fb)
+				old_finance_books.remove(fb)
 
-	def delete_schedules_belonging_to_deleted_finance_books(self, previous_finance_books):
-		for fb in previous_finance_books:
+	def delete_schedules_belonging_to_deleted_finance_books(self, old_finance_books):
+		for fb in old_finance_books:
 			delete_existing_schedules(self, fb)
 
 	def get_purchase_date(self):
