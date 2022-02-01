@@ -25,7 +25,7 @@ class BaseAsset(Document):
 			self.validate_available_for_use_date()
 
 			if self.is_new():
-				self.set_asset_value_for_finance_books()
+				self.set_initial_asset_value_for_finance_books()
 			else:
 				self.create_schedules_if_depr_details_have_been_updated()
 
@@ -172,7 +172,11 @@ class BaseAsset(Document):
 		if self.has_value_changed("available_for_use_date") or self.has_value_changed("gross_purchase_amount"):
 			delete_existing_schedules(self)
 			create_depreciation_schedules(self)
-			self.set_asset_value_for_finance_books()
+
+			if self.has_value_changed("gross_purchase_amount"):
+				self.set_initial_asset_value()
+
+			self.set_initial_asset_value_for_finance_books()
 			return
 
 		doc_before_save = self.get_doc_before_save()
@@ -183,12 +187,11 @@ class BaseAsset(Document):
 			self.create_new_schedules_for_new_finance_books(old_finance_books)
 			self.delete_schedules_belonging_to_deleted_finance_books(old_finance_books)
 
-			self.set_asset_value_for_finance_books()
+			self.set_initial_asset_value_for_finance_books()
 
-	def set_asset_value_for_finance_books(self):
+	def set_initial_asset_value_for_finance_books(self):
 		for row in self.finance_books:
-			if not row.asset_value:
-				row.asset_value = self.asset_value
+			row.asset_value = self.asset_value
 
 	def has_updated_finance_books(self, doc_before_save):
 		return doc_before_save.get("finance_books") != self.get("finance_books")
