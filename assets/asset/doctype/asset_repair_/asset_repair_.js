@@ -28,6 +28,14 @@ frappe.ui.form.on('Asset Repair_', {
 				}
 			};
 		};
+
+		frm.fields_dict.serial_no.get_query = function(doc) {
+			return {
+				filters: {
+					'asset': doc.asset
+				}
+			};
+		};
 	},
 
 	refresh: function(frm) {
