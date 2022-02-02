@@ -332,7 +332,7 @@ class BaseAsset(Document):
 			if self.journal_entry_for_scrap:
 				status = "Scrapped"
 
-			elif self.finance_books:
+			elif self.is_depreciable_asset() and self.finance_books:
 				idx = self.get_default_finance_book_idx() or 0
 
 				salvage_value = self.finance_books[idx].salvage_value
