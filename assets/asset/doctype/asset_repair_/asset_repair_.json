@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "naming_series:",
- "creation": "2021-12-21 16:55:13.773423",
+ "creation": "2022-01-31 20:58:19.797334",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -266,13 +266,14 @@
    "fieldname": "serial_no",
    "fieldtype": "Link",
    "label": "Serial No",
-   "options": "Asset Serial No"
+   "options": "Asset Serial No",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-22 10:59:56.421588",
+ "modified": "2022-02-02 16:27:49.867459",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Repair_",
@@ -294,6 +295,7 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1,
  "track_seen": 1
 }
