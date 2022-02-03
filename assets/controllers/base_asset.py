@@ -184,8 +184,8 @@ class BaseAsset(Document):
 		if self.has_updated_finance_books(doc_before_save):
 			old_finance_books = doc_before_save.get("finance_books")
 
-			self.create_new_schedules_for_new_finance_books(old_finance_books)
 			self.delete_schedules_belonging_to_deleted_finance_books(old_finance_books)
+			self.create_new_schedules_for_new_finance_books(old_finance_books)
 
 			self.set_initial_asset_value_for_finance_books()
 
@@ -220,7 +220,7 @@ class BaseAsset(Document):
 				frappe.throw(_("Row #{}: Depreciation Posting Date should not be equal to Available for Use Date.")
 					.format(finance_book.idx), title=_("Incorrect Date"))
 
-	def submit_depreciation_schedules(self):
+	def submit_depreciation_schedules(self, notes=None):
 		filters = {
 			"asset": self.get_asset(),
 			"serial_no": self.get_serial_no()
@@ -237,7 +237,17 @@ class BaseAsset(Document):
 				ds = frappe.get_doc("Depreciation Schedule_", schedule["name"])
 				ds.submit()
 			elif schedule["status"] == "Active":
-				frappe.set_value("Depreciation Schedule_", schedule["name"], "status", "Cancelled")
+				self.cancel_active_schedule(schedule["name"], notes)
+
+	def cancel_active_schedule(self, schedule_name, notes):
+		active_schedule = frappe.get_doc("Depreciation Schedule_", schedule_name)
+
+		active_schedule.flags.ignore_validate_update_after_submit = True
+		active_schedule.notes = notes
+		active_schedule.status = "Cancelled"
+		active_schedule.save()
+
+		active_schedule.cancel()
 
 	def record_asset_purchase(self):
 		purchase_doctype, purchase_docname = get_purchase_details(self)
