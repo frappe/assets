@@ -1,5 +1,7 @@
 frappe.listview_settings['Depreciation Schedule_'] = {
 	add_fields: ['status'],
+	filters: [["status", "!=", "Cancelled"]],
+
 	get_indicator: function (doc) {
 		if (doc.status === "Active") {
 			return [__("Active"), "green", "status,=,Active"];
