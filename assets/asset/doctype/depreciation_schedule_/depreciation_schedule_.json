@@ -72,7 +72,8 @@
    "fieldname": "serial_no",
    "fieldtype": "Link",
    "label": "Serial No",
-   "options": "Asset Serial No"
+   "options": "Asset Serial No",
+   "read_only": 1
   },
   {
    "collapsible": 1,
@@ -103,7 +104,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-02-04 00:08:05.127140",
+ "modified": "2022-02-04 00:16:57.739465",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Depreciation Schedule_",
