@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:{##}",
+ "autoname": "naming_series:",
  "creation": "2022-01-31 20:58:22.469937",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -9,6 +9,7 @@
  "field_order": [
   "asset",
   "creation_date",
+  "naming_series",
   "column_break_2",
   "serial_no",
   "finance_book",
@@ -91,16 +92,22 @@
    "fieldtype": "Link",
    "label": "Finance Book",
    "options": "Finance Book"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "ACC-DEPR-.YYYY.-"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-02-03 00:02:02.507525",
+ "modified": "2022-02-04 00:08:05.127140",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Depreciation Schedule_",
- "naming_rule": "Expression",
+ "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
