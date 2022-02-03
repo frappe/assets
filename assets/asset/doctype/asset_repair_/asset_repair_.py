@@ -3,14 +3,14 @@
 
 import frappe
 from frappe import _
-from frappe.utils import flt, getdate, time_diff_in_hours
-from frappe.model.document import Document
+from frappe.utils import flt, getdate, time_diff_in_hours, get_link_to_form
+from erpnext.controllers.accounts_controller import AccountsController
 
 from assets.controllers.base_asset import get_asset_account
 from erpnext.accounts.general_ledger import make_gl_entries
 
 
-class AssetRepair_(Document):
+class AssetRepair_(AccountsController):
 	def validate(self):
 		self.get_asset_doc()
 		self.validate_asset()
@@ -30,6 +30,9 @@ class AssetRepair_(Document):
 			self.decrease_stock_quantity()
 		if self.get('capitalize_repair_cost'):
 			self.make_gl_entries()
+
+			if self.is_depreciable_asset() and self.get('increase_in_asset_life'):
+				self.increase_asset_life()
 
 	def before_cancel(self):
 		self.get_asset_doc()
@@ -194,6 +197,55 @@ class AssetRepair_(Document):
 		)
 
 		return gl_entries
+
+	def increase_asset_life(self):
+		self.asset_doc.flags.ignore_validate_update_after_submit = True
+
+		for row in self.asset_doc.finance_books:
+			self.replace_depreciation_template(row)
+
+		self.asset_doc.create_schedules_if_depr_details_have_been_updated()
+		self.asset_doc.submit_depreciation_schedules(notes =
+			_("This schedule was cancelled because {0} underwent a repair that extended its life.")
+			.format(get_link_to_form(self.asset_doc.doctype, self.asset_doc.name))
+		)
+		self.asset_doc.save()
+
+	def replace_depreciation_template(self, row):
+		new_depr_template = self.create_copy_of_depreciation_template(row.depreciation_template)
+		self.update_asset_life_in_new_template(new_depr_template)
+		new_depr_template.submit()
+
+		row.depreciation_template = new_depr_template.name
+
+	def create_copy_of_depreciation_template(self, current_template_name):
+		current_template_details = frappe.get_value(
+			"Depreciation Template",
+			current_template_name,
+			["template_name", "depreciation_method", "frequency_of_depreciation", "asset_life", "asset_life_unit", "rate_of_depreciation"],
+			as_dict = 1
+		)
+
+		new_depr_template = frappe.new_doc("Depreciation Template")
+		new_depr_template.template_name = current_template_details["template_name"] + " - Modified Copy"
+		new_depr_template.depreciation_method = current_template_details["depreciation_method"]
+		new_depr_template.frequency_of_depreciation = current_template_details["frequency_of_depreciation"]
+		new_depr_template.asset_life = current_template_details["asset_life"]
+		new_depr_template.asset_life_unit = current_template_details["asset_life_unit"]
+		new_depr_template.rate_of_depreciation = current_template_details["rate_of_depreciation"]
+
+		return new_depr_template
+
+	def update_asset_life_in_new_template(self, new_depr_template):
+		if new_depr_template.asset_life_unit == "Months":
+			new_depr_template.asset_life += self.increase_in_asset_life
+		else:
+			# asset_life should be an integer
+			if self.increase_in_asset_life % 12 == 0:
+				new_depr_template.asset_life += self.increase_in_asset_life / 12
+			else:
+				new_depr_template.asset_life_unit = "Months"
+				new_depr_template.asset_life += self.increase_in_asset_life
 
 @frappe.whitelist()
 def get_downtime(failure_date, completion_date):
