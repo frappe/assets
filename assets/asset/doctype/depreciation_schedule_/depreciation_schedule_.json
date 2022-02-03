@@ -1,8 +1,8 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:{asset}-{##}",
- "creation": "2021-12-08 04:59:48.676015",
+ "autoname": "format:{##}",
+ "creation": "2022-01-31 20:58:22.469937",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -26,8 +26,7 @@
    "in_list_view": 1,
    "label": "Asset",
    "options": "Asset_",
-   "reqd": 1,
-   "unique": 1
+   "reqd": 1
   },
   {
    "fieldname": "creation_date",
@@ -76,6 +75,7 @@
   },
   {
    "collapsible": 1,
+   "collapsible_depends_on": "notes",
    "depends_on": "notes",
    "fieldname": "details_section",
    "fieldtype": "Section Break",
@@ -96,7 +96,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-01-21 00:21:47.026940",
+ "modified": "2022-02-03 00:02:02.507525",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Depreciation Schedule_",
@@ -117,5 +117,6 @@
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC"
+ "sort_order": "DESC",
+ "states": []
 }
