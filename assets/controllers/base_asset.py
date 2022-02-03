@@ -193,6 +193,12 @@ class BaseAsset(Document):
 		for row in self.finance_books:
 			row.asset_value = self.asset_value
 
+	def update_asset_value(self, change_in_value=0):
+		if self.get('finance_books'):
+			self.asset_value = self.finance_books[0].asset_value
+		else:
+			self.asset_value += change_in_value
+
 	def has_updated_finance_books(self, doc_before_save):
 		return doc_before_save.get("finance_books") != self.get("finance_books")
 

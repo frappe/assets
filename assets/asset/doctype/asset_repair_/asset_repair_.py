@@ -87,29 +87,40 @@ class AssetRepair_(AccountsController):
 
 	def increase_asset_value(self):
 		total_value_of_stock_consumed = self.get_total_value_of_stock_consumed()
+		increase_in_value = self.get_change_in_value(total_value_of_stock_consumed)
 
 		if self.is_depreciable_asset():
 			for row in self.asset_doc.finance_books:
-				row.asset_value += total_value_of_stock_consumed
+				row.asset_value += increase_in_value
 
-				if self.capitalize_repair_cost:
-					row.asset_value += self.repair_cost
+			self.asset_doc.update_asset_value()
+		else:
+			self.asset_doc.update_asset_value(increase_in_value)
 
-			self.asset_doc.flags.ignore_validate_update_after_submit = True
-			self.asset_doc.save()
+		self.asset_doc.flags.ignore_validate_update_after_submit = True
+		self.asset_doc.save()
 
 	def decrease_asset_value(self):
 		total_value_of_stock_consumed = self.get_total_value_of_stock_consumed()
+		decrease_in_value = self.get_change_in_value(total_value_of_stock_consumed)
 
 		if self.is_depreciable_asset():
 			for row in self.asset_doc.finance_books:
-				row.asset_value -= total_value_of_stock_consumed
+				row.asset_value -= decrease_in_value
 
-				if self.capitalize_repair_cost:
-					row.asset_value -= self.repair_cost
+			self.asset_doc.update_asset_value()
+		else:
+			self.asset_doc.update_asset_value(-decrease_in_value)
 
-			self.asset_doc.flags.ignore_validate_update_after_submit = True
-			self.asset_doc.save()
+		self.asset_doc.flags.ignore_validate_update_after_submit = True
+		self.asset_doc.save()
+
+	def get_change_in_value(self, total_value_of_stock_consumed):
+		change_in_value = total_value_of_stock_consumed
+		if self.capitalize_repair_cost:
+			change_in_value += self.repair_cost
+
+		return change_in_value
 
 	def is_depreciable_asset(self):
 		if self.asset_doc.doctype == "Asset_":
