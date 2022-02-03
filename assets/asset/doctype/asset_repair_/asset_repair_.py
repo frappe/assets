@@ -223,8 +223,11 @@ class AssetRepair_(AccountsController):
 
 		self.asset_doc.create_schedules_if_depr_details_have_been_updated()
 		self.asset_doc.submit_depreciation_schedules(notes =
-			_("This schedule was cancelled because {0} underwent a repair that extended its life.")
-			.format(get_link_to_form(self.asset_doc.doctype, self.asset_doc.name))
+			_("This schedule was cancelled because {0} underwent a repair({1}) that extended its life.")
+			.format(
+				get_link_to_form(self.asset_doc.doctype, self.asset_doc.name),
+				get_link_to_form(self.doctype, self.name)
+			)
 		)
 		self.asset_doc.save()
 
