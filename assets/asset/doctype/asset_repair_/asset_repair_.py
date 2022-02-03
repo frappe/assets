@@ -45,6 +45,9 @@ class AssetRepair_(AccountsController):
 			self.ignore_linked_doctypes = ('GL Entry', 'Stock Ledger Entry')
 			self.make_gl_entries(cancel=True)
 
+			if self.is_depreciable_asset() and self.get('increase_in_asset_life'):
+				self.decrease_asset_life()
+
 	def get_asset_doc(self):
 		if self.get('serial_no'):
 			self.asset_doc = frappe.get_doc('Asset Serial No', self.serial_no)
@@ -266,6 +269,37 @@ class AssetRepair_(AccountsController):
 			else:
 				new_depr_template.asset_life_unit = "Months"
 				new_depr_template.asset_life += self.increase_in_asset_life
+
+	def decrease_asset_life(self):
+		self.asset_doc.flags.ignore_validate_update_after_submit = True
+
+		for row in self.asset_doc.finance_books:
+			self.replace_with_original_depreciation_template(row)
+
+		self.asset_doc.create_schedules_if_depr_details_have_been_updated()
+		self.asset_doc.submit_depreciation_schedules(notes =
+			_("This schedule was cancelled because the repair that extended {0}'s life({1}) was cancelled.")
+			.format(
+				get_link_to_form(self.asset_doc.doctype, self.asset_doc.name),
+				get_link_to_form(self.doctype, self.name)
+			)
+		)
+		self.asset_doc.save()
+
+	def replace_with_original_depreciation_template(self, row):
+		old_depr_template = self.get_old_depreciation_template(row.depreciation_template)
+		row.depreciation_template = old_depr_template
+
+	def get_old_depreciation_template(self, current_template_name):
+		if isinstance(current_template_name, str):
+			# because " - Modified Copy" was added at the end of the original template to create the new one's name
+			if current_template_name[-16:] == " - Modified Copy":
+				old_template_length = len(current_template_name) - 16
+				old_template_name = current_template_name[:old_template_length]
+
+				return old_template_name
+
+		frappe.throw(_("Cannot find original Depreciation Template."))
 
 @frappe.whitelist()
 def get_downtime(failure_date, completion_date):
