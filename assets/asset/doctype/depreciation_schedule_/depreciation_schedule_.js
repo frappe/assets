@@ -21,7 +21,16 @@ frappe.ui.form.on('Depreciation Schedule_', {
 	},
 
 	post_depreciation_entries: function(frm) {
-
+		frappe.call({
+			method: "assets.asset.doctype.depreciation_schedule_.depreciation_posting.post_depreciation_entries",
+			args: {
+				"schedule_name": frm.doc.name
+			},
+			callback: function(r) {
+				frappe.model.sync(r.message);
+				frm.refresh();
+			}
+		})
 	},
 
 	asset: (frm) => {
