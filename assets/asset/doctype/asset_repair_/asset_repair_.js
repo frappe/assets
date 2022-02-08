@@ -39,7 +39,9 @@ frappe.ui.form.on('Asset Repair_', {
 	},
 
 	refresh: function(frm) {
-		frm.trigger("set_serial_no_and_num_of_assets");
+		if (frm.doc.__islocal) {
+			frm.trigger("set_serial_no_and_num_of_assets");
+		}
 
 		if (frm.doc.docstatus) {
 			frm.add_custom_button("View General Ledger", function() {
@@ -95,8 +97,41 @@ frappe.ui.form.on('Asset Repair_', {
 
 				frm.set_value('num_of_assets', r.num_of_assets);
 				frm.set_df_property('num_of_assets', 'hidden', 0);
+
+				if (r.num_of_assets > 1) {
+					frm.trigger("confirm_repair_for_non_serialized_assets");
+				}
 			}
 		});
+	},
+
+	confirm_repair_for_non_serialized_assets: (frm) => {
+		frappe.confirm(
+			__("Are you sure you wish to repair all {0} assets under {1}?", [frm.doc.num_of_assets, frm.doc.asset]), () => {
+			}, () => {
+				frappe.confirm(
+					__("Do you wish to split {0} to repair fewer assets?", [frm.doc.asset]), () => {
+						frappe.call({
+							method: "assets.asset.doctype.asset_repair_.asset_repair_.get_asset_doc",
+							args: {
+								"asset_name":frm.doc.asset
+							},
+							callback: function(r) {
+								if (r.message) {
+									var doc = frappe.model.sync(r.message)[0];
+									frappe.set_route("Form", doc.doctype, doc.name);
+								}
+
+								frappe.msgprint({
+									title: __("Instruction"),
+									message: __("Click on the 'Split Asset' button under 'Manage'")
+								});
+							}
+						});
+					}
+				)
+			}
+		)
 	}
 });
 
