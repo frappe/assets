@@ -214,6 +214,7 @@ frappe.ui.form.on('Asset_', {
 					callback: function(r) {
 						dialog.hide();
 						frm.refresh();
+						frm.refresh_field("num_of_assets");
 					}
 				});
 			},
