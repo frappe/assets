@@ -271,7 +271,6 @@
    "read_only": 1
   },
   {
-   "fetch_from": "asset.num_of_assets",
    "fieldname": "num_of_assets",
    "fieldtype": "Int",
    "label": "Number of Assets",
@@ -281,7 +280,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-02-09 02:52:17.535107",
+ "modified": "2022-02-09 02:57:53.678218",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Repair_",
