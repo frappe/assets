@@ -18,6 +18,9 @@ from assets.asset.doctype.depreciation_schedule_.depreciation_schedule_ import (
 
 class BaseAsset(Document):
 	def validate(self):
+		if self.doctype == "Asset Serial No":
+			self.get_asset_values()
+
 		self.validate_number_of_assets()
 		self.set_missing_values()
 
@@ -48,6 +51,24 @@ class BaseAsset(Document):
 
 		self.set_status()
 
+	# to reduce number of db calls
+	def get_asset_values(self):
+		self.asset_values = frappe.get_value(
+			"Asset_",
+			self.asset,
+			[
+				"calculate_depreciation",
+				"num_of_assets",
+				"asset_category",
+				"gross_purchase_amount",
+				"opening_accumulated_depreciation",
+				"purchase_date",
+				"asset_name",
+				"company"
+			],
+			as_dict = 1
+		)
+
 	def is_not_serialized_asset(self):
 		"""
 			Certain actions should only be performed on Asset Serial No docs or non-serialized Assets.
@@ -61,7 +82,7 @@ class BaseAsset(Document):
 		if self.doctype == "Asset_":
 			return self.calculate_depreciation
 		else:
-			return frappe.db.get_value("Asset_", self.asset, "calculate_depreciation")
+			return self.asset_values["calculate_depreciation"]
 
 	def validate_number_of_assets(self):
 		if self.doctype == "Asset_" and self.num_of_assets <= 0:
@@ -98,7 +119,7 @@ class BaseAsset(Document):
 		if self.doctype == "Asset_":
 			return self.num_of_assets
 		else:
-			return frappe.db.get_value("Asset_", self.asset, "num_of_assets")
+			return self.asset_values["num_of_assets"]
 
 	def validate_num_of_assets_purchased(self, num_of_assets, num_of_items_in_purchase_doc, purchase_docname):
 		if num_of_assets > num_of_items_in_purchase_doc:
@@ -150,7 +171,7 @@ class BaseAsset(Document):
 
 			return self.asset_category
 		else:
-			return frappe.get_value("Asset_", self.asset, "asset_category")
+			return self.asset_values["asset_category"]
 
 	def set_asset_category(self):
 		if not self.get('asset_category'):
@@ -160,7 +181,7 @@ class BaseAsset(Document):
 		if self.doctype == "Asset_":
 			return self.gross_purchase_amount, self.opening_accumulated_depreciation
 		else:
-			return frappe.db.get_value("Asset_", self.asset, ["gross_purchase_amount", "opening_accumulated_depreciation"])
+			return self.asset_values["gross_purchase_amount"], self.asset_values["opening_accumulated_depreciation"]
 
 	def validate_available_for_use_date(self):
 		purchase_date = self.get_purchase_date()
@@ -218,7 +239,7 @@ class BaseAsset(Document):
 		if self.doctype == "Asset_":
 			return self.purchase_date
 		else:
-			return frappe.db.get_value("Asset_", self.asset, "purchase_date")
+			return self.asset_values["purchase_date"]
 
 	def validate_depreciation_posting_start_date(self):
 		for finance_book in self.finance_books:
@@ -331,7 +352,7 @@ class BaseAsset(Document):
 		if self.doctype == "Asset_":
 			return self.asset_name, self.company
 		else:
-			return frappe.db.get_value("Asset_", self.asset, ["asset_name", "company"])
+			return self.asset_values["asset_name"], self.asset_values["company"]
 
 	def set_status(self, status=None):
 		if not status:
