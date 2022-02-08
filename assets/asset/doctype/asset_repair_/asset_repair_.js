@@ -79,10 +79,12 @@ frappe.ui.form.on('Asset Repair_', {
 			if (r && r.is_serialized_asset) {
 				frm.set_df_property('serial_no', 'read_only', 0);
 				frm.set_df_property('serial_no', 'reqd', 1);
+				frm.set_df_property('num_of_assets', 'hidden', 1);
 			} else {
 				frm.set_df_property('serial_no', 'read_only', 1);
 				frm.set_df_property('serial_no', 'reqd', 0);
 				frm.set_value("serial_no", "");
+				frm.set_df_property('num_of_assets', 'hidden', 0);
 			}
 		});
 	}
