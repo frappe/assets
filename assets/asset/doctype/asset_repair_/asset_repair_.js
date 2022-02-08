@@ -56,7 +56,7 @@ frappe.ui.form.on('Asset Repair_', {
 	repair_status: (frm) => {
 		if (frm.doc.completion_date && frm.doc.repair_status == "Completed") {
 			frappe.call ({
-				method: "erpnext.assets.doctype.asset_repair.asset_repair.get_downtime",
+				method: "assets.asset.doctype.asset_repair_.asset_repair_.get_downtime",
 				args: {
 					"failure_date":frm.doc.failure_date,
 					"completion_date":frm.doc.completion_date
