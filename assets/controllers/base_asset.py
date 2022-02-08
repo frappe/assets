@@ -451,21 +451,38 @@ def make_asset_movement(assets, purpose=None):
 	if len(assets) == 0:
 		frappe.throw(_('Atleast one asset has to be selected.'))
 
-	asset_movement = frappe.new_doc("Asset Movement")
+	asset_movement = frappe.new_doc("Asset Movement_")
 	asset_movement.quantity = len(assets)
 	asset_movement.purpose = purpose
 
 	for asset in assets:
-		asset = frappe.get_doc('Asset_', asset.get('name'))
-		asset_movement.company = asset.get('company')
+		location, custodian, company, asset_name, serial_no  = fetch_asset_tracking_details(asset)
+
+		asset_movement.company = company
 		asset_movement.append("assets", {
-			'asset': asset.get('name'),
-			'source_location': asset.get('location'),
-			'from_employee': asset.get('custodian')
+			'asset': asset_name,
+			'source_location': location,
+			'from_employee': custodian,
+			'serial_no': serial_no
 		})
 
 	if asset_movement.get('assets'):
 		return asset_movement.as_dict()
+
+def fetch_asset_tracking_details(asset):
+	asset = frappe._dict(asset)
+
+	if asset.get("serial_no"):
+		location, custodian = frappe.get_value("Asset Serial No", asset.name, ["location", "custodian"])
+		company = frappe.get_value("Asset_", asset.asset, "company")
+		asset_name = asset.asset
+		serial_no = asset.name
+	else:
+		location, custodian, company = frappe.get_value("Asset_", asset.name, ["location", "custodian", "company"])
+		asset_name = asset.name
+		serial_no = ""
+
+	return location, custodian, company, asset_name, serial_no
 
 @frappe.whitelist()
 def get_purchase_details(asset):
