@@ -39,6 +39,8 @@ frappe.ui.form.on('Asset Repair_', {
 	},
 
 	refresh: function(frm) {
+		frm.trigger("set_serial_no_and_num_of_assets");
+
 		if (frm.doc.docstatus) {
 			frm.add_custom_button("View General Ledger", function() {
 				frappe.route_options = {
@@ -75,6 +77,10 @@ frappe.ui.form.on('Asset Repair_', {
 	},
 
 	asset: (frm) => {
+		frm.trigger("set_serial_no_and_num_of_assets");
+	},
+
+	set_serial_no_and_num_of_assets: (frm) => {
 		frappe.db.get_value('Asset_', frm.doc.asset, ['is_serialized_asset', 'num_of_assets'], (r) => {
 			if (r && r.is_serialized_asset) {
 				frm.set_df_property('serial_no', 'read_only', 0);
