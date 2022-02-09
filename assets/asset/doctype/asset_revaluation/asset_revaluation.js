@@ -36,4 +36,18 @@ frappe.ui.form.on('Asset Revaluation', {
 			}
 		});
 	},
+
+	num_of_assets: (frm) => {
+		frappe.db.get_value('Asset_', frm.doc.asset, ['is_serialized_asset', 'num_of_assets'], (r) => {
+			if (r && !r.is_serialized_asset) {
+				if (frm.doc.num_of_assets < r.num_of_assets) {
+					frappe.msgprint({
+						title: __('Warning'),
+						message: __('Asset {0} will be split on submitting this repair as the Number of Assets entered \
+							is less than {1}.', [frm.doc.asset, r.num_of_assets])
+					});
+				}
+			}
+		})
+	}
 });
