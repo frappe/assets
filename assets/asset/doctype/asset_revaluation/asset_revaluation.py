@@ -14,6 +14,7 @@ from assets.asset.doctype.asset_repair_.asset_repair_ import (
 class AssetRevaluation(Document):
 	def validate(self):
 		self.validate_asset_values()
+		self.set_current_asset_value()
 
 	def validate_asset_values(self):
 		purchase_date, is_serialized_asset, num_of_assets = frappe.db.get_value(
@@ -33,6 +34,10 @@ class AssetRevaluation(Document):
 		if getdate(self.date) < getdate(purchase_date):
 			frappe.throw(_("Asset Revaluation cannot be posted before Asset's purchase date: <b>{0}</b>.")
 				.format(formatdate(purchase_date)), title = "Invalid Date")
+
+	def set_current_asset_value(self):
+		if not self.current_asset_value and self.asset:
+			self.current_asset_value = get_current_asset_value(self.asset, self.serial_no, self.finance_book)
 
 @frappe.whitelist()
 def get_current_asset_value(asset, serial_no=None, finance_book=None):
