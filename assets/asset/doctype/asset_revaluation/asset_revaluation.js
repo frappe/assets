@@ -2,6 +2,24 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Asset Revaluation', {
+	setup: function(frm) {
+		frm.set_query('cost_center', function() {
+			return {
+				filters: {
+					company: frm.doc.company,
+					is_group: 0
+				}
+			}
+		});
+		frm.set_query('asset', function() {
+			return {
+				filters: {
+					docstatus: 1
+				}
+			};
+		});
+	},
+
 	refresh: function(frm) {
 		if (frm.doc.__islocal) {
 			frm.trigger('set_serial_no_and_num_of_assets');
