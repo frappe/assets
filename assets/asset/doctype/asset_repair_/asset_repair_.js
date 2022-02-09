@@ -95,32 +95,12 @@ frappe.ui.form.on('Asset Repair_', {
 				frm.set_df_property('serial_no', 'reqd', 0);
 				frm.set_value("serial_no", "");
 
-				frm.set_value('num_of_assets', r.num_of_assets);
-				frm.set_df_property('num_of_assets', 'hidden', 0);
-
 				if (r.num_of_assets > 1) {
-					frm.trigger("confirm_repair_for_non_serialized_assets");
+					frm.set_value('num_of_assets', r.num_of_assets);
+					frm.set_df_property('num_of_assets', 'hidden', 0);
 				}
 			}
 		});
-	},
-
-	confirm_repair_for_non_serialized_assets: (frm) => {
-		frappe.confirm(
-			__("Are you sure you wish to repair all {0} assets under {1}?", [frm.doc.num_of_assets, frm.doc.asset]), () => {
-			}, () => {
-				frappe.confirm(
-					__("Do you wish to split {0} to repair fewer assets?", [frm.doc.asset]), () => {
-						frappe.set_route("Form", "Asset_", frm.doc.asset);
-
-						frappe.msgprint({
-							title: __("Instruction"),
-							message: __("Click on the 'Split Asset' button under 'Manage'")
-						});
-					}
-				)
-			}
-		)
 	}
 });
 
