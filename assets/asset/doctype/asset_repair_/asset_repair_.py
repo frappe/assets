@@ -305,7 +305,3 @@ class AssetRepair_(AccountsController):
 def get_downtime(failure_date, completion_date):
 	downtime = time_diff_in_hours(completion_date, failure_date)
 	return round(downtime, 2)
-
-@frappe.whitelist()
-def get_asset_doc(asset_name):
-	return frappe.get_doc("Asset_", asset_name)

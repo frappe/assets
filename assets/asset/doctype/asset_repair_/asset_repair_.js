@@ -111,22 +111,11 @@ frappe.ui.form.on('Asset Repair_', {
 			}, () => {
 				frappe.confirm(
 					__("Do you wish to split {0} to repair fewer assets?", [frm.doc.asset]), () => {
-						frappe.call({
-							method: "assets.asset.doctype.asset_repair_.asset_repair_.get_asset_doc",
-							args: {
-								"asset_name":frm.doc.asset
-							},
-							callback: function(r) {
-								if (r.message) {
-									var doc = frappe.model.sync(r.message)[0];
-									frappe.set_route("Form", doc.doctype, doc.name);
-								}
+						frappe.set_route("Form", "Asset_", frm.doc.asset);
 
-								frappe.msgprint({
-									title: __("Instruction"),
-									message: __("Click on the 'Split Asset' button under 'Manage'")
-								});
-							}
+						frappe.msgprint({
+							title: __("Instruction"),
+							message: __("Click on the 'Split Asset' button under 'Manage'")
 						});
 					}
 				)
