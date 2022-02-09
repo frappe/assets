@@ -57,8 +57,23 @@ class AssetRepair_(AccountsController):
 	def validate_asset(self):
 		if self.asset_doc.doctype == 'Asset_':
 			if self.asset_doc.is_serialized_asset:
-				frappe.throw(_("Please enter Serial No as {0} is a Serialized Asset")
-					.format(frappe.bold(self.asset)), title=_("Missing Serial No"))
+				self.validate_serial_no()
+			else:
+				self.validate_num_of_assets()
+
+	def validate_serial_no(self):
+		if not self.serial_no:
+			frappe.throw(_("Please enter Serial No as {0} is a Serialized Asset")
+				.format(frappe.bold(self.asset)), title=_("Missing Serial No"))
+
+	def validate_num_of_assets(self):
+		if self.num_of_assets > self.asset_doc.num_of_assets:
+			frappe.throw(_("Number of Assets cannot be greater than {0}")
+				.format(frappe.bold(self.asset_doc.num_of_assets)), title=_("Number Exceeded Limit"))
+
+		if self.num_of_assets < 1:
+			frappe.throw(_("Number of Assets needs to be between <b>1</b> and {0}")
+				.format(frappe.bold(self.asset_doc.num_of_assets)), title=_("Invalid Number"))
 
 	def update_status(self):
 		if self.repair_status == 'Pending':
