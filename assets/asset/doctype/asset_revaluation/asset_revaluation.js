@@ -33,7 +33,7 @@ frappe.ui.form.on('Asset Revaluation', {
 	},
 
 	toggle_display_based_on_depreciation_and_serialization: (frm) => {
-		if (frm.doc.asset){
+		if (frm.doc.asset) {
 			frappe.db.get_value('Asset_', frm.doc.asset, ['is_serialized_asset', 'num_of_assets', 'calculate_depreciation'], (r) => {
 				if (r && r.is_serialized_asset) {
 					frm.set_df_property('serial_no', 'read_only', 0);
