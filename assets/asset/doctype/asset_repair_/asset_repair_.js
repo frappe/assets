@@ -90,14 +90,18 @@ frappe.ui.form.on('Asset Repair_', {
 
 				frm.set_value('num_of_assets', 0);
 				frm.set_df_property('num_of_assets', 'hidden', 1);
+				frm.set_df_property('num_of_assets', 'reqd', 0);
 			} else {
 				frm.set_df_property('serial_no', 'read_only', 1);
 				frm.set_df_property('serial_no', 'reqd', 0);
-				frm.set_value("serial_no", "");
+				frm.set_value('serial_no', '');
 
 				if (r.num_of_assets > 1) {
 					frm.set_value('num_of_assets', r.num_of_assets);
 					frm.set_df_property('num_of_assets', 'hidden', 0);
+					frm.set_df_property('num_of_assets', 'reqd', 1);
+				} else {
+					frm.set_df_property('num_of_assets', 'reqd', 0);
 				}
 			}
 		});
