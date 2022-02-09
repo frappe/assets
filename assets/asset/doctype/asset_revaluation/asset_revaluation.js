@@ -3,6 +3,8 @@
 
 frappe.ui.form.on('Asset Revaluation', {
 	setup: function(frm) {
+		frm.add_fetch('company', 'cost_center', 'cost_center');
+
 		frm.set_query('cost_center', function() {
 			return {
 				filters: {
