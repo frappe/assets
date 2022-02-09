@@ -62,6 +62,10 @@ frappe.ui.form.on('Asset Revaluation', {
 					frm.set_df_property('finance_book', 'hidden', 1);
 				}
 			});
+		} else {
+			frm.set_df_property('serial_no', 'hidden', 1);
+			frm.set_df_property('num_of_assets', 'hidden', 1);
+			frm.set_df_property('finance_book', 'hidden', 1);
 		}
 	},
 
