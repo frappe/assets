@@ -39,9 +39,7 @@ frappe.ui.form.on('Asset Repair_', {
 	},
 
 	refresh: function(frm) {
-		if (frm.doc.__islocal) {
-			frm.trigger("set_serial_no_and_num_of_assets");
-		}
+		frm.trigger("set_serial_no_and_num_of_assets");
 
 		if (frm.doc.docstatus) {
 			frm.add_custom_button("View General Ledger", function() {

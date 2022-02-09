@@ -33,11 +33,8 @@ frappe.ui.form.on('Asset Revaluation', {
 	},
 
 	refresh: function(frm) {
-		if (frm.doc.__islocal) {
-			frm.trigger('toggle_display_based_on_depreciation_and_serialization');
-		}
+		frm.trigger('toggle_display_based_on_depreciation_and_serialization');
 	},
-
 
 	company: function(frm) {
 		erpnext.accounts.dimensions.update_dimension(frm, frm.doctype);
