@@ -1,6 +1,8 @@
 // Copyright (c) 2022, Ganga Manoj and contributors
 // For license information, please see license.txt
 
+frappe.provide("erpnext.accounts.dimensions");
+
 frappe.ui.form.on('Asset Revaluation', {
 	setup: function(frm) {
 		frm.add_fetch('company', 'cost_center', 'cost_center');
@@ -22,10 +24,19 @@ frappe.ui.form.on('Asset Revaluation', {
 		});
 	},
 
+	onload: function(frm) {
+		erpnext.accounts.dimensions.setup_dimension_filters(frm, frm.doctype);
+	},
+
 	refresh: function(frm) {
 		if (frm.doc.__islocal) {
 			frm.trigger('toggle_display_based_on_depreciation_and_serialization');
 		}
+	},
+
+
+	company: function(frm) {
+		erpnext.accounts.dimensions.update_dimension(frm, frm.doctype);
 	},
 
 	asset: (frm) => {
