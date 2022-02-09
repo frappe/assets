@@ -12,6 +12,7 @@
   "column_break_4",
   "date",
   "serial_no",
+  "num_of_assets",
   "finance_book",
   "amended_from",
   "value_details_section",
@@ -122,14 +123,18 @@
    "fieldname": "serial_no",
    "fieldtype": "Link",
    "label": "Serial No",
-   "options": "Asset Serial No",
-   "read_only": 1
+   "options": "Asset Serial No"
+  },
+  {
+   "fieldname": "num_of_assets",
+   "fieldtype": "Int",
+   "label": "Number of Assets"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-02-04 21:54:11.626372",
+ "modified": "2022-02-10 02:24:55.915688",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Revaluation",
