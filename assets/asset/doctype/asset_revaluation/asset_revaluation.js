@@ -24,16 +24,16 @@ frappe.ui.form.on('Asset Revaluation', {
 
 	refresh: function(frm) {
 		if (frm.doc.__islocal) {
-			frm.trigger('set_serial_no_and_num_of_assets');
+			frm.trigger('toggle_display_based_on_depreciation_and_serialization');
 		}
 	},
 
 	asset: (frm) => {
-		frm.trigger('set_serial_no_and_num_of_assets');
+		frm.trigger('toggle_display_based_on_depreciation_and_serialization');
 	},
 
-	set_serial_no_and_num_of_assets: (frm) => {
-		frappe.db.get_value('Asset_', frm.doc.asset, ['is_serialized_asset', 'num_of_assets'], (r) => {
+	toggle_display_based_on_depreciation_and_serialization: (frm) => {
+		frappe.db.get_value('Asset_', frm.doc.asset, ['is_serialized_asset', 'num_of_assets', 'calculate_depreciation'], (r) => {
 			if (r && r.is_serialized_asset) {
 				frm.set_df_property('serial_no', 'read_only', 0);
 				frm.set_df_property('serial_no', 'reqd', 1);
@@ -53,6 +53,12 @@ frappe.ui.form.on('Asset Revaluation', {
 				} else {
 					frm.set_df_property('num_of_assets', 'reqd', 0);
 				}
+			}
+
+			if (r.calculate_depreciation) {
+				frm.set_df_property('finance_book', 'hidden', 0);
+			} else {
+				frm.set_df_property('finance_book', 'hidden', 1);
 			}
 		});
 	},
