@@ -7,6 +7,7 @@ from frappe.utils import flt, getdate, time_diff_in_hours, get_link_to_form
 from erpnext.controllers.accounts_controller import AccountsController
 
 from assets.controllers.base_asset import get_asset_account
+from assets.asset.doctype.asset_.asset_ import split_asset
 from erpnext.accounts.general_ledger import make_gl_entries
 
 
@@ -23,6 +24,7 @@ class AssetRepair_(AccountsController):
 
 	def before_submit(self):
 		self.check_repair_status()
+		self.split_asset_doc_if_required()
 
 		if self.get('stock_consumption') or self.get('capitalize_repair_cost'):
 			self.increase_asset_value()
@@ -102,6 +104,13 @@ class AssetRepair_(AccountsController):
 	def check_repair_status(self):
 		if self.repair_status == "Pending":
 			frappe.throw(_("Please update Repair Status."))
+
+	def split_asset_doc_if_required(self):
+		if self.asset_doc.doctype == "Asset_" and not self.asset_doc.is_serialized_asset:
+			if self.num_of_assets < self.asset_doc.num_of_assets:
+				num_of_assets_to_be_separated = self.asset_doc.num_of_assets - self.num_of_assets
+
+				split_asset(self.asset_doc, num_of_assets_to_be_separated)
 
 	def increase_asset_value(self):
 		total_value_of_stock_consumed = self.get_total_value_of_stock_consumed()
