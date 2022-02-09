@@ -25,6 +25,10 @@ frappe.ui.form.on('Asset Revaluation', {
 	},
 
 	onload: function(frm) {
+		if(frm.is_new() && frm.doc.asset) {
+			frm.trigger("set_current_asset_value");
+		}
+
 		erpnext.accounts.dimensions.setup_dimension_filters(frm, frm.doctype);
 	},
 
@@ -41,6 +45,11 @@ frappe.ui.form.on('Asset Revaluation', {
 
 	asset: (frm) => {
 		frm.trigger('toggle_display_based_on_depreciation_and_serialization');
+		frm.trigger("set_current_asset_value");
+	},
+
+	finance_book: function(frm) {
+		frm.trigger("set_current_asset_value");
 	},
 
 	toggle_display_based_on_depreciation_and_serialization: (frm) => {
@@ -92,5 +101,23 @@ frappe.ui.form.on('Asset Revaluation', {
 				}
 			}
 		})
+	},
+
+	set_current_asset_value: function(frm) {
+		if (frm.doc.asset) {
+			frm.call({
+				method: "get_current_asset_value",
+				args: {
+					asset: frm.doc.asset,
+					serial_no: frm.doc.serial_no,
+					finance_book: frm.doc.finance_book
+				},
+				callback: function(r) {
+					if (r.message) {
+						frm.set_value('current_asset_value', r.message);
+					}
+				}
+			});
+		}
 	}
 });
