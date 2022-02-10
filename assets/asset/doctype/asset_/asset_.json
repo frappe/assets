@@ -482,9 +482,13 @@
   {
    "link_doctype": "Depreciation Schedule_",
    "link_fieldname": "asset"
+  },
+  {
+   "link_doctype": "Asset Serial No",
+   "link_fieldname": "asset"
   }
  ],
- "modified": "2022-02-11 03:51:32.921554",
+ "modified": "2022-02-11 04:24:31.034888",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
