@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "naming_series:",
- "creation": "2021-12-06 20:26:02.649327",
+ "creation": "2022-01-31 20:58:25.919874",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -457,6 +457,7 @@
   },
   {
    "collapsible": 1,
+   "collapsible_depends_on": "eval: !(doc.asset_owner)",
    "fieldname": "tracking_details_section",
    "fieldtype": "Section Break",
    "label": "Tracking Details"
@@ -478,7 +479,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-01-19 20:43:13.640934",
+ "modified": "2022-02-11 03:19:01.933669",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
@@ -500,5 +501,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }
