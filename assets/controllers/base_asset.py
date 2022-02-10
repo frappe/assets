@@ -1,9 +1,10 @@
 # Copyright (c) 2021, Frappe Technologies Pvt. Ltd. and Contributors
 # For license information, please see license.txt
 
+import re
 import frappe
 from frappe import _
-from frappe.utils import flt, cint, nowdate, getdate, get_datetime
+from frappe.utils import flt, cint, nowdate, getdate, get_datetime, get_link_to_form
 from frappe.model.document import Document
 import json
 
@@ -659,3 +660,42 @@ def get_depreciation_accounts(asset):
 			.format(asset.asset_category, asset.company))
 
 	return fixed_asset_account, accumulated_depreciation_account, depreciation_expense_account
+
+# PI: call using hooks on validate
+def set_expense_account_during_purchase(purchase_invoice):
+	from assets.asset.doctype.asset_.asset_ import is_cwip_accounting_enabled
+
+	has_fixed_assets = check_if_pi_has_any_fixed_assets(purchase_invoice)
+
+	if has_fixed_assets:
+		asset_received_but_not_billed = purchase_invoice.get_company_default("asset_received_but_not_billed")
+	else:
+		return
+
+	for item in purchase_invoice.get("items"):
+		if item.is_fixed_asset:
+			asset_category = frappe.get_cached_value("Item", item.item_code, "asset_category")
+
+			if not is_cwip_accounting_enabled(asset_category):
+				asset_category_account = get_asset_category_account("fixed_asset_account",
+					item = item.item_code, company = purchase_invoice.company)
+
+				if asset_category_account:
+					item.expense_account = asset_category_account
+				else:
+					form_link = get_link_to_form("Asset Category", asset_category)
+					frappe.throw(
+						_("Please set Fixed Asset Account in {} against {}.").
+						format(form_link, purchase_invoice.company),
+						title = _("Missing Account")
+					)
+
+			elif item.pr_detail:
+				item.expense_account = asset_received_but_not_billed
+
+def check_if_pi_has_any_fixed_assets(purchase_invoice):
+	for item in purchase_invoice.get("items"):
+		if item.is_fixed_asset:
+			return True
+
+	return False
