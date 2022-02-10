@@ -381,7 +381,7 @@ class BaseAsset(Document):
 			if self.journal_entry_for_scrap:
 				status = "Scrapped"
 
-			elif self.is_depreciable_asset() and self.finance_books:
+			elif self.is_depreciable_asset() and self.is_not_serialized_asset() and self.get("finance_books"):
 				idx = self.get_default_finance_book_idx() or 0
 				gross_purchase_amount, _ = self.get_gross_purchase_amount_and_opening_accumulated_depreciation()
 
@@ -391,7 +391,7 @@ class BaseAsset(Document):
 				if flt(asset_value) <= salvage_value:
 					status = "Fully Depreciated"
 				elif flt(asset_value) < flt(gross_purchase_amount):
-					status = 'Partially Depreciated'
+					status = "Partially Depreciated"
 
 		elif self.docstatus == 2:
 			status = "Cancelled"
@@ -401,11 +401,11 @@ class BaseAsset(Document):
 	def get_default_finance_book_idx(self):
 		_, company = self.get_asset_details()
 
-		if not self.get('default_finance_book') and company:
+		if not self.get("default_finance_book") and company:
 			self.default_finance_book = get_default_finance_book(company)
 
-		if self.get('default_finance_book'):
-			for finance_book in self.get('finance_books'):
+		if self.get("default_finance_book"):
+			for finance_book in self.get("finance_books"):
 				if finance_book.finance_book == self.default_finance_book:
 					return cint(finance_book.idx) - 1
 
