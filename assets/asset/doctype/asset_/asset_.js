@@ -94,8 +94,8 @@ frappe.ui.form.on('Asset_', {
 				}, __("Manage"));
 
 				if (frm.doc.status != "Fully Depreciated") {
-					frm.add_custom_button(__("Adjust Asset Value"), function() {
-						frm.trigger("create_asset_value_adjustment");
+					frm.add_custom_button(__("Revalue Asset"), function() {
+						frm.trigger("create_asset_revaluation");
 					}, __("Manage"));
 				}
 
@@ -322,6 +322,21 @@ frappe.ui.form.on('Asset_', {
 				"asset_name": frm.doc.asset_name
 			},
 			method: "assets.controllers.base_asset.create_asset_repair",
+			callback: function(r) {
+				var doclist = frappe.model.sync(r.message);
+				frappe.set_route("Form", doclist[0].doctype, doclist[0].name);
+			}
+		});
+	},
+
+	create_asset_revaluation: function(frm) {
+		frappe.call({
+			args: {
+				"asset": frm.doc.name,
+				"asset_category": frm.doc.asset_category,
+				"company": frm.doc.company
+			},
+			method: "assets.controllers.base_asset.create_asset_revaluation",
 			callback: function(r) {
 				var doclist = frappe.model.sync(r.message);
 				frappe.set_route("Form", doclist[0].doctype, doclist[0].name);

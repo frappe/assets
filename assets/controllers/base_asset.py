@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import re
+from turtle import pu
 import frappe
 from frappe import _
 from frappe.utils import flt, cint, nowdate, getdate, get_datetime, get_link_to_form
@@ -601,6 +602,18 @@ def create_asset_repair(asset, asset_name):
 	})
 
 	return asset_repair
+
+@frappe.whitelist()
+def create_asset_revaluation(asset, asset_category, company):
+	asset_revaluation = frappe.new_doc("Asset Revaluation")
+	asset_revaluation.update({
+		"asset": asset,
+		"company": company,
+		"asset_category": asset_category,
+		"date": getdate()
+	})
+
+	return asset_revaluation
 
 @frappe.whitelist()
 def make_journal_entry(asset_name):
