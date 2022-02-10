@@ -478,8 +478,13 @@
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
- "modified": "2022-02-11 03:19:01.933669",
+ "links": [
+  {
+   "link_doctype": "Depreciation Schedule_",
+   "link_fieldname": "asset"
+  }
+ ],
+ "modified": "2022-02-11 03:51:32.921554",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",

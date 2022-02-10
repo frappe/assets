@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "field:serial_no",
- "creation": "2021-12-08 19:38:47.178911",
+ "creation": "2022-01-31 20:58:25.536284",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -149,8 +149,13 @@
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
- "modified": "2022-01-19 17:39:08.395277",
+ "links": [
+  {
+   "link_doctype": "Depreciation Schedule_",
+   "link_fieldname": "serial_no"
+  }
+ ],
+ "modified": "2022-02-11 04:23:26.481102",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Serial No",
@@ -170,5 +175,6 @@
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC"
+ "sort_order": "DESC",
+ "states": []
 }
