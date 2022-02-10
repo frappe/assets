@@ -147,6 +147,7 @@
    "read_only": 1
   }
  ],
+ "in_create": 1,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [
@@ -155,7 +156,7 @@
    "link_fieldname": "serial_no"
   }
  ],
- "modified": "2022-02-11 04:23:26.481102",
+ "modified": "2022-02-11 04:28:55.026972",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Serial No",
