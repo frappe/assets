@@ -267,8 +267,7 @@
    "fieldname": "serial_no",
    "fieldtype": "Link",
    "label": "Serial No",
-   "options": "Asset Serial No",
-   "read_only": 1
+   "options": "Asset Serial No"
   },
   {
    "fieldname": "num_of_assets",
@@ -279,7 +278,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-02-09 20:49:42.216830",
+ "modified": "2022-02-11 02:53:27.929640",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Repair_",
