@@ -38,7 +38,17 @@ class BaseAsset(Document):
 
 	def after_insert(self):
 		if self.is_not_serialized_asset() and self.is_depreciable_asset():
+			if self.doctype == "Asset Serial No" and not self.has_depreciation_details():
+				return
+
 			create_depreciation_schedules(self)
+
+	def has_depreciation_details(self):
+		for fb in self.get('finance_books'):
+			if not(fb.depreciation_template and fb.depreciation_posting_start_date):
+				return False
+
+		return True
 
 	def before_submit(self):
 		if self.is_not_serialized_asset():
@@ -373,13 +383,14 @@ class BaseAsset(Document):
 
 			elif self.is_depreciable_asset() and self.finance_books:
 				idx = self.get_default_finance_book_idx() or 0
+				gross_purchase_amount, _ = self.get_gross_purchase_amount_and_opening_accumulated_depreciation()
 
 				salvage_value = self.finance_books[idx].salvage_value
 				asset_value = self.finance_books[idx].asset_value
 
 				if flt(asset_value) <= salvage_value:
 					status = "Fully Depreciated"
-				elif flt(asset_value) < flt(self.gross_purchase_amount):
+				elif flt(asset_value) < flt(gross_purchase_amount):
 					status = 'Partially Depreciated'
 
 		elif self.docstatus == 2:
@@ -388,8 +399,10 @@ class BaseAsset(Document):
 		return status
 
 	def get_default_finance_book_idx(self):
-		if not self.get('default_finance_book') and self.company:
-			self.default_finance_book = get_default_finance_book(self.company)
+		_, company = self.get_asset_details()
+
+		if not self.get('default_finance_book') and company:
+			self.default_finance_book = get_default_finance_book(company)
 
 		if self.get('default_finance_book'):
 			for finance_book in self.get('finance_books'):
