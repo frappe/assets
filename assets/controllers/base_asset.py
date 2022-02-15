@@ -1,8 +1,6 @@
 # Copyright (c) 2021, Frappe Technologies Pvt. Ltd. and Contributors
 # For license information, please see license.txt
 
-import re
-from turtle import pu
 import frappe
 from frappe import _
 from frappe.utils import flt, cint, nowdate, getdate, get_datetime, get_link_to_form
