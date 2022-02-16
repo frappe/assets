@@ -12,6 +12,14 @@ frappe.ui.form.on('Depreciation Entry', {
 			};
 		};
 
+		frm.fields_dict.asset.get_query = function(doc) {
+			return {
+				filters: {
+					'docstatus': 1
+				}
+			};
+		};
+
 		frm.fields_dict.serial_no.get_query = function(doc) {
 			return {
 				filters: {
