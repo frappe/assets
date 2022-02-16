@@ -2,6 +2,25 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Depreciation Entry', {
+	setup: function(frm) {
+		frm.fields_dict.cost_center.get_query = function(doc) {
+			return {
+				filters: {
+					'is_group': 0,
+					'company': doc.company
+				}
+			};
+		};
+
+		frm.fields_dict.serial_no.get_query = function(doc) {
+			return {
+				filters: {
+					'asset': doc.asset
+				}
+			};
+		};
+	},
+
 	refresh: function(frm) {
 		frm.trigger("toggle_display_and_reqd_for_serial_no");
 	},
