@@ -70,19 +70,19 @@ frappe.ui.form.on('Depreciation Entry', {
 
 					frappe.db.get_doc(doctype, docname).then(data => {
 						if (data.finance_books.length > 1) {
-							frm.set_df_property('finance_book', 'hidden', 0);
+							frm.set_df_property('finance_book', 'read_only', 0);
 							frm.set_df_property('finance_book', 'reqd', 1);
 						} else {
-							frm.set_df_property('finance_book', 'hidden', 1);
+							frm.set_df_property('finance_book', 'read_only', 1);
 							frm.set_df_property('finance_book', 'reqd', 0);
 						}
 					})
 				} else {
-					frm.set_df_property('finance_book', 'hidden', 1);
+					frm.set_df_property('finance_book', 'read_only', 1);
 				}
 			})
 		} else {
-			frm.set_df_property('finance_book', 'hidden', 1);
+			frm.set_df_property('finance_book', 'read_only', 1);
 		}
 	}
 });
