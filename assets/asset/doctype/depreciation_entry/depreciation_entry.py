@@ -40,9 +40,9 @@ class DepreciationEntry(AccountsController):
 					title = _("Invalid Reference"))
 
 		elif self.reference_doctype == "Depreciation Schedule_":
-			asset_or_serial_no = "serial_no" if self.serial_no else "asset"
+			fieldname = "serial_no" if self.serial_no else "asset"
 
-			asset_linked_with_depr_schedule = frappe.get_value("Depreciation Schedule_", self.reference_docname, asset_or_serial_no)
+			asset_linked_with_depr_schedule = frappe.get_value("Depreciation Schedule_", self.reference_docname, fieldname)
 			asset_linked_with_depr_entry = self.get_asset_or_serial_no()
 
 			if asset_linked_with_depr_schedule != asset_linked_with_depr_entry:
