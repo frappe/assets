@@ -10,10 +10,11 @@ from erpnext.controllers.accounts_controller import AccountsController
 
 class DepreciationEntry(AccountsController):
 	def validate(self):
+		validate_serial_no(self)
 		self.validate_depreciation_amount()
 		self.validate_reference_doctype()
+		self.validate_reference_docname()
 		self.validate_depr_schedule_row()
-		validate_serial_no(self)
 		self.validate_finance_book()
 
 	def validate_depreciation_amount(self):
@@ -24,6 +25,26 @@ class DepreciationEntry(AccountsController):
 		if self.reference_doctype not in ["Asset_", "Asset Serial No", "Depreciation Schedule_"]:
 			frappe.throw(_("Reference Document can only be an Asset, Asset Serial No or Depreciation Schedule."),
 				title = _("Invalid Reference"))
+
+	def validate_reference_docname(self):
+		if self.reference_doctype in ["Asset_", "Asset Serial No"]:
+			ideal_reference_docname = self.get_asset_or_serial_no()
+
+			if self.reference_docname != ideal_reference_docname:
+				frappe.throw(_("Reference Document Name cannot be {0} when the {1} entered is {2}.").
+					format(self.reference_docname, ideal_reference_docname),
+					title = _("Invalid Reference"))
+
+		elif self.reference_doctype == "Depreciation Schedule_":
+			asset_or_serial_no = "serial_no" if self.serial_no else "asset"
+
+			asset_linked_with_depr_schedule = frappe.get_value("Depreciation Schedule_", self.reference_docname, asset_or_serial_no)
+			asset_linked_with_depr_entry = self.get_asset_or_serial_no()
+
+			if asset_linked_with_depr_schedule != asset_linked_with_depr_entry:
+				frappe.throw(_("Depreciation Schedule {0} cannot be used here as it is linked with {1}, not {2}.").
+					format(self.reference_docname, asset_linked_with_depr_schedule, asset_linked_with_depr_entry),
+					title = _("Invalid Reference"))
 
 	def validate_depr_schedule_row(self):
 		if self.reference_doctype == "Depreciation Schedule_" and not self.depr_schedule_row:
