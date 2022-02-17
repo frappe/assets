@@ -10,6 +10,7 @@ class DepreciationEntry(AccountsController):
 	def validate(self):
 		self.validate_depreciation_amount()
 		self.validate_reference_doc()
+		self.validate_depr_schedule_row()
 
 	def validate_depreciation_amount(self):
 		if self.depreciation_amount <= 0:
@@ -19,3 +20,7 @@ class DepreciationEntry(AccountsController):
 		if self.reference_doctype not in ["Asset_", "Asset Serial No", "Depreciation Schedule_"]:
 			frappe.throw(_("Reference Document can only be an Asset, Asset Serial No or Depreciation Schedule."),
 				title = _("Invalid Reference"))
+
+	def validate_depr_schedule_row(self):
+		if self.reference_doctype == "Depreciation Schedule_" and not self.depr_schedule_row:
+			frappe.throw(_("Depreciation Schedule Row needs to be fetched."), title = _("Missing Value"))
