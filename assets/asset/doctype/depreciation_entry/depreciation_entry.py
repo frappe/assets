@@ -26,6 +26,10 @@ class DepreciationEntry(AccountsController):
 			frappe.throw(_("Reference Document can only be an Asset, Asset Serial No or Depreciation Schedule."),
 				title = _("Invalid Reference"))
 
+		if self.reference_doctype == "Asset Serial No" and not self.serial_no:
+			frappe.throw(_("Reference Document Type cannot be {0} when Serial No has not been entered.").
+				format(self.reference_doctype), title = _("Invalid Reference"))
+
 	def validate_reference_docname(self):
 		if self.reference_doctype in ["Asset_", "Asset Serial No"]:
 			ideal_reference_docname = self.get_asset_or_serial_no()
