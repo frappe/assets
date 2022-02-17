@@ -23,9 +23,10 @@
   "column_break_15",
   "debit_account",
   "reference_section",
-  "depr_schedule",
-  "column_break_19",
+  "reference_doctype",
   "depr_schedule_row",
+  "column_break_19",
+  "reference_docname",
   "amended_from"
  ],
  "fields": [
@@ -141,19 +142,11 @@
    "label": "Reference"
   },
   {
-   "fieldname": "depr_schedule",
-   "fieldtype": "Link",
-   "label": "Depreciation Schedule",
-   "no_copy": 1,
-   "options": "Depreciation Schedule_",
-   "print_hide": 1,
-   "read_only": 1
-  },
-  {
    "fieldname": "depr_schedule_row",
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Depreciation Schedule Row",
+   "mandatory_depends_on": "eval:doc.reference_doctype == \"Depreciation Schedule_\"",
    "no_copy": 1,
    "print_hide": 1,
    "read_only": 1
@@ -161,12 +154,28 @@
   {
    "fieldname": "column_break_19",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "label": "Reference Document Type",
+   "no_copy": 1,
+   "options": "DocType",
+   "print_hide": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "reference_docname",
+   "fieldtype": "Dynamic Link",
+   "label": "Reference Document Name",
+   "options": "reference_doctype",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-02-16 19:30:52.651685",
+ "modified": "2022-02-17 19:01:38.246631",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Depreciation Entry",
