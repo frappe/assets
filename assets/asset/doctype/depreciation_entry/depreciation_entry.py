@@ -11,7 +11,7 @@ from erpnext.controllers.accounts_controller import AccountsController
 class DepreciationEntry(AccountsController):
 	def validate(self):
 		self.validate_depreciation_amount()
-		self.validate_reference_doc()
+		self.validate_reference_doctype()
 		self.validate_depr_schedule_row()
 		validate_serial_no(self)
 		self.validate_finance_book()
@@ -20,7 +20,7 @@ class DepreciationEntry(AccountsController):
 		if self.depreciation_amount <= 0:
 			frappe.throw(_("Depreciation Amount must be greater than zero."), title = _("Invalid Amount"))
 
-	def validate_reference_doc(self):
+	def validate_reference_doctype(self):
 		if self.reference_doctype not in ["Asset_", "Asset Serial No", "Depreciation Schedule_"]:
 			frappe.throw(_("Reference Document can only be an Asset, Asset Serial No or Depreciation Schedule."),
 				title = _("Invalid Reference"))
