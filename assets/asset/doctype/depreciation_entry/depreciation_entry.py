@@ -4,6 +4,8 @@
 import frappe
 from frappe import _
 
+from assets.controllers.base_asset import validate_serial_no
+
 from erpnext.controllers.accounts_controller import AccountsController
 
 class DepreciationEntry(AccountsController):
@@ -11,6 +13,7 @@ class DepreciationEntry(AccountsController):
 		self.validate_depreciation_amount()
 		self.validate_reference_doc()
 		self.validate_depr_schedule_row()
+		validate_serial_no(self)
 
 	def validate_depreciation_amount(self):
 		if self.depreciation_amount <= 0:
