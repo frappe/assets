@@ -21,6 +21,9 @@ class DepreciationEntry(AccountsController):
 	def on_submit(self):
 		self.make_gl_entries()
 
+	def on_cancel(self):
+		self.make_gl_entries(cancel=1)
+
 	def validate_depreciation_amount(self):
 		if self.depreciation_amount <= 0:
 			frappe.throw(_("Depreciation Amount must be greater than zero."), title = _("Invalid Amount"))
