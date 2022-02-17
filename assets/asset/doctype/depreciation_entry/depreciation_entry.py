@@ -36,7 +36,7 @@ class DepreciationEntry(AccountsController):
 
 			if self.reference_docname != ideal_reference_docname:
 				frappe.throw(_("Reference Document Name cannot be {0} when the {1} entered is {2}.").
-					format(self.reference_docname, ideal_reference_docname),
+					format(self.reference_docname, self.reference_doctype, ideal_reference_docname),
 					title = _("Invalid Reference"))
 
 		elif self.reference_doctype == "Depreciation Schedule_":
