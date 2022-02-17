@@ -3,6 +3,7 @@
 
 import frappe
 from frappe import _
+from frappe.utils import flt
 
 from assets.controllers.base_asset import validate_serial_no
 
@@ -16,6 +17,9 @@ class DepreciationEntry(AccountsController):
 		self.validate_reference_docname()
 		self.validate_depr_schedule_row()
 		self.validate_finance_book()
+
+	def on_submit(self):
+		self.make_gl_entries()
 
 	def validate_depreciation_amount(self):
 		if self.depreciation_amount <= 0:
@@ -93,3 +97,26 @@ class DepreciationEntry(AccountsController):
 			},
 			pluck = "finance_book"
 		)
+
+	def make_gl_entries(self, cancel=0, adv_adj=0):
+		from erpnext.accounts.general_ledger import make_gl_entries
+
+		gl_map = []
+		for account in [self.credit_account, self.debit_account]:
+			dr_or_cr = "credit" if account == self.credit_account else "debit"
+
+			gl_map.append(
+				self.get_gl_dict({
+					"account": account,
+					dr_or_cr: flt(self.depreciation_amount, self.precision("depreciation_amount")),
+					dr_or_cr + "_in_account_currency": flt(self.depreciation_amount, self.precision("depreciation_amount")),
+					"cost_center": self.cost_center,
+					"finance_book": self.finance_book,
+					"voucher_type": self.reference_doctype,
+					"voucher_no": self.reference_docname,
+					"company": self.company
+				}, item = self)
+			)
+
+		if gl_map:
+			make_gl_entries(gl_map, cancel = cancel, adv_adj = adv_adj, update_outstanding = "Yes")
