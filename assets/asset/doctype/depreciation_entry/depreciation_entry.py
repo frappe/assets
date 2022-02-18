@@ -130,8 +130,8 @@ class DepreciationEntry(AccountsController):
 					dr_or_cr + "_in_account_currency": flt(self.depreciation_amount, self.precision("depreciation_amount")),
 					"cost_center": self.cost_center,
 					"finance_book": self.finance_book,
-					"voucher_type": self.reference_doctype,
-					"voucher_no": self.reference_docname,
+					"voucher_type": self.doctype,
+					"voucher_no": self.name,
 					"company": self.company
 				}, item = self)
 			)
