@@ -59,7 +59,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Naming Series",
-   "options": "ACC-JV-.YYYY.-",
+   "options": "ACC-DE-.YYYY.-",
    "reqd": 1
   },
   {
@@ -175,7 +175,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-02-17 19:01:38.246631",
+ "modified": "2022-02-18 17:53:44.459459",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Depreciation Entry",
