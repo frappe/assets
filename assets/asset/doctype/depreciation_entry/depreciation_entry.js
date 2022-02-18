@@ -27,6 +27,14 @@ frappe.ui.form.on('Depreciation Entry', {
 				}
 			};
 		};
+
+		frm.fields_dict.reference_doctype.get_query = function(doc) {
+			return {
+				filters: {
+					'name': ["in", ["Asset_", "Asset Serial No", "Depreciation Schedule_"]]
+				}
+			};
+		};
 	},
 
 	refresh: function(frm) {
