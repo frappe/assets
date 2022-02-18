@@ -31,20 +31,20 @@ frappe.ui.form.on('Depreciation Entry', {
 		frm.fields_dict.reference_doctype.get_query = function(doc) {
 			return {
 				filters: {
-					'name': ["in", ["Asset_", "Asset Serial No", "Depreciation Schedule_"]]
+					'name': ['in', ['Asset_', 'Asset Serial No', 'Depreciation Schedule_']]
 				}
 			};
 		};
 	},
 
 	refresh: function(frm) {
-		frm.trigger("toggle_display_and_reqd_for_serial_no");
-		frm.trigger("toggle_display_for_finance_book");
+		frm.trigger('toggle_display_and_reqd_for_serial_no');
+		frm.trigger('toggle_display_for_finance_book');
 	},
 
 	asset: (frm) => {
-		frm.trigger("toggle_display_and_reqd_for_serial_no");
-		frm.trigger("toggle_display_for_finance_book");
+		frm.trigger('toggle_display_and_reqd_for_serial_no');
+		frm.trigger('toggle_display_for_finance_book');
 	},
 
 	toggle_display_and_reqd_for_serial_no: (frm) => {
