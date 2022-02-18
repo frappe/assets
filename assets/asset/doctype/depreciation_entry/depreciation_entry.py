@@ -13,6 +13,7 @@ class DepreciationEntry(AccountsController):
 	def validate(self):
 		validate_serial_no(self)
 		self.validate_depreciation_amount()
+		self.set_credit_and_debit_accounts()
 		self.validate_reference_doctype()
 		self.validate_reference_docname()
 		self.validate_depr_schedule_row()
@@ -27,6 +28,20 @@ class DepreciationEntry(AccountsController):
 	def validate_depreciation_amount(self):
 		if self.depreciation_amount <= 0:
 			frappe.throw(_("Depreciation Amount must be greater than zero."), title = _("Invalid Amount"))
+
+	def set_credit_and_debit_accounts(self):
+		from assets.asset.doctype.depreciation_schedule_.depreciation_posting import get_depreciation_accounts
+
+		asset_category = frappe.get_value("Asset_", self.asset, "asset_category")
+
+		if (not self.credit_account or not self.debit_account) and asset_category and self.company:
+			credit_account, debit_account = get_depreciation_accounts(asset_category, self.company)
+
+			if not self.credit_account:
+				self.credit_account = credit_account
+
+			if not self.debit_account:
+				self.debit_account = debit_account
 
 	def validate_reference_doctype(self):
 		if self.reference_doctype not in ["Asset_", "Asset Serial No", "Depreciation Schedule_"]:

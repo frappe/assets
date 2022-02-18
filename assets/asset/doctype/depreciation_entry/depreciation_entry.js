@@ -45,6 +45,11 @@ frappe.ui.form.on('Depreciation Entry', {
 	asset: (frm) => {
 		frm.trigger('toggle_display_and_reqd_for_serial_no');
 		frm.trigger('toggle_display_for_finance_book');
+		frm.trigger('set_credit_and_debit_accounts');
+	},
+
+	company: (frm) => {
+		frm.trigger('set_credit_and_debit_accounts');
 	},
 
 	toggle_display_and_reqd_for_serial_no: (frm) => {
@@ -91,6 +96,28 @@ frappe.ui.form.on('Depreciation Entry', {
 			})
 		} else {
 			frm.set_df_property('finance_book', 'read_only', 1);
+		}
+	},
+
+	set_credit_and_debit_accounts: (frm) => {
+		if (frm.doc.asset && frm.doc.company) {
+			frappe.db.get_value('Asset_', frm.doc.asset, ['asset_category'], (r) => {
+				if (r && r.asset_category) {
+					frappe.call ({
+						method: 'assets.asset.doctype.depreciation_schedule_.depreciation_posting.get_depreciation_accounts',
+						args: {
+							'asset_category': r.asset_category,
+							'company': frm.doc.company
+						},
+						callback: function(r) {
+							if(r.message) {
+								frm.set_value('credit_account', r.message[0]);
+								frm.set_value('debit_account', r.message[1]);
+							}
+						}
+					});
+				}
+			})
 		}
 	}
 });

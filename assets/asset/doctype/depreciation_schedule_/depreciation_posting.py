@@ -75,6 +75,7 @@ def post_depreciation_entries(schedule_name, date=None):
 	update_asset_value_in_parent(parent, depr_schedule.finance_book, decrease_in_value)
 	parent.set_status()
 
+@frappe.whitelist()
 def get_depreciation_accounts(asset_category, company):
 	accumulated_depreciation_account = depreciation_expense_account = None
 
