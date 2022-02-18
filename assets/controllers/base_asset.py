@@ -627,63 +627,44 @@ def create_asset_revaluation(asset, asset_category, company):
 	return asset_revaluation
 
 @frappe.whitelist()
-def make_journal_entry(asset_name):
-	asset = frappe.get_doc("Asset_", asset_name)
-	_, accumulated_depreciation_account, depreciation_expense_account = \
-		get_depreciation_accounts(asset)
+def create_depreciation_entry(asset_name, serial_no=None):
+	from assets.asset.doctype.depreciation_schedule_.depreciation_posting import get_depreciation_accounts, get_depreciation_details
 
-	depreciation_cost_center, depreciation_series = frappe.db.get_value("Company", asset.company,
-		["depreciation_cost_center", "series_for_depreciation_entry"])
-	depreciation_cost_center = asset.cost_center or depreciation_cost_center
+	asset_category, company, cost_center, is_depreciable_asset = frappe.get_value(
+		"Asset_", asset_name, ["asset_category", "company", "cost_center", "calculate_depreciation"]
+	)
 
-	je = frappe.new_doc("Journal Entry")
-	je.voucher_type = "Depreciation Entry"
-	je.naming_series = depreciation_series
-	je.company = asset.company
-	je.remark = "Depreciation Entry against asset {0}".format(asset_name)
+	credit_account, debit_account = get_depreciation_accounts(asset_category, company)
+	depreciation_cost_center, depreciation_series = get_depreciation_details(company)
+	depreciation_cost_center = cost_center or depreciation_cost_center
 
-	je.append("accounts", {
-		"account": depreciation_expense_account,
-		"reference_type": "Asset",
-		"reference_name": asset.name,
-		"cost_center": depreciation_cost_center
+	depr_entry = frappe.new_doc("Depreciation Entry")
+	depr_entry.update({
+		"company": company,
+		"posting_date": getdate(),
+		"asset": asset_name,
+		"serial_no": serial_no,
+		"cost_center": cost_center,
+		"credit_account": credit_account,
+		"debit_account": debit_account,
+		"reference_doctype": "Asset Serial No" if serial_no else "Asset_",
+		"reference_docname": serial_no if serial_no else asset_name
 	})
 
-	je.append("accounts", {
-		"account": accumulated_depreciation_account,
-		"reference_type": "Asset",
-		"reference_name": asset.name
-	})
+	if depreciation_series:
+		depr_entry.naming_series = depreciation_series
 
-	return je
+	if is_depreciable_asset:
+		update_finance_book(depr_entry)
 
-def get_depreciation_accounts(asset):
-	fixed_asset_account = accumulated_depreciation_account = depreciation_expense_account = None
+	return depr_entry
 
-	accounts = frappe.db.get_value("Asset Category Account_",
-		filters={'parent': asset.asset_category, 'company_name': asset.company},
-		fieldname = ['fixed_asset_account', 'accumulated_depreciation_account',
-			'depreciation_expense_account'], as_dict=1)
+def update_finance_book(depr_entry):
+	asset_or_serial_no = depr_entry.get_asset_or_serial_no()
+	finance_books = depr_entry.get_finance_books_linked_with_asset(asset_or_serial_no)
 
-	if accounts:
-		fixed_asset_account = accounts.fixed_asset_account
-		accumulated_depreciation_account = accounts.accumulated_depreciation_account
-		depreciation_expense_account = accounts.depreciation_expense_account
-
-	if not accumulated_depreciation_account or not depreciation_expense_account:
-		accounts = frappe.get_cached_value('Company',  asset.company,
-			["accumulated_depreciation_account", "depreciation_expense_account"])
-
-		if not accumulated_depreciation_account:
-			accumulated_depreciation_account = accounts[0]
-		if not depreciation_expense_account:
-			depreciation_expense_account = accounts[1]
-
-	if not fixed_asset_account or not accumulated_depreciation_account or not depreciation_expense_account:
-		frappe.throw(_("Please set Depreciation related Accounts in Asset Category {0} or Company {1}")
-			.format(asset.asset_category, asset.company))
-
-	return fixed_asset_account, accumulated_depreciation_account, depreciation_expense_account
+	if len(finance_books) == 1:
+		depr_entry.finance_book = finance_books[0]
 
 # PI: call using hooks on validate
 def set_expense_account_during_purchase(purchase_invoice):

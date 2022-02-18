@@ -101,7 +101,7 @@ frappe.ui.form.on('Asset_', {
 
 				if (!frm.doc.calculate_depreciation) {
 					frm.add_custom_button(__("Create Depreciation Entry"), function() {
-						frm.trigger("make_journal_entry");
+						frm.trigger("create_depreciation_entry");
 					}, __("Manage"));
 				}
 
@@ -344,9 +344,9 @@ frappe.ui.form.on('Asset_', {
 		});
 	},
 
-	make_journal_entry: function(frm) {
+	create_depreciation_entry: function(frm) {
 		frappe.call({
-			method: "assets.controllers.base_asset.make_journal_entry",
+			method: "assets.controllers.base_asset.create_depreciation_entry",
 			args: {
 				asset_name: frm.doc.name
 			},
