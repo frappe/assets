@@ -40,6 +40,21 @@ frappe.ui.form.on('Depreciation Entry', {
 	refresh: function(frm) {
 		frm.trigger('toggle_display_and_reqd_for_serial_no');
 		frm.trigger('toggle_display_for_finance_book');
+
+		if(frm.doc.docstatus > 0) {
+			frm.add_custom_button(__('View General Ledger'), function() {
+				frappe.route_options = {
+					'voucher_no': frm.doc.name,
+					'from_date': frm.doc.posting_date,
+					'to_date': moment(frm.doc.modified).format('YYYY-MM-DD'),
+					'company': frm.doc.company,
+					'finance_book': frm.doc.finance_book,
+					'group_by': '',
+					'show_cancelled_entries': frm.doc.docstatus === 2
+				};
+				frappe.set_route('query-report', 'General Ledger');
+			});
+		}
 	},
 
 	asset: (frm) => {
