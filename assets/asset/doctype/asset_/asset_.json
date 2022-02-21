@@ -42,8 +42,10 @@
   "purchase_date",
   "depreciation_section",
   "available_for_use_date",
-  "column_break_3",
   "opening_accumulated_depreciation",
+  "salvage_value",
+  "column_break_3",
+  "depreciation_posting_start_date",
   "number_of_depreciations_booked",
   "finance_books_section",
   "finance_books",
@@ -464,6 +466,21 @@
   {
    "fieldname": "column_break_23",
    "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)",
+   "fieldname": "depreciation_posting_start_date",
+   "fieldtype": "Date",
+   "label": "Depreciation Posting Start Date",
+   "mandatory_depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)"
+  },
+  {
+   "depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)",
+   "fieldname": "salvage_value",
+   "fieldtype": "Currency",
+   "label": "Salvage Value",
+   "mandatory_depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)",
+   "options": "Company:company:default_currency"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -478,7 +495,7 @@
    "link_fieldname": "asset"
   }
  ],
- "modified": "2022-02-21 23:44:57.999407",
+ "modified": "2022-02-22 01:42:34.650107",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
