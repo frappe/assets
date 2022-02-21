@@ -53,14 +53,11 @@ def post_depreciation_entries(schedule_name, date=None):
 	depr_schedule = frappe.get_doc("Depreciation Schedule_", schedule_name)
 	asset = frappe.get_doc("Asset_", depr_schedule.asset)
 
-	depreciation_cost_center, depreciation_series = get_depreciation_details(asset.company)
-	depreciation_cost_center = asset.cost_center or depreciation_cost_center
-
 	decrease_in_value = 0
 
 	for schedule in depr_schedule.depreciation_schedule:
-		if not schedule.journal_entry and getdate(schedule.schedule_date) <= getdate(date):
-			depr_entry = make_depreciation_entry(depreciation_series, schedule, depr_schedule, asset, depreciation_cost_center)
+		if not schedule.depreciation_entry and getdate(schedule.schedule_date) <= getdate(date):
+			depr_entry = make_depreciation_entry(schedule, depr_schedule, asset)
 
 			schedule.db_set("depreciation_entry", depr_entry.name)
 			decrease_in_value += schedule.depreciation_amount
@@ -69,15 +66,9 @@ def post_depreciation_entries(schedule_name, date=None):
 	update_asset_value_in_parent(parent, depr_schedule.finance_book, decrease_in_value)
 	parent.set_status()
 
-def get_depreciation_details(company):
-	return frappe.get_cached_value(
-		"Company",
-		company,
-		["depreciation_cost_center", "series_for_depreciation_entry"]
-	)
-
-def make_depreciation_entry(depreciation_series, schedule_row, depr_schedule, asset, depreciation_cost_center):
+def make_depreciation_entry(schedule_row, depr_schedule, asset):
 	credit_account, debit_account = get_depreciation_accounts(asset.asset_category, asset.company)
+	depreciation_cost_center, depreciation_series = get_depreciation_details(asset)
 
 	depr_entry = frappe.new_doc("Depreciation Entry")
 	depr_entry.update({
@@ -162,6 +153,16 @@ def get_credit_and_debit_accounts(accumulated_depreciation_account, depreciation
 		frappe.throw(_("Depreciation Expense Account should be an Income or Expense Account."))
 
 	return credit_account, debit_account
+
+def get_depreciation_details(asset):
+	depreciation_cost_center, depreciation_series = frappe.get_cached_value(
+		"Company",
+		asset.company,
+		["depreciation_cost_center", "series_for_depreciation_entry"]
+	)
+	depreciation_cost_center = asset.cost_center or depreciation_cost_center
+
+	return depreciation_cost_center, depreciation_series
 
 def add_accounting_dimensions(depr_entry, asset):
 	accounting_dimensions = get_checks_for_pl_and_bs_accounts()
