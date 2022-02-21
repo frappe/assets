@@ -26,7 +26,7 @@ def create_depreciation_schedules(asset, date_of_sale=None):
 		create_schedule_for_finance_book(asset, row, purchase_value, opening_accumulated_depr, date_of_sale)
 
 def create_schedule_for_finance_book(asset, row, purchase_value=None, opening_accumulated_depr=None, date_of_sale=None):
-	if not purchase_value or not not opening_accumulated_depr:
+	if not purchase_value or not opening_accumulated_depr:
 		purchase_value, opening_accumulated_depr = get_depr_details(asset)
 
 	depr_schedule = frappe.new_doc("Depreciation Schedule_")
