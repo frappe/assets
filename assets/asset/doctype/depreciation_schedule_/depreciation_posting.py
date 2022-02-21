@@ -155,8 +155,9 @@ def make_depreciation_entry(depreciation_series, schedule_row, depr_schedule, as
 		"debit_account": debit_account,
 		"depreciation_amount": schedule_row.depreciation_amount,
 		"cost_center": depreciation_cost_center,
-		"reference_doctype": "Asset_" if not depr_schedule.get("serial_no") else "Asset Serial No",
-		"reference_docname": depr_schedule.asset if not depr_schedule.get("serial_no") else depr_schedule.serial_no
+		"reference_doctype": depr_schedule.doctype,
+		"reference_docname": depr_schedule.name,
+		"depr_schedule_row": schedule_row.name
 	})
 
 	add_accounting_dimensions(accounting_dimensions, depr_entry, asset)
