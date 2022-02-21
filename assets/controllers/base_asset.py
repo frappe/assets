@@ -92,6 +92,9 @@ class BaseAsset(Document):
 		if self.doctype == "Asset_":
 			return self.calculate_depreciation
 		else:
+			if not self.get("asset_values"):
+				self.get_asset_values()
+
 			return self.asset_values["calculate_depreciation"]
 
 	def validate_number_of_assets(self):
