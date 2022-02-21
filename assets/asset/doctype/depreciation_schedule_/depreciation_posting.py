@@ -33,7 +33,7 @@ def get_schedules_that_need_posting(date):
 		filters = {
 			"parent": ["in", active_schedules],
 			"schedule_date": ["<=", date],
-			"journal_entry": None
+			"depreciation_entry": None
 		},
 		pluck = "parent"
 	)
@@ -45,7 +45,7 @@ def get_schedules_that_need_posting(date):
 
 @frappe.whitelist()
 def post_depreciation_entries(schedule_name, date=None):
-	frappe.has_permission("Journal Entry", throw=True)
+	frappe.has_permission("Depreciation Entry", throw=True)
 
 	if not date:
 		date = today()
@@ -65,10 +65,10 @@ def post_depreciation_entries(schedule_name, date=None):
 
 	for schedule in depr_schedule.depreciation_schedule:
 		if not schedule.journal_entry and getdate(schedule.schedule_date) <= getdate(date):
-			journal_entry = make_depreciation_entry(depreciation_series, schedule, depr_schedule, asset,
+			depr_entry = make_depreciation_entry(depreciation_series, schedule, depr_schedule, asset,
 				credit_account, debit_account, depreciation_cost_center, accounting_dimensions)
 
-			schedule.db_set("journal_entry", journal_entry.name)
+			schedule.db_set("depreciation_entry", depr_entry.name)
 			decrease_in_value += schedule.depreciation_amount
 
 	parent = get_parent(depr_schedule, asset)
@@ -143,58 +143,34 @@ def get_depreciation_details(company):
 
 def make_depreciation_entry(depreciation_series, schedule_row, depr_schedule, asset, credit_account,
 	debit_account, depreciation_cost_center, accounting_dimensions):
-	je = frappe.new_doc("Journal Entry")
-	je.voucher_type = "Depreciation Entry"
-	je.naming_series = depreciation_series
-	je.posting_date = schedule_row.schedule_date
-	je.company = asset.company
-	je.finance_book = depr_schedule.finance_book
-	je.remark = "Depreciation Entry against {0} worth {1}".format(asset.name, schedule_row.depreciation_amount)
+	depr_entry = frappe.new_doc("Depreciation Entry")
+	depr_entry.update({
+		"naming_series": depreciation_series,
+		"posting_date": schedule_row.schedule_date,
+		"company": asset.company,
+		"asset": depr_schedule.asset,
+		"serial_no": depr_schedule.serial_no,
+		"finance_book": depr_schedule.finance_book,
+		"credit_account": credit_account,
+		"debit_account": debit_account,
+		"depreciation_amount": schedule_row.depreciation_amount,
+		"cost_center": depreciation_cost_center,
+		"reference_doctype": "Asset_" if not depr_schedule.get("serial_no") else "Asset Serial No",
+		"reference_docname": depr_schedule.asset if not depr_schedule.get("serial_no") else depr_schedule.serial_no
+	})
 
-	credit_entry, debit_entry = get_credit_and_debit_entries(credit_account, debit_account,
-		schedule_row, asset, depreciation_cost_center, accounting_dimensions)
+	add_accounting_dimensions(accounting_dimensions, depr_entry, asset)
 
-	je.append("accounts", credit_entry)
-	je.append("accounts", debit_entry)
+	depr_entry.flags.ignore_permissions = True
+	depr_entry.save()
+	depr_entry.submit()
 
-	je.flags.ignore_permissions = True
-	je.save()
-	if not je.meta.get_workflow():
-		je.submit()
+	return depr_entry
 
-	return je
-
-def get_credit_and_debit_entries(credit_account, debit_account, schedule, asset,
-	depreciation_cost_center, accounting_dimensions):
-	credit_entry = {
-		"account": credit_account,
-		"credit_in_account_currency": schedule.depreciation_amount,
-		"reference_type": "Asset_",
-		"reference_name": asset.name,
-		"cost_center": depreciation_cost_center
-	}
-
-	debit_entry = {
-		"account": debit_account,
-		"debit_in_account_currency": schedule.depreciation_amount,
-		"reference_type": "Asset_",
-		"reference_name": asset.name,
-		"cost_center": depreciation_cost_center
-	}
-
-	add_accounting_dimensions(accounting_dimensions, credit_entry, debit_entry, asset)
-
-	return credit_entry, debit_entry
-
-def add_accounting_dimensions(accounting_dimensions, credit_entry, debit_entry, asset):
+def add_accounting_dimensions(accounting_dimensions, depr_entry, asset):
 	for dimension in accounting_dimensions:
-		if (asset.get(dimension['fieldname']) or dimension.get('mandatory_for_bs')):
-			credit_entry.update({
-				dimension['fieldname']: asset.get(dimension['fieldname']) or dimension.get('default_dimension')
-			})
-
-		if (asset.get(dimension['fieldname']) or dimension.get('mandatory_for_pl')):
-			debit_entry.update({
+		if (asset.get(dimension['fieldname']) or dimension.get('mandatory_for_bs') or dimension.get('mandatory_for_pl')):
+			depr_entry.update({
 				dimension['fieldname']: asset.get(dimension['fieldname']) or dimension.get('default_dimension')
 			})
 
