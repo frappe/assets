@@ -28,7 +28,8 @@ frappe.ui.form.on('Depreciation Schedule_', {
 			},
 			callback: function(r) {
 				frappe.model.sync(r.message);
-				frm.refresh();
+				// frm.refresh();
+				frm.get_field("depreciation_schedule").grid.refresh();
 			}
 		})
 	},
