@@ -42,7 +42,6 @@
   "purchase_date",
   "depreciation_section",
   "available_for_use_date",
-  "depreciation_schedule",
   "column_break_3",
   "opening_accumulated_depreciation",
   "number_of_depreciations_booked",
@@ -465,15 +464,6 @@
   {
    "fieldname": "column_break_23",
    "fieldtype": "Column Break"
-  },
-  {
-   "depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)",
-   "fieldname": "depreciation_schedule",
-   "fieldtype": "Link",
-   "label": "Depreciation Schedule",
-   "no_copy": 1,
-   "options": "Depreciation Schedule_",
-   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -488,7 +478,7 @@
    "link_fieldname": "asset"
   }
  ],
- "modified": "2022-02-11 04:24:31.034888",
+ "modified": "2022-02-21 23:44:57.999407",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",

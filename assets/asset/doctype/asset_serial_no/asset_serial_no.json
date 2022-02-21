@@ -12,7 +12,6 @@
   "column_break_2",
   "serial_no",
   "asset_value",
-  "depreciation_schedule",
   "tracking_details_section",
   "location",
   "custodian",
@@ -58,13 +57,6 @@
    "fieldtype": "Table",
    "label": "FInance Books",
    "options": "Asset Finance Book_"
-  },
-  {
-   "fieldname": "depreciation_schedule",
-   "fieldtype": "Link",
-   "label": "Depreciation Schedule",
-   "options": "Depreciation Schedule_",
-   "read_only": 1
   },
   {
    "fieldname": "location",
@@ -156,7 +148,7 @@
    "link_fieldname": "serial_no"
   }
  ],
- "modified": "2022-02-11 04:28:55.026972",
+ "modified": "2022-02-21 23:46:27.278653",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Serial No",
