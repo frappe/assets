@@ -21,7 +21,7 @@ def post_all_depreciation_entries(date=None):
 
 def get_schedules_that_need_posting(date):
 	active_schedules = frappe.get_all(
-		"Depreciation Schedules",
+		"Depreciation Schedule_",
 		filters = {
 			"status": "Active"
 		},
