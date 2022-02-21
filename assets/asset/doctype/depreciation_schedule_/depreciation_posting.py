@@ -59,14 +59,12 @@ def post_depreciation_entries(schedule_name, date=None):
 
 	depreciation_cost_center = asset.cost_center or depreciation_cost_center
 
-	accounting_dimensions = get_checks_for_pl_and_bs_accounts()
-
 	decrease_in_value = 0
 
 	for schedule in depr_schedule.depreciation_schedule:
 		if not schedule.journal_entry and getdate(schedule.schedule_date) <= getdate(date):
 			depr_entry = make_depreciation_entry(depreciation_series, schedule, depr_schedule, asset,
-				credit_account, debit_account, depreciation_cost_center, accounting_dimensions)
+				credit_account, debit_account, depreciation_cost_center)
 
 			schedule.db_set("depreciation_entry", depr_entry.name)
 			decrease_in_value += schedule.depreciation_amount
@@ -141,8 +139,8 @@ def get_depreciation_details(company):
 		["depreciation_cost_center", "series_for_depreciation_entry"]
 	)
 
-def make_depreciation_entry(depreciation_series, schedule_row, depr_schedule, asset, credit_account,
-	debit_account, depreciation_cost_center, accounting_dimensions):
+def make_depreciation_entry(depreciation_series, schedule_row, depr_schedule, asset,
+	credit_account, debit_account, depreciation_cost_center):
 	depr_entry = frappe.new_doc("Depreciation Entry")
 	depr_entry.update({
 		"naming_series": depreciation_series,
@@ -160,7 +158,7 @@ def make_depreciation_entry(depreciation_series, schedule_row, depr_schedule, as
 		"depr_schedule_row": schedule_row.name
 	})
 
-	add_accounting_dimensions(accounting_dimensions, depr_entry, asset)
+	add_accounting_dimensions(depr_entry, asset)
 
 	depr_entry.flags.ignore_permissions = True
 	depr_entry.save()
@@ -168,7 +166,9 @@ def make_depreciation_entry(depreciation_series, schedule_row, depr_schedule, as
 
 	return depr_entry
 
-def add_accounting_dimensions(accounting_dimensions, depr_entry, asset):
+def add_accounting_dimensions(depr_entry, asset):
+	accounting_dimensions = get_checks_for_pl_and_bs_accounts()
+
 	for dimension in accounting_dimensions:
 		if (asset.get(dimension['fieldname']) or dimension.get('mandatory_for_bs') or dimension.get('mandatory_for_pl')):
 			depr_entry.update({
