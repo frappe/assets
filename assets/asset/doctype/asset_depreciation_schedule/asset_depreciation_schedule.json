@@ -10,7 +10,7 @@
   "depreciation_amount",
   "column_break_3",
   "accumulated_depreciation_amount",
-  "journal_entry",
+  "depreciation_entry",
   "finance_book_id",
   "depreciation_method"
  ],
@@ -44,16 +44,6 @@
    "read_only": 1
   },
   {
-   "depends_on": "eval:doc.docstatus==1",
-   "fieldname": "journal_entry",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Journal Entry",
-   "no_copy": 1,
-   "options": "Journal Entry",
-   "read_only": 1
-  },
-  {
    "fieldname": "finance_book_id",
    "fieldtype": "Data",
    "hidden": 1,
@@ -71,12 +61,22 @@
    "options": "\nStraight Line\nDouble Declining Balance\nWritten Down Value\nManual",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.docstatus==1",
+   "fieldname": "depreciation_entry",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Depreciation Entry",
+   "no_copy": 1,
+   "options": "Depreciation Entry",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-02-21 17:51:43.090466",
+ "modified": "2022-02-21 17:52:55.485949",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Depreciation Schedule",
