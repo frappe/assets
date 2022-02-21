@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2021-12-08 04:58:18.944654",
+ "creation": "2022-01-31 20:58:20.417315",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -11,7 +11,6 @@
   "column_break_3",
   "accumulated_depreciation_amount",
   "journal_entry",
-  "make_depreciation_entry",
   "finance_book_id",
   "depreciation_method"
  ],
@@ -55,13 +54,6 @@
    "read_only": 1
   },
   {
-   "allow_on_submit": 1,
-   "depends_on": "eval:(doc.docstatus==1 && !doc.journal_entry && doc.schedule_date <= get_today())",
-   "fieldname": "make_depreciation_entry",
-   "fieldtype": "Button",
-   "label": "Make Depreciation Entry"
-  },
-  {
    "fieldname": "finance_book_id",
    "fieldtype": "Data",
    "hidden": 1,
@@ -84,12 +76,13 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-01-21 00:23:44.642618",
+ "modified": "2022-02-21 17:51:43.090466",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Depreciation Schedule",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",
- "sort_order": "DESC"
+ "sort_order": "DESC",
+ "states": []
 }
