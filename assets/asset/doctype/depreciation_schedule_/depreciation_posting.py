@@ -53,11 +53,14 @@ def post_depreciation_entries(schedule_name, date=None):
 	depr_schedule = frappe.get_doc("Depreciation Schedule_", schedule_name)
 	asset = frappe.get_doc("Asset_", depr_schedule.asset)
 
+	credit_account, debit_account = get_depreciation_accounts(asset.asset_category, asset.company)
+	depreciation_cost_center, depreciation_series = get_depreciation_details(asset)
 	decrease_in_value = 0
 
 	for schedule in depr_schedule.depreciation_schedule:
 		if not schedule.depreciation_entry and getdate(schedule.schedule_date) <= getdate(date):
-			depr_entry = make_depreciation_entry(schedule, depr_schedule, asset)
+			depr_entry = make_depreciation_entry(schedule, depr_schedule, asset,
+				credit_account, debit_account, depreciation_cost_center, depreciation_series)
 
 			schedule.db_set("depreciation_entry", depr_entry.name)
 			decrease_in_value += schedule.depreciation_amount
@@ -65,35 +68,6 @@ def post_depreciation_entries(schedule_name, date=None):
 	parent = get_parent(depr_schedule, asset)
 	update_asset_value_in_parent(parent, depr_schedule.finance_book, decrease_in_value)
 	parent.set_status()
-
-def make_depreciation_entry(schedule_row, depr_schedule, asset):
-	credit_account, debit_account = get_depreciation_accounts(asset.asset_category, asset.company)
-	depreciation_cost_center, depreciation_series = get_depreciation_details(asset)
-
-	depr_entry = frappe.new_doc("Depreciation Entry")
-	depr_entry.update({
-		"naming_series": depreciation_series,
-		"posting_date": schedule_row.schedule_date,
-		"company": asset.company,
-		"asset": depr_schedule.asset,
-		"serial_no": depr_schedule.serial_no,
-		"finance_book": depr_schedule.finance_book,
-		"credit_account": credit_account,
-		"debit_account": debit_account,
-		"depreciation_amount": schedule_row.depreciation_amount,
-		"cost_center": depreciation_cost_center,
-		"reference_doctype": depr_schedule.doctype,
-		"reference_docname": depr_schedule.name,
-		"depr_schedule_row": schedule_row.name
-	})
-
-	add_accounting_dimensions(depr_entry, asset)
-
-	depr_entry.flags.ignore_permissions = True
-	depr_entry.save()
-	depr_entry.submit()
-
-	return depr_entry
 
 @frappe.whitelist()
 def get_depreciation_accounts(asset_category, company):
@@ -163,6 +137,32 @@ def get_depreciation_details(asset):
 	depreciation_cost_center = asset.cost_center or depreciation_cost_center
 
 	return depreciation_cost_center, depreciation_series
+
+def make_depreciation_entry(schedule_row, depr_schedule, asset, credit_account, debit_account, depreciation_cost_center, depreciation_series):
+	depr_entry = frappe.new_doc("Depreciation Entry")
+	depr_entry.update({
+		"naming_series": depreciation_series,
+		"posting_date": schedule_row.schedule_date,
+		"company": asset.company,
+		"asset": depr_schedule.asset,
+		"serial_no": depr_schedule.serial_no,
+		"finance_book": depr_schedule.finance_book,
+		"credit_account": credit_account,
+		"debit_account": debit_account,
+		"depreciation_amount": schedule_row.depreciation_amount,
+		"cost_center": depreciation_cost_center,
+		"reference_doctype": depr_schedule.doctype,
+		"reference_docname": depr_schedule.name,
+		"depr_schedule_row": schedule_row.name
+	})
+
+	add_accounting_dimensions(depr_entry, asset)
+
+	depr_entry.flags.ignore_permissions = True
+	depr_entry.save()
+	depr_entry.submit()
+
+	return depr_entry
 
 def add_accounting_dimensions(depr_entry, asset):
 	accounting_dimensions = get_checks_for_pl_and_bs_accounts()
