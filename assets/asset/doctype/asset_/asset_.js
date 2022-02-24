@@ -48,6 +48,7 @@ frappe.ui.form.on('Asset_', {
 
 	refresh: function(frm) {
 		frm.trigger("toggle_reference_doc");
+		frm.trigger("toggle_depreciation_details");
 
 		if (frm.doc.docstatus == 0) {
 			frm.toggle_reqd("finance_books", frm.doc.calculate_depreciation);
