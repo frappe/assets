@@ -3,10 +3,10 @@
 
 frappe.ui.form.on('Asset Serial No', {
 	onload: function(frm) {
-		frm.set_query("asset", function() {
+		frm.set_query('asset', function() {
 			return {
-				"filters": {
-					"is_serialized_asset": 1
+				'filters': {
+					'is_serialized_asset': 1
 				}
 			};
 		});
