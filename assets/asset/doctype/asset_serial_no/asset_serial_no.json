@@ -21,6 +21,7 @@
   "salvage_value",
   "column_break_13",
   "depreciation_posting_start_date",
+  "opening_accumulated_depreciation",
   "finance_books_section",
   "finance_books",
   "section_break_6",
@@ -162,6 +163,13 @@
    "fieldname": "depreciation_posting_start_date",
    "fieldtype": "Date",
    "label": "Depreciation Posting Start Date"
+  },
+  {
+   "fieldname": "opening_accumulated_depreciation",
+   "fieldtype": "Currency",
+   "label": "Opening Accumulated Depreciation",
+   "no_copy": 1,
+   "options": "Company:company:default_currency"
   }
  ],
  "in_create": 1,
@@ -173,7 +181,7 @@
    "link_fieldname": "serial_no"
   }
  ],
- "modified": "2022-02-22 02:01:06.730455",
+ "modified": "2022-02-24 16:55:27.333367",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Serial No",
