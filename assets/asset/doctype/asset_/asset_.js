@@ -476,3 +476,18 @@ frappe.ui.form.on('Asset_', {
 		frm.set_value('cost_center', item.cost_center || purchase_doc.cost_center);
 	},
 });
+
+frappe.ui.form.on('Asset Finance Book_', {
+	depreciation_template: function(frm, cdt, cdn) {
+		const row = locals[cdt][cdn];
+
+		frappe.db.get_value('Depreciation Template', row.depreciation_template, ['asset_life', 'asset_life_unit'], (r) => {
+			if (r) {
+				if (r.asset_life_unit == "Years") {
+					row.asset_life_in_months = r.asset_life * 12;
+					frm.refresh_field("finance_books");
+				}
+			}
+		})
+	},
+});
