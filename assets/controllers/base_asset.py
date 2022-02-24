@@ -11,7 +11,7 @@ from assets.asset.doctype.asset_activity.asset_activity import create_asset_acti
 from assets.asset.doctype.asset_category_.asset_category_ import get_asset_category_account
 from assets.asset.doctype.depreciation_schedule_.depreciation_schedule_ import (
 	create_depreciation_schedules,
-	create_schedule_for_finance_book,
+	create_a_single_depreciation_schedule,
 	delete_existing_schedules
 )
 
@@ -291,7 +291,7 @@ class BaseAsset(Document):
 		)
 
 	def create_schedules_if_depr_details_have_been_updated(self):
-		if self.has_value_changed("available_for_use_date") or self.has_value_changed("gross_purchase_amount"):
+		if self.has_updated_basic_depr_details():
 			delete_existing_schedules(self)
 			create_depreciation_schedules(self)
 
@@ -301,15 +301,20 @@ class BaseAsset(Document):
 			self.set_initial_asset_value_for_finance_books()
 			return
 
-		doc_before_save = self.get_doc_before_save()
+		if self.enable_finance_books:
+			doc_before_save = self.get_doc_before_save()
 
-		if self.has_updated_finance_books(doc_before_save):
-			old_finance_books = doc_before_save.get("finance_books")
+			if self.has_updated_finance_books(doc_before_save):
+				old_finance_books = doc_before_save.get("finance_books")
 
-			self.delete_schedules_belonging_to_deleted_finance_books(old_finance_books)
-			self.create_new_schedules_for_new_finance_books(old_finance_books)
+				self.delete_schedules_belonging_to_deleted_finance_books(old_finance_books)
+				self.create_new_schedules_for_new_finance_books(old_finance_books)
 
-			self.set_initial_asset_value_for_finance_books()
+				self.set_initial_asset_value_for_finance_books()
+		else:
+			if self.has_updated_template_details():
+				delete_existing_schedules(self)
+				create_depreciation_schedules(self)
 
 	def set_initial_asset_value_for_finance_books(self):
 		for row in self.finance_books:
@@ -321,14 +326,24 @@ class BaseAsset(Document):
 		else:
 			self.asset_value += change_in_value
 
+	def has_updated_basic_depr_details(self):
+		return self.has_value_changed("available_for_use_date") or self.has_value_changed("gross_purchase_amount") \
+			or self.has_value_changed("depreciation_posting_start_date") or self.has_value_changed("salvage_value") \
+			or self.has_value_changed("opening_accumulated_depreciation")
+
 	def has_updated_finance_books(self, doc_before_save):
 		return doc_before_save.get("finance_books") != self.get("finance_books")
+
+	def has_updated_template_details(self):
+		return self.has_value_changed("depreciation_template") or self.has_value_changed("depreciation_method") \
+			or self.has_value_changed("frequency_of_depreciation") or self.has_value_changed("asset_life_in_months") \
+			or self.has_value_changed("rate_of_depreciation")
 
 	def create_new_schedules_for_new_finance_books(self, old_finance_books):
 		for fb in self.finance_books:
 			if fb not in old_finance_books:
 				delete_existing_schedules(self, fb)
-				create_schedule_for_finance_book(self, fb)
+				create_a_single_depreciation_schedule(self, fb)
 			else:
 				old_finance_books.remove(fb)
 
@@ -468,10 +483,9 @@ class BaseAsset(Document):
 				idx = self.get_default_finance_book_idx() or 0
 				gross_purchase_amount, _ = self.get_gross_purchase_amount_and_opening_accumulated_depreciation()
 
-				salvage_value = self.finance_books[idx].salvage_value
 				asset_value = self.finance_books[idx].asset_value
 
-				if flt(asset_value) <= salvage_value:
+				if flt(asset_value) <= self.salvage_value:
 					status = "Fully Depreciated"
 				elif flt(asset_value) < flt(gross_purchase_amount):
 					status = "Partially Depreciated"
