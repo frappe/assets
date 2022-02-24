@@ -394,6 +394,15 @@ frappe.ui.form.on('Asset_', {
 		}
 	},
 
+	depreciation_posting_start_date: function(frm) {
+		if (frm.doc.available_for_use_date && frm.doc.depreciation_posting_start_date == frm.doc.available_for_use_date) {
+			frappe.msgprint(__("Depreciation Posting Date should not be equal to Available for Use Date."));
+
+			frm.set_value("depreciation_posting_start_date", "");
+			frm.refresh_field("depreciation_posting_start_date");
+		}
+	},
+
 	item_code: function(frm) {
 		if(frm.doc.item_code) {
 			frm.trigger('set_finance_book');
