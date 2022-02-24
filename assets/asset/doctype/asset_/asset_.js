@@ -360,7 +360,38 @@ frappe.ui.form.on('Asset_', {
 	},
 
 	calculate_depreciation: function(frm) {
-		frm.toggle_reqd("finance_books", frm.doc.calculate_depreciation);
+		frm.trigger("toggle_depreciation_details");
+	},
+
+	toggle_depreciation_details: function (frm) {
+		frappe.db.get_single_value("Accounts Settings", "enable_finance_books")
+		.then((value) => {
+			if (value) {
+				frm.toggle_reqd("finance_books", frm.doc.calculate_depreciation);
+				frm.toggle_display("finance_books", frm.doc.calculate_depreciation);
+
+				frm.set_df_property("depreciation_template", "hidden", 1);
+				frm.set_df_property("depreciation_template", "reqd", 0);
+			} else {
+				frm.set_df_property("finance_books", "hidden", 1);
+				frm.set_df_property("finance_books", "reqd", 0);
+
+				frm.toggle_reqd("depreciation_template", frm.doc.calculate_depreciation);
+				frm.toggle_display("depreciation_template", frm.doc.calculate_depreciation);
+			}
+		});
+	},
+
+	depreciation_template: function(frm) {
+		if (frm.doc.depreciation_template) {
+			frappe.db.get_value('Depreciation Template', frm.doc.depreciation_template, ['asset_life', 'asset_life_unit'], (r) => {
+				if (r) {
+					if (r.asset_life_unit == "Years") {
+						frm.set_value("asset_life_in_months", (r.asset_life * 12));
+					}
+				}
+			})
+		}
 	},
 
 	item_code: function(frm) {

@@ -45,9 +45,16 @@
   "salvage_value",
   "column_break_3",
   "depreciation_posting_start_date",
+  "depreciation_template",
   "opening_accumulated_depreciation",
-  "finance_books_section",
+  "section_break_41",
   "finance_books",
+  "depr_details_section",
+  "depreciation_method",
+  "asset_life_in_months",
+  "column_break_45",
+  "frequency_of_depreciation",
+  "rate_of_depreciation",
   "insurance_details",
   "policy_number",
   "insurer",
@@ -288,14 +295,6 @@
    "options": "Company:company:default_currency"
   },
   {
-   "collapsible": 1,
-   "collapsible_depends_on": "eval:!(doc.calculate_depreciation)",
-   "depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)",
-   "fieldname": "finance_books_section",
-   "fieldtype": "Section Break",
-   "label": "Finance Books"
-  },
-  {
    "columns": 10,
    "depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)",
    "fieldname": "finance_books",
@@ -473,6 +472,62 @@
    "label": "Salvage Value",
    "mandatory_depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)",
    "options": "Company:company:default_currency"
+  },
+  {
+   "depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)",
+   "fieldname": "depreciation_template",
+   "fieldtype": "Link",
+   "label": "Depreciation Template",
+   "options": "Depreciation Template"
+  },
+  {
+   "fetch_from": "depreciation_template.depreciation_method",
+   "fieldname": "depreciation_method",
+   "fieldtype": "Data",
+   "label": "Depreciation Method",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "depreciation_template.frequency_of_depreciation",
+   "fieldname": "frequency_of_depreciation",
+   "fieldtype": "Data",
+   "label": "Frequency of Depreciation",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "depreciation_template.asset_life",
+   "fieldname": "asset_life_in_months",
+   "fieldtype": "Int",
+   "label": "Asset Life (In Months)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "rate_of_depreciation",
+   "fetch_from": "depreciation_template.rate_of_depreciation",
+   "fieldname": "rate_of_depreciation",
+   "fieldtype": "Percent",
+   "label": "Rate of Depreciation",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:!(doc.calculate_depreciation)",
+   "depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)",
+   "fieldname": "depr_details_section",
+   "fieldtype": "Section Break",
+   "label": "Template Details"
+  },
+  {
+   "fieldname": "column_break_45",
+   "fieldtype": "Column Break"
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)",
+   "depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)",
+   "fieldname": "section_break_41",
+   "fieldtype": "Section Break",
+   "label": "Template Details"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -487,7 +542,7 @@
    "link_fieldname": "asset"
   }
  ],
- "modified": "2022-02-24 16:52:42.659278",
+ "modified": "2022-02-24 22:39:16.265781",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
