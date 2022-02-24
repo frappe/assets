@@ -20,14 +20,14 @@ class DepreciationSchedule_(Document):
 		self.db_set("status", status)
 
 def create_depreciation_schedules(asset, date_of_sale=None):
-	purchase_value, opening_accumulated_depr = get_depr_details(asset)
+	purchase_value = get_purchase_amount(asset)
 
 	for row in asset.get('finance_books'):
-		create_schedule_for_finance_book(asset, row, purchase_value, opening_accumulated_depr, date_of_sale)
+		create_schedule_for_finance_book(asset, row, purchase_value, date_of_sale)
 
-def create_schedule_for_finance_book(asset, row, purchase_value=None, opening_accumulated_depr=None, date_of_sale=None):
+def create_schedule_for_finance_book(asset, row, purchase_value=None, date_of_sale=None):
 	if not purchase_value or not opening_accumulated_depr:
-		purchase_value, opening_accumulated_depr = get_depr_details(asset)
+		purchase_value, opening_accumulated_depr = get_purchase_amount(asset)
 
 	depr_schedule = frappe.new_doc("Depreciation Schedule_")
 
@@ -46,7 +46,7 @@ def create_schedule_for_finance_book(asset, row, purchase_value=None, opening_ac
 
 	depr_schedule.save()
 
-def get_depr_details(asset):
+def get_purchase_amount(asset):
 	if asset.doctype == "Asset_":
 		return asset.gross_purchase_amount, asset.opening_accumulated_depreciation
 	else:
