@@ -66,4 +66,31 @@ frappe.ui.form.on('Asset Serial No', {
 			frm.toggle_reqd('finance_books', 0);
 		}
 	},
+
+	depreciation_template: function(frm) {
+		if (frm.doc.depreciation_template) {
+			frappe.db.get_value('Depreciation Template', frm.doc.depreciation_template, ['asset_life', 'asset_life_unit'], (r) => {
+				if (r) {
+					if (r.asset_life_unit == "Years") {
+						frm.set_value("asset_life_in_months", (r.asset_life * 12));
+					}
+				}
+			})
+		}
+	},
+});
+
+frappe.ui.form.on('Asset Finance Book_', {
+	depreciation_template: function(frm, cdt, cdn) {
+		const row = locals[cdt][cdn];
+
+		frappe.db.get_value('Depreciation Template', row.depreciation_template, ['asset_life', 'asset_life_unit'], (r) => {
+			if (r) {
+				if (r.asset_life_unit == "Years") {
+					row.asset_life_in_months = r.asset_life * 12;
+					frm.refresh_field("finance_books");
+				}
+			}
+		})
+	},
 });
