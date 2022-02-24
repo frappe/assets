@@ -25,6 +25,8 @@ class BaseAsset(Document):
 		self.set_missing_values()
 
 		if self.is_not_serialized_asset() and self.is_depreciable_asset():
+			self.get_enable_finance_books_value()
+			self.validate_depreciation_template_fields()
 			self.validate_available_for_use_date()
 			self.validate_depreciation_posting_start_date()
 
@@ -196,6 +198,9 @@ class BaseAsset(Document):
 		else:
 			return self.asset_values["gross_purchase_amount"], self.asset_values["opening_accumulated_depreciation"]
 
+	def get_enable_finance_books_value(self):
+		self.enable_finance_books = frappe.db.get_single_value("Accounts Settings", "enable_finance_books")
+
 	def validate_available_for_use_date(self):
 		purchase_date = self.get_purchase_date()
 
@@ -207,9 +212,7 @@ class BaseAsset(Document):
 			frappe.throw(_("Depreciation Posting Date should not be equal to Available for Use Date."),
 				title=_("Incorrect Date"))
 
-		enable_finance_books = frappe.db.get_single_value("Accounts Settings", "enable_finance_books")
-
-		if not enable_finance_books:
+		if not self.enable_finance_books:
 			self.check_if_depr_posting_start_date_is_too_late(self.frequency_of_depreciation)
 		else:
 			for row in self.finance_books:
@@ -233,6 +236,59 @@ class BaseAsset(Document):
 				message += _(" in Row {} of the Template Details table.").format(row)
 
 			frappe.throw(message, title = _("Invalid Depreciation Posting Start Date"))
+
+	def validate_depreciation_template_fields(self):
+		if self.enable_finance_books:
+			if not self.finance_books:
+				frappe.throw(_("Please enter Depreciation Template Details"), title = _("Missing Values"))
+
+			for row in self.finance_books:
+				self.set_missing_template_values(row)
+		else:
+			self.set_missing_template_values()
+
+	def set_missing_template_values(self, row = None):
+		row_or_doc = self.get_row_or_doc(row)
+		self.validate_depreciation_template(row_or_doc, row)
+
+		depr_method, freq_of_depr, asset_life, asset_life_unit, rate_of_depr = self.fetch_template_values(row_or_doc)
+
+		if not row_or_doc.depreciation_method:
+			row_or_doc.depreciation_method = depr_method
+
+		if not row_or_doc.frequency_of_depreciation:
+			row_or_doc.frequency_of_depreciation = freq_of_depr
+
+		if not row_or_doc.asset_life_in_months:
+			if asset_life_unit == "Months":
+				row_or_doc.asset_life_in_months = asset_life
+			else:
+				row_or_doc.asset_life_in_months = asset_life * 12
+
+		if row_or_doc.depreciation_method == "Written Down Value" and not row_or_doc.rate_of_depreciation:
+			row_or_doc.rate_of_depreciation = rate_of_depr
+
+	def get_row_or_doc(self, row):
+		if row:
+			return row
+		else:
+			return self
+
+	def validate_depreciation_template(self, row_or_doc, row):
+		if not row_or_doc.depreciation_template:
+			message = _("Please enter Depreciation Template in the Template Details table")
+
+			if row:
+				message = _("Row {0}: ").format(row.idx) + message
+
+			frappe.throw(message, title = _("Missing Depreciation Template"))
+
+	def fetch_template_values(self, row_or_doc):
+		return frappe.get_value(
+			"Depreciation Template",
+			row_or_doc.depreciation_template,
+			["depreciation_method", "frequency_of_depreciation", "asset_life", "asset_life_unit", "rate_of_depreciation"]
+		)
 
 	def create_schedules_if_depr_details_have_been_updated(self):
 		if self.has_value_changed("available_for_use_date") or self.has_value_changed("gross_purchase_amount"):
