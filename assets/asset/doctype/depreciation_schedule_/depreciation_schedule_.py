@@ -21,13 +21,20 @@ class DepreciationSchedule_(Document):
 
 def create_depreciation_schedules(asset, date_of_sale=None):
 	purchase_value = get_purchase_amount(asset)
+	enable_finance_books = get_enable_finance_books_value()
 
-	for row in asset.get('finance_books'):
-		create_schedule_for_finance_book(asset, row, purchase_value, date_of_sale)
+	if enable_finance_books:
+		for row in asset.get('finance_books'):
+			create_a_single_depreciation_schedule(asset, row, purchase_value, date_of_sale)
+	else:
+		create_a_single_depreciation_schedule(asset, purchase_value, date_of_sale)
 
-def create_schedule_for_finance_book(asset, row, purchase_value=None, date_of_sale=None):
-	if not purchase_value or not opening_accumulated_depr:
-		purchase_value, opening_accumulated_depr = get_purchase_amount(asset)
+def get_enable_finance_books_value():
+	return frappe.db.get_single_value("Accounts Settings", "enable_finance_books")
+
+def create_a_single_depreciation_schedule(asset, row=None, purchase_value=None, date_of_sale=None):
+	if not purchase_value:
+		purchase_value = get_purchase_amount(asset)
 
 	depr_schedule = frappe.new_doc("Depreciation Schedule_")
 
@@ -38,33 +45,30 @@ def create_schedule_for_finance_book(asset, row, purchase_value=None, date_of_sa
 		depr_schedule.serial_no = asset.serial_no
 
 	depr_schedule.creation_date = getdate()
-	depr_schedule.finance_book = row.finance_book
 
-	set_depreciation_details_from_template(depr_schedule, row.depreciation_template)
-	make_depreciation_schedule(depr_schedule, asset, row, purchase_value, opening_accumulated_depr, date_of_sale)
+	if row:
+		depr_schedule.finance_book = row.finance_book
+
+	set_depreciation_details_from_template(depr_schedule, asset, row)
+	make_depreciation_schedule(depr_schedule, asset, purchase_value, date_of_sale)
 	set_accumulated_depreciation(depr_schedule)
 
 	depr_schedule.save()
 
 def get_purchase_amount(asset):
 	if asset.doctype == "Asset_":
-		return asset.gross_purchase_amount, asset.opening_accumulated_depreciation
+		return asset.gross_purchase_amount
 	else:
-		purchase_value, opening_accumulated_depr = frappe.get_value(
+		purchase_value = frappe.get_value(
 			"Asset_",
 			asset.asset,
-			["gross_purchase_amount", "opening_accumulated_depreciation"]
+			"gross_purchase_amount"
 		)
 
-		return purchase_value, opening_accumulated_depr
+		return purchase_value
 
-def set_depreciation_details_from_template(depr_schedule, depreciation_template):
-	template_values = frappe.get_value(
-		"Depreciation Template",
-		depreciation_template,
-		["depreciation_method", "frequency_of_depreciation", "asset_life", "asset_life_unit", "rate_of_depreciation"],
-		as_dict = 1
-	)
+def set_depreciation_details_from_template(depr_schedule, asset, row):
+	template_values = fetch_template_values(asset, row)
 
 	depr_schedule.depreciation_method = template_values["depreciation_method"]
 	depr_schedule.frequency_of_depreciation = template_values["frequency_of_depreciation"]
@@ -75,16 +79,32 @@ def set_depreciation_details_from_template(depr_schedule, depreciation_template)
 	else:
 		depr_schedule.asset_life_in_months = template_values["asset_life"] * 12
 
-def make_depreciation_schedule(depr_schedule, asset, finance_book, purchase_value, opening_accumulated_depr, date_of_sale):
-	depreciable_value = purchase_value - finance_book.salvage_value
+def fetch_template_values(asset, row):
+	depreciation_template = get_depr_template(asset, row)
+
+	return frappe.get_value(
+		"Depreciation Template",
+		depreciation_template,
+		["depreciation_method", "frequency_of_depreciation", "asset_life", "asset_life_unit", "rate_of_depreciation"],
+		as_dict = 1
+	)
+
+def get_depr_template(asset, row):
+	if row:
+		return row.depreciation_template
+	else:
+		return asset.depreciation_template
+
+def make_depreciation_schedule(depr_schedule, asset, purchase_value, date_of_sale):
+	depreciable_value = purchase_value - asset.salvage_value
 	frequency_of_depr = get_frequency_of_depreciation_in_months(depr_schedule.frequency_of_depreciation)
 
 	if depr_schedule.depreciation_method == "Straight Line":
-		make_depreciation_schedule_for_slm(depr_schedule, asset, finance_book, frequency_of_depr,
-			depreciable_value, opening_accumulated_depr, date_of_sale)
+		make_depreciation_schedule_for_slm(depr_schedule, asset, frequency_of_depr,
+			depreciable_value, date_of_sale)
 
 	elif depr_schedule.depreciation_method in ["Double Declining Balance", "Written Down Value"]:
-		make_depreciation_schedule_for_ddb_and_wdv(depr_schedule, asset, finance_book, frequency_of_depr,
+		make_depreciation_schedule_for_ddb_and_wdv(depr_schedule, asset, frequency_of_depr,
 			purchase_value, depreciable_value, date_of_sale)
 
 def get_frequency_of_depreciation_in_months(frequency_of_depreciation):
@@ -105,13 +125,13 @@ def get_frequency_of_depreciation_in_months(frequency_of_depreciation):
 
 	return frequency_in_months[frequency_of_depreciation]
 
-def make_depreciation_schedule_for_slm(depr_schedule, asset, finance_book, frequency_of_depr, depreciable_value, opening_accumulated_depr, date_of_sale):
+def make_depreciation_schedule_for_slm(depr_schedule, asset, frequency_of_depr, depreciable_value, date_of_sale):
 	depr_in_one_day = get_depreciation_in_one_day(asset.available_for_use_date, depr_schedule.asset_life_in_months, depreciable_value)
 
-	depr_start_date = get_depreciation_start_date(asset.available_for_use_date, opening_accumulated_depr, depr_in_one_day)
+	depr_start_date = get_depreciation_start_date(asset.available_for_use_date, asset.opening_accumulated_depreciation, depr_in_one_day)
 	depr_end_date = get_depreciation_end_date(asset.available_for_use_date, depr_schedule.asset_life_in_months, date_of_sale)
 
-	schedule_date = finance_book.depreciation_posting_start_date
+	schedule_date = asset.depreciation_posting_start_date
 
 	while schedule_date < depr_end_date:
 		depr_amount = get_depr_amount_for_slm(schedule_date, depr_start_date, depr_in_one_day)
@@ -124,17 +144,17 @@ def make_depreciation_schedule_for_slm(depr_schedule, asset, finance_book, frequ
 	depr_amount = get_depr_amount_for_slm(schedule_date, depr_start_date, depr_in_one_day)
 	create_depreciation_entry(depr_schedule, schedule_date, depr_amount)
 
-def make_depreciation_schedule_for_ddb_and_wdv(depr_schedule, asset, finance_book, frequency_of_depr, purchase_value, depreciable_value, date_of_sale):
+def make_depreciation_schedule_for_ddb_and_wdv(depr_schedule, asset, frequency_of_depr, purchase_value, depreciable_value, date_of_sale):
 	set_rate_of_depreciation(depr_schedule)
 
 	beginning_book_value = get_beginning_book_value(depr_schedule.depreciation_method, purchase_value, depreciable_value)
 	ending_book_value = beginning_book_value
-	validate_beginning_book_value(beginning_book_value, finance_book.salvage_value)
+	validate_beginning_book_value(beginning_book_value, asset.salvage_value)
 
-	schedule_date = finance_book.depreciation_posting_start_date
+	schedule_date = asset.depreciation_posting_start_date
 	final_schedule_date = get_final_schedule_date(depr_schedule.asset_life_in_months, asset.available_for_use_date, date_of_sale)
 
-	while beginning_book_value >= finance_book.salvage_value:
+	while beginning_book_value >= asset.salvage_value:
 		if schedule_date <= final_schedule_date:
 			# beginning book value for each depreciation is the ending book value of the previous one
 			beginning_book_value = ending_book_value
@@ -147,7 +167,7 @@ def make_depreciation_schedule_for_ddb_and_wdv(depr_schedule, asset, finance_boo
 			# for the next depreciation
 			schedule_date = add_months(schedule_date, frequency_of_depr)
 		else:
-			adjust_final_depreciation_amount(depr_schedule, ending_book_value, beginning_book_value, finance_book.salvage_value)
+			adjust_final_depreciation_amount(depr_schedule, ending_book_value, beginning_book_value, asset.salvage_value)
 			break
 
 def get_depreciation_start_date(available_for_use_date, opening_accumulated_depr, depr_in_one_day):
