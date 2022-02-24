@@ -27,28 +27,45 @@ frappe.ui.form.on('Asset Serial No', {
 					frm.set_df_property('available_for_use_date', 'hidden', 0);
 					frm.set_df_property('depreciation_posting_start_date', 'hidden', 0);
 					frm.set_df_property('salvage_value', 'hidden', 0);
-					frm.set_df_property('finance_books', 'hidden', 0);
 
 					frm.toggle_reqd('available_for_use_date', 1);
 					frm.toggle_reqd('depreciation_posting_start_date', 1);
 					frm.toggle_reqd('salvage_value', 1);
-					frm.toggle_reqd('finance_books', 1);
 
 					if (r.is_existing_asset) {
 						frm.set_df_property('opening_accumulated_depreciation', 'hidden', 0);
 					} else {
 						frm.set_df_property('opening_accumulated_depreciation', 'hidden', 1);
 					}
+
+					frappe.db.get_single_value('Accounts Settings', 'enable_finance_books')
+					.then((value) => {
+						if (value) {
+							frm.set_df_property('finance_books', 'hidden', 0);
+							frm.set_df_property('finance_books', 'reqd', 1);
+
+							frm.set_df_property('depreciation_template', 'hidden', 1);
+							frm.set_df_property('depreciation_template', 'reqd', 0);
+						} else {
+							frm.set_df_property('finance_books', 'hidden', 1);
+							frm.set_df_property('finance_books', 'reqd', 0);
+
+							frm.set_df_property('depreciation_template', 'hidden', 0);
+							frm.set_df_property('depreciation_template', 'reqd', 1);
+						}
+					});
 				}
 				else {
 					frm.set_df_property('available_for_use_date', 'hidden', 1);
 					frm.set_df_property('depreciation_posting_start_date', 'hidden', 1);
 					frm.set_df_property('opening_accumulated_depreciation', 'hidden', 1);
+					frm.set_df_property('depreciation_template', 'hidden', 1);
 					frm.set_df_property('salvage_value', 'hidden', 1);
 					frm.set_df_property('finance_books', 'hidden', 1);
 
 					frm.toggle_reqd('available_for_use_date', 0);
 					frm.toggle_reqd('depreciation_posting_start_date', 0);
+					frm.toggle_reqd('depreciation_template', 0);
 					frm.toggle_reqd('salvage_value', 0);
 					frm.toggle_reqd('finance_books', 0);
 				}
@@ -57,11 +74,13 @@ frappe.ui.form.on('Asset Serial No', {
 			frm.set_df_property('available_for_use_date', 'hidden', 1);
 			frm.set_df_property('depreciation_posting_start_date', 'hidden', 1);
 			frm.set_df_property('opening_accumulated_depreciation', 'hidden', 1);
+			frm.set_df_property('depreciation_template', 'hidden', 1);
 			frm.set_df_property('salvage_value', 'hidden', 1);
 			frm.set_df_property('finance_books', 'hidden', 1);
 
 			frm.toggle_reqd('available_for_use_date', 0);
 			frm.toggle_reqd('depreciation_posting_start_date', 0);
+			frm.toggle_reqd('depreciation_template', 0);
 			frm.toggle_reqd('salvage_value', 0);
 			frm.toggle_reqd('finance_books', 0);
 		}
