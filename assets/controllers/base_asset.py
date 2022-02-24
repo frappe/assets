@@ -3,7 +3,7 @@
 
 import frappe
 from frappe import _
-from frappe.utils import flt, cint, nowdate, getdate, get_datetime, get_link_to_form
+from frappe.utils import flt, cint, nowdate, getdate, get_datetime, add_months, format_date, get_link_to_form
 from frappe.model.document import Document
 import json
 
@@ -26,6 +26,7 @@ class BaseAsset(Document):
 
 		if self.is_not_serialized_asset() and self.is_depreciable_asset():
 			self.validate_available_for_use_date()
+			self.validate_depreciation_posting_start_date()
 
 			if self.is_new():
 				self.set_initial_asset_value_for_finance_books()
@@ -51,7 +52,6 @@ class BaseAsset(Document):
 	def before_submit(self):
 		if self.is_not_serialized_asset():
 			if self.is_depreciable_asset():
-				self.validate_depreciation_posting_start_date()
 				self.submit_depreciation_schedules()
 
 			if not self.flags.split_asset:
@@ -202,6 +202,38 @@ class BaseAsset(Document):
 		if self.available_for_use_date and getdate(self.available_for_use_date) < getdate(purchase_date):
 			frappe.throw(_("Available-for-use Date should be after purchase date"))
 
+	def validate_depreciation_posting_start_date(self):
+		if self.depreciation_posting_start_date == self.available_for_use_date:
+			frappe.throw(_("Depreciation Posting Date should not be equal to Available for Use Date."),
+				title=_("Incorrect Date"))
+
+		enable_finance_books = frappe.db.get_single_value("Accounts Settings", "enable_finance_books")
+
+		if not enable_finance_books:
+			self.check_if_depr_posting_start_date_is_too_late(self.frequency_of_depreciation)
+		else:
+			for row in self.finance_books:
+				self.check_if_depr_posting_start_date_is_too_late(row.frequency_of_depreciation, row.idx)
+
+	def check_if_depr_posting_start_date_is_too_late(self, frequency_of_depreciation, row = None):
+		from assets.asset.doctype.depreciation_schedule_.depreciation_schedule_ import get_frequency_of_depreciation_in_months
+
+		freq_of_depr = get_frequency_of_depreciation_in_months(frequency_of_depreciation)
+		latest_possible_depr_posting_start_date = add_months(self.available_for_use_date, freq_of_depr)
+
+		if self.depreciation_posting_start_date > latest_possible_depr_posting_start_date:
+			message = _("Depreciation Posting Start Date cannot be after {0} as the Available for Use Date  \
+				is {1} and the Frequency of Depreciation is {2}").format(
+					frappe.bold(format_date(latest_possible_depr_posting_start_date)),
+					frappe.bold(format_date(self.available_for_use_date)),
+					frappe.bold(frequency_of_depreciation)
+				)
+
+			if row:
+				message += _(" in Row {} of the Template Details table.").format(row)
+
+			frappe.throw(message, title = _("Invalid Depreciation Posting Start Date"))
+
 	def create_schedules_if_depr_details_have_been_updated(self):
 		if self.has_value_changed("available_for_use_date") or self.has_value_changed("gross_purchase_amount"):
 			delete_existing_schedules(self)
@@ -253,12 +285,6 @@ class BaseAsset(Document):
 			return self.purchase_date
 		else:
 			return self.asset_values["purchase_date"]
-
-	def validate_depreciation_posting_start_date(self):
-		for finance_book in self.finance_books:
-			if finance_book.depreciation_posting_start_date == self.available_for_use_date:
-				frappe.throw(_("Row #{}: Depreciation Posting Date should not be equal to Available for Use Date.")
-					.format(finance_book.idx), title=_("Incorrect Date"))
 
 	def submit_depreciation_schedules(self, notes=None):
 		filters = {
