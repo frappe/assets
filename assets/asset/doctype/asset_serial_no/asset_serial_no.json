@@ -21,9 +21,16 @@
   "salvage_value",
   "column_break_13",
   "depreciation_posting_start_date",
+  "depreciation_template",
   "opening_accumulated_depreciation",
   "finance_books_section",
   "finance_books",
+  "template_details_section",
+  "depreciation_method",
+  "asset_life_in_months",
+  "column_break_22",
+  "frequency_of_depreciation",
+  "rate_of_depreciation",
   "section_break_6",
   "disposal_date",
   "journal_entry_for_scrap",
@@ -91,7 +98,7 @@
   {
    "fieldname": "finance_books_section",
    "fieldtype": "Section Break",
-   "label": "Finance Books"
+   "label": "Template Details"
   },
   {
    "fieldname": "section_break_6",
@@ -170,6 +177,51 @@
    "label": "Opening Accumulated Depreciation",
    "no_copy": 1,
    "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "depreciation_template",
+   "fieldtype": "Link",
+   "label": "Depreciation Template",
+   "options": "Depreciation Template"
+  },
+  {
+   "fieldname": "template_details_section",
+   "fieldtype": "Section Break",
+   "label": "Template Details"
+  },
+  {
+   "fetch_from": "depreciation_template.depreciation_method",
+   "fieldname": "depreciation_method",
+   "fieldtype": "Data",
+   "label": "Depreciation Method",
+   "read_only": 1
+  },
+  {
+   "depends_on": "asset_life_in_months",
+   "fetch_from": "depreciation_template.asset_life",
+   "fieldname": "asset_life_in_months",
+   "fieldtype": "Int",
+   "label": "Asset Life (In Months)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_22",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "depreciation_template.frequency_of_depreciation",
+   "fieldname": "frequency_of_depreciation",
+   "fieldtype": "Data",
+   "label": "Frequency of Depreciation",
+   "read_only": 1
+  },
+  {
+   "depends_on": "rate_of_depreciation",
+   "fetch_from": "depreciation_template.rate_of_depreciation",
+   "fieldname": "rate_of_depreciation",
+   "fieldtype": "Percent",
+   "label": "Rate of Depreciation",
+   "read_only": 1
   }
  ],
  "in_create": 1,
@@ -181,7 +233,7 @@
    "link_fieldname": "serial_no"
   }
  ],
- "modified": "2022-02-24 16:55:27.333367",
+ "modified": "2022-02-24 23:19:41.876622",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Serial No",
