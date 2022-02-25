@@ -59,7 +59,6 @@
    "read_only": 1
   },
   {
-   "fetch_from": "depreciation_template.asset_life",
    "fieldname": "asset_life_in_months",
    "fieldtype": "Int",
    "in_list_view": 1,
@@ -93,7 +92,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-02-24 22:40:54.214033",
+ "modified": "2022-02-25 18:01:13.019722",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Finance Book_",
