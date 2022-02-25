@@ -803,3 +803,17 @@ def check_if_pi_has_any_fixed_assets(purchase_invoice):
 			return True
 
 	return False
+
+# PR: call using hooks on validate
+def validate_cwip_accounts(purchase_receipt):
+	from assets.asset.doctype.asset_.asset_ import is_cwip_accounting_enabled
+
+	for item in purchase_receipt.get('items'):
+		if item.is_fixed_asset and is_cwip_accounting_enabled(item.asset_category):
+			# check cwip accounts before making auto assets
+			# Improves UX by not giving messages of "Assets Created" before throwing error of not finding arbnb account
+
+			purchase_receipt.get_company_default("asset_received_but_not_billed")
+			get_asset_account("capital_work_in_progress_account", asset_category = item.asset_category, \
+				company = purchase_receipt.company)
+			break
