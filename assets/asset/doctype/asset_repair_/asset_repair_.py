@@ -1,6 +1,7 @@
 # Copyright (c) 2021, Ganga Manoj and contributors
 # For license information, please see license.txt
 
+from cgitb import enable
 import frappe
 from frappe import _
 from frappe.utils import flt, getdate, time_diff_in_hours, get_link_to_form
@@ -231,9 +232,7 @@ class AssetRepair_(AccountsController):
 	def increase_asset_life(self):
 		self.asset_doc.flags.ignore_validate_update_after_submit = True
 
-		for row in self.asset_doc.finance_books:
-			self.replace_depreciation_template(row)
-
+		self.update_asset_life_in_asset_doc()
 		self.asset_doc.create_schedules_if_depr_details_have_been_updated()
 		self.asset_doc.submit_depreciation_schedules(notes =
 			_("This schedule was cancelled because {0} underwent a repair({1}) that extended its life.")
@@ -244,48 +243,17 @@ class AssetRepair_(AccountsController):
 		)
 		self.asset_doc.save()
 
-	def replace_depreciation_template(self, row):
-		new_depr_template = self.create_copy_of_depreciation_template(row.depreciation_template)
-		self.update_asset_life_in_new_template(new_depr_template)
-		new_depr_template.submit()
-
-		row.depreciation_template = new_depr_template.name
-
-	def create_copy_of_depreciation_template(self, current_template_name):
-		current_template_details = frappe.get_value(
-			"Depreciation Template",
-			current_template_name,
-			["template_name", "depreciation_method", "frequency_of_depreciation", "asset_life", "asset_life_unit", "rate_of_depreciation"],
-			as_dict = 1
-		)
-
-		new_depr_template = frappe.new_doc("Depreciation Template")
-		new_depr_template.template_name = current_template_details["template_name"] + " - Modified Copy"
-		new_depr_template.depreciation_method = current_template_details["depreciation_method"]
-		new_depr_template.frequency_of_depreciation = current_template_details["frequency_of_depreciation"]
-		new_depr_template.asset_life = current_template_details["asset_life"]
-		new_depr_template.asset_life_unit = current_template_details["asset_life_unit"]
-		new_depr_template.rate_of_depreciation = current_template_details["rate_of_depreciation"]
-
-		return new_depr_template
-
-	def update_asset_life_in_new_template(self, new_depr_template):
-		if new_depr_template.asset_life_unit == "Months":
-			new_depr_template.asset_life += self.increase_in_asset_life
+	def update_asset_life_in_asset_doc(self):
+		if self.has_enabled_finance_books():
+			for row in self.asset_doc.finance_books:
+				row.asset_life_in_months += self.increase_in_asset_life
 		else:
-			# asset_life should be an integer
-			if self.increase_in_asset_life % 12 == 0:
-				new_depr_template.asset_life += self.increase_in_asset_life / 12
-			else:
-				new_depr_template.asset_life_unit = "Months"
-				new_depr_template.asset_life += self.increase_in_asset_life
+			self.asset_doc.asset_life_in_months += self.increase_in_asset_life
 
 	def decrease_asset_life(self):
 		self.asset_doc.flags.ignore_validate_update_after_submit = True
 
-		for row in self.asset_doc.finance_books:
-			self.replace_with_original_depreciation_template(row)
-
+		self.reset_asset_life_in_asset_doc()
 		self.asset_doc.create_schedules_if_depr_details_have_been_updated()
 		self.asset_doc.submit_depreciation_schedules(notes =
 			_("This schedule was cancelled because the repair that extended {0}'s life({1}) was cancelled.")
@@ -296,20 +264,15 @@ class AssetRepair_(AccountsController):
 		)
 		self.asset_doc.save()
 
-	def replace_with_original_depreciation_template(self, row):
-		old_depr_template = self.get_old_depreciation_template(row.depreciation_template)
-		row.depreciation_template = old_depr_template
+	def reset_asset_life_in_asset_doc(self):
+		if self.has_enabled_finance_books():
+			for row in self.asset_doc.finance_books:
+				row.asset_life_in_months -= self.increase_in_asset_life
+		else:
+			self.asset_doc.asset_life_in_months -= self.increase_in_asset_life
 
-	def get_old_depreciation_template(self, current_template_name):
-		if isinstance(current_template_name, str):
-			# because " - Modified Copy" was added at the end of the original template to create the new one's name
-			if current_template_name[-16:] == " - Modified Copy":
-				old_template_length = len(current_template_name) - 16
-				old_template_name = current_template_name[:old_template_length]
-
-				return old_template_name
-
-		frappe.throw(_("Cannot find original Depreciation Template."))
+	def has_enabled_finance_books(self):
+		return frappe.db.get_single_value("Accounts Settings", "enable_finance_books")
 
 @frappe.whitelist()
 def get_downtime(failure_date, completion_date):
