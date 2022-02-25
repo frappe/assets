@@ -495,6 +495,7 @@
    "read_only": 1
   },
   {
+   "depends_on": "asset_life_in_months",
    "fetch_from": "depreciation_template.asset_life",
    "fieldname": "asset_life_in_months",
    "fieldtype": "Int",
@@ -559,7 +560,7 @@
    "link_fieldname": "asset"
   }
  ],
- "modified": "2022-02-25 17:42:22.215643",
+ "modified": "2022-02-25 17:47:46.447004",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
