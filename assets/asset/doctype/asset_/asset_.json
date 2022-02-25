@@ -220,7 +220,7 @@
   },
   {
    "collapsible": 1,
-   "collapsible_depends_on": "is_existing_asset",
+   "collapsible_depends_on": "eval: !(doc.gross_purchase_amount)",
    "fieldname": "purchase_details_section",
    "fieldtype": "Section Break",
    "label": "Purchase Details"
@@ -542,7 +542,7 @@
    "link_fieldname": "asset"
   }
  ],
- "modified": "2022-02-24 22:39:16.265781",
+ "modified": "2022-02-25 17:35:49.629075",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
