@@ -389,6 +389,8 @@ frappe.ui.form.on('Asset_', {
 				if (r) {
 					if (r.asset_life_unit == "Years") {
 						frm.set_value("asset_life_in_months", (r.asset_life * 12));
+					} else {
+						frm.set_value("asset_life_in_months", r.asset_life);
 					}
 				}
 			})
@@ -486,8 +488,11 @@ frappe.ui.form.on('Asset Finance Book_', {
 			if (r) {
 				if (r.asset_life_unit == "Years") {
 					row.asset_life_in_months = r.asset_life * 12;
-					frm.refresh_field("finance_books");
+				} else {
+					row.asset_life_in_months = r.asset_life;
 				}
+
+				frm.refresh_field("finance_books");
 			}
 		})
 	},
