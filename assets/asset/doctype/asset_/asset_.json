@@ -534,15 +534,32 @@
  "is_submittable": 1,
  "links": [
   {
+   "group": "Maintenance",
+   "link_doctype": "Asset Maintenance_",
+   "link_fieldname": "asset_name"
+  },
+  {
+   "group": "Repair",
+   "link_doctype": "Asset Repair_",
+   "link_fieldname": "asset"
+  },
+  {
+   "group": "Revalue",
+   "link_doctype": "Asset Revaluation",
+   "link_fieldname": "asset"
+  },
+  {
+   "group": "Depreciation",
    "link_doctype": "Depreciation Schedule_",
    "link_fieldname": "asset"
   },
   {
+   "group": "Serial Nos",
    "link_doctype": "Asset Serial No",
    "link_fieldname": "asset"
   }
  ],
- "modified": "2022-02-25 17:35:49.629075",
+ "modified": "2022-02-25 17:42:22.215643",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
