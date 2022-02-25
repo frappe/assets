@@ -5,6 +5,7 @@ from frappe.utils import cint, getdate, today
 from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import (
 	get_checks_for_pl_and_bs_accounts,
 )
+from frappe.utils.data import get_link_to_form
 
 
 def post_all_depreciation_entries(date=None):
@@ -157,10 +158,7 @@ def make_depreciation_entry(schedule_row, depr_schedule, asset, credit_account, 
 	})
 
 	add_accounting_dimensions(depr_entry, asset)
-
-	depr_entry.flags.ignore_permissions = True
-	depr_entry.save()
-	depr_entry.submit()
+	submit_depr_entry(depr_entry, depr_schedule)
 
 	return depr_entry
 
@@ -172,6 +170,24 @@ def add_accounting_dimensions(depr_entry, asset):
 			depr_entry.update({
 				dimension['fieldname']: asset.get(dimension['fieldname']) or dimension.get('default_dimension')
 			})
+
+def submit_depr_entry(depr_entry, depr_schedule):
+	depr_entry.flags.ignore_permissions = True
+	depr_schedule.flags.ignore_validate_update_after_submit = True
+
+	try:
+		depr_entry.save()
+
+		try:
+			depr_entry.submit()
+			depr_schedule.depr_entry_posting_status = "Successful"
+		except Exception:
+			depr_schedule.depr_entry_posting_status = "Submit Failed"
+
+	except Exception:
+		depr_schedule.depr_entry_posting_status = "Save Failed"
+
+	depr_schedule.save()
 
 def get_parent(depr_schedule, asset):
 	if depr_schedule.serial_no:

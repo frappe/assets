@@ -18,6 +18,10 @@ frappe.ui.form.on('Depreciation Schedule_', {
 				frm.trigger("post_depreciation_entries");
 			});
 		}
+
+		if (in_list(["Save Failed", "Submit Failed"], frm.doc.depr_entry_posting_status)) {
+			frm.trigger("set_depr_posting_failure_alert");
+		}
 	},
 
 	post_depreciation_entries: function(frm) {
@@ -32,6 +36,21 @@ frappe.ui.form.on('Depreciation Schedule_', {
 				frm.get_field("depreciation_schedule").grid.refresh();
 			}
 		})
+	},
+
+	set_depr_posting_failure_alert: function (frm) {
+		let save_or_submit = frm.doc.depr_entry_posting_status == "Save Failed" ? "save" : "submit";
+
+		let alert = `
+			<div class="row">
+				<div class="col-xs-12 col-sm-6">
+					<span class="indicator whitespace-nowrap red">
+						<span>Failed to ${save_or_submit} Depreciation Entry</span>
+					</span>
+				</div>
+			</div>`;
+
+		frm.dashboard.set_headline_alert(alert);
 	},
 
 	asset: (frm) => {

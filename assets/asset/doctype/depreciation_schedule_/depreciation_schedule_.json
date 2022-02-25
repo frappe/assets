@@ -24,6 +24,7 @@
   "details_section",
   "notes",
   "status",
+  "depr_entry_posting_status",
   "amended_from"
  ],
  "fields": [
@@ -139,13 +140,20 @@
   {
    "fieldname": "column_break_3",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "depr_entry_posting_status",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Depreciation Entry Posting Status",
+   "options": "\nSuccessful\nSave Failed\nSubmit Failed"
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-02-21 22:29:52.810641",
+ "modified": "2022-02-25 21:17:28.093620",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Depreciation Schedule_",
