@@ -404,7 +404,12 @@ frappe.ui.form.on('Asset_', {
 
 	item_code: function(frm) {
 		if(frm.doc.item_code) {
-			frm.trigger('set_finance_book');
+			frappe.db.get_single_value("Accounts Settings", "enable_finance_books")
+			.then((value) => {
+				if (value) {
+					frm.trigger('set_finance_book');
+				}
+			})
 		}
 	},
 
