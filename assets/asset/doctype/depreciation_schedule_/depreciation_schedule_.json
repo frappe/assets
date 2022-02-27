@@ -132,6 +132,7 @@
    "label": "Frequency of Depreciation"
   },
   {
+   "depends_on": "rate_of_depreciation",
    "fieldname": "rate_of_depreciation",
    "fieldtype": "Data",
    "label": "Rate of Depreciation",
@@ -153,7 +154,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-02-25 21:17:28.093620",
+ "modified": "2022-02-27 18:17:32.921820",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Depreciation Schedule_",
