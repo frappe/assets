@@ -20,6 +20,11 @@ def post_all_depreciation_entries(date=None):
 		post_depreciation_entries(schedule, date)
 		frappe.db.commit()
 
+	schedules_that_failed_posting = get_schedules_that_failed_to_post_depr_entries()
+
+	if schedules_that_failed_posting:
+		notify_accounts_managers(schedules_that_failed_posting)
+
 def get_schedules_that_need_posting(date):
 	active_schedules = frappe.get_all(
 		"Depreciation Schedule_",
@@ -204,3 +209,56 @@ def update_asset_value_in_parent(parent, finance_book, decrease_in_value):
 			break
 
 	parent.update_asset_value()
+
+def get_schedules_that_failed_to_post_depr_entries():
+	schedules_that_failed_posting = frappe.get_all(
+		"Depreciation Schedule_",
+		filters = {
+			"depr_entry_posting_status": ["in", ["Submit Failed", "Save Failed"]]
+		},
+		pluck = "name"
+	)
+	schedules_that_failed_posting = list(set(schedules_that_failed_posting))
+
+	return schedules_that_failed_posting
+
+def notify_accounts_managers(schedules_that_failed_posting):
+	from frappe.desk.doctype.notification_log.notification_log import enqueue_create_notification
+
+	recipients = get_accounts_managers()
+
+	schedule_names = ", ".join(schedules_that_failed_posting)
+	schedule_links = get_schedule_links(schedules_that_failed_posting)
+	notification_message = _("The following Depreciation Schedules have failed to post Depreciation Entries: {0}") \
+		.format(schedule_links)
+
+	notification_doc = {
+		'type': 'Alert',
+		'document_type': "Depreciation Schedule_",
+		'document_name': schedule_names,
+		'subject': notification_message,
+		'from_user': frappe.session.user
+	}
+
+	frappe.flags.in_test = True
+	enqueue_create_notification(recipients, notification_doc)
+
+def get_schedule_links(schedules_that_failed_posting):
+	schedule_links = []
+
+	for schedule in schedules_that_failed_posting:
+		schedule_links.append(get_link_to_form("Depreciation Schedule_", schedule))
+
+	schedule_links = ", ".join(schedule_links)
+
+	return schedule_links
+
+def get_accounts_managers():
+	return list(set(frappe.get_all(
+		"Has Role",
+		filters = {
+			"role": "Accounts Manager",
+			"parenttype": "User"
+		},
+		pluck = "parent"
+	)))
