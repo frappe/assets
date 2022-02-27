@@ -421,6 +421,7 @@
    "depends_on": "eval:!(doc.is_serialized_asset)",
    "fieldname": "asset_value",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Asset Value",
    "options": "Company:company:default_currency",
    "read_only": 1
@@ -550,7 +551,7 @@
    "link_fieldname": "asset"
   }
  ],
- "modified": "2022-02-27 18:28:22.780046",
+ "modified": "2022-02-27 18:29:27.318396",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
