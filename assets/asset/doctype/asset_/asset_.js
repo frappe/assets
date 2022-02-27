@@ -50,10 +50,6 @@ frappe.ui.form.on('Asset_', {
 		frm.trigger("toggle_reference_doc");
 		frm.trigger("toggle_depreciation_details");
 
-		if (frm.doc.docstatus == 0) {
-			frm.toggle_reqd("finance_books", frm.doc.calculate_depreciation);
-		}
-
 		if (frm.doc.docstatus == 1) {
 			if (frm.doc.is_serialized_asset) {
 				frm.trigger("toggle_display_create_serial_nos_button");
