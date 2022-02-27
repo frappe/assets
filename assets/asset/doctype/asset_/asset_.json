@@ -9,7 +9,6 @@
  "field_order": [
   "naming_series",
   "item_code",
-  "item_name",
   "asset_name",
   "asset_category",
   "num_of_assets",
@@ -112,14 +111,6 @@
    "label": "Item Code",
    "options": "Item",
    "reqd": 1
-  },
-  {
-   "depends_on": "item_code",
-   "fetch_from": "item_code.item_name",
-   "fieldname": "item_name",
-   "fieldtype": "Data",
-   "label": "Item Name",
-   "read_only": 1
   },
   {
    "allow_on_submit": 1,
@@ -559,7 +550,7 @@
    "link_fieldname": "asset"
   }
  ],
- "modified": "2022-02-25 18:11:32.151664",
+ "modified": "2022-02-27 18:28:22.780046",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
