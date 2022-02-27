@@ -50,6 +50,22 @@ frappe.ui.form.on('Asset Category_', {
 				}
 			};
 		});
+	},
 
-	}
+	refresh: function(frm) {
+		frm.trigger("toggle_finance_books");
+	},
+
+	toggle_finance_books: function (frm) {
+		frappe.db.get_single_value("Accounts Settings", "enable_finance_books")
+		.then((value) => {
+			if (value) {
+				frm.set_df_property("finance_books", "hidden", 0);
+				frm.set_df_property("finance_books", "reqd", 1);
+			} else {
+				frm.set_df_property("finance_books", "hidden", 1);
+				frm.set_df_property("finance_books", "reqd", 0);
+			}
+		});
+	},
 });
