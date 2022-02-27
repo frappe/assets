@@ -108,7 +108,7 @@
    "fieldname": "item_code",
    "fieldtype": "Link",
    "in_standard_filter": 1,
-   "label": "Item Code",
+   "label": "Item",
    "options": "Item",
    "reqd": 1
   },
@@ -551,7 +551,7 @@
    "link_fieldname": "asset"
   }
  ],
- "modified": "2022-02-27 18:29:27.318396",
+ "modified": "2022-02-27 18:31:21.274001",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
