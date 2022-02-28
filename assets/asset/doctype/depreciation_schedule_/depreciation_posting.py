@@ -171,9 +171,9 @@ def add_accounting_dimensions(depr_entry, asset):
 	accounting_dimensions = get_checks_for_pl_and_bs_accounts()
 
 	for dimension in accounting_dimensions:
-		if (asset.get(dimension['fieldname']) or dimension.get('mandatory_for_bs') or dimension.get('mandatory_for_pl')):
+		if (asset.get(dimension["fieldname"]) or dimension.get("mandatory_for_bs") or dimension.get("mandatory_for_pl")):
 			depr_entry.update({
-				dimension['fieldname']: asset.get(dimension['fieldname']) or dimension.get('default_dimension')
+				dimension["fieldname"]: asset.get(dimension["fieldname"]) or dimension.get("default_dimension")
 			})
 
 def submit_depr_entry(depr_entry, depr_schedule):
@@ -233,11 +233,11 @@ def notify_accounts_managers(schedules_that_failed_posting):
 		.format(schedule_links)
 
 	notification_doc = {
-		'type': 'Alert',
-		'document_type': "Depreciation Schedule_",
-		'document_name': schedule_names,
-		'subject': notification_message,
-		'from_user': frappe.session.user
+		"type": "Alert",
+		"document_type": "Depreciation Schedule_",
+		"document_name": schedule_names,
+		"subject": notification_message,
+		"from_user": frappe.session.user
 	}
 
 	frappe.flags.in_test = True
