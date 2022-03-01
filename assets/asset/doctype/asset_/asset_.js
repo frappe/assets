@@ -364,8 +364,8 @@ frappe.ui.form.on('Asset_', {
 		frappe.db.get_single_value("Accounts Settings", "enable_finance_books")
 		.then((value) => {
 			if (value) {
-				frm.toggle_reqd("finance_books", frm.doc.calculate_depreciation);
-				frm.toggle_display("finance_books", frm.doc.calculate_depreciation);
+				frm.toggle_reqd("finance_books", (frm.doc.calculate_depreciation && !frm.doc.is_serialized_asset));
+				frm.toggle_display("finance_books", (frm.doc.calculate_depreciation && !frm.doc.is_serialized_asset));
 
 				frm.set_df_property("depreciation_template", "hidden", 1);
 				frm.set_df_property("depreciation_template", "reqd", 0);
@@ -373,8 +373,8 @@ frappe.ui.form.on('Asset_', {
 				frm.set_df_property("finance_books", "hidden", 1);
 				frm.set_df_property("finance_books", "reqd", 0);
 
-				frm.toggle_reqd("depreciation_template", frm.doc.calculate_depreciation);
-				frm.toggle_display("depreciation_template", frm.doc.calculate_depreciation);
+				frm.toggle_reqd("depreciation_template", (frm.doc.calculate_depreciation && !frm.doc.is_serialized_asset));
+				frm.toggle_display("depreciation_template", (frm.doc.calculate_depreciation && !frm.doc.is_serialized_asset));
 			}
 		});
 	},
