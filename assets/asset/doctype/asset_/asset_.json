@@ -291,7 +291,6 @@
    "fieldname": "finance_books",
    "fieldtype": "Table",
    "label": "Finance Books",
-   "mandatory_depends_on": "eval:doc.calculate_depreciation && !(doc.is_serialized_asset)",
    "options": "Asset Finance Book_"
   },
   {
@@ -553,7 +552,7 @@
    "link_fieldname": "asset"
   }
  ],
- "modified": "2022-03-05 20:25:39.952679",
+ "modified": "2022-03-05 20:31:02.248807",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset_",
