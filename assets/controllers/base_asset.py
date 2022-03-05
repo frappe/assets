@@ -39,12 +39,6 @@ class BaseAsset(Document):
 
 		self.status = self.get_status()
 
-	def after_insert(self):
-		if self.doctype == "Asset_" and self.is_not_serialized_asset() and self.is_depreciable_asset():
-			# if this is moved to validate(), an error will be raised while
-			# linking depr schedules to assets during the first save
-			create_depreciation_schedules(self)
-
 	def before_submit(self):
 		if self.is_not_serialized_asset():
 			if self.is_depreciable_asset():

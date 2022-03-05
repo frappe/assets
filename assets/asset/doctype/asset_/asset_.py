@@ -6,6 +6,7 @@ from frappe import _
 from frappe.utils import cint, get_link_to_form
 
 from assets.asset.doctype.asset_activity.asset_activity import create_asset_activity
+from assets.asset.doctype.depreciation_schedule_.depreciation_schedule_ import create_depreciation_schedules
 from assets.controllers.base_asset import BaseAsset
 
 
@@ -17,7 +18,10 @@ class Asset_(BaseAsset):
 		self.validate_item()
 
 	def after_insert(self):
-		super().after_insert()
+		if not self.is_serialized_asset and self.calculate_depreciation:
+			# if this is moved to validate(), an error will be raised while
+			# linking depr schedules to assets during the first save
+			create_depreciation_schedules(self)
 
 	def before_submit(self):
 		super().before_submit()
