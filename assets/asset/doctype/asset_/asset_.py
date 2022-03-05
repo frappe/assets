@@ -7,7 +7,6 @@ from frappe.utils import cint, get_link_to_form
 
 from assets.asset.doctype.asset_activity.asset_activity import create_asset_activity
 from assets.controllers.base_asset import BaseAsset
-from frappe.utils.data import getdate
 
 
 class Asset_(BaseAsset):
