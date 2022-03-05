@@ -273,7 +273,8 @@ def record_depreciation_posting(parent, depr_entry):
 	create_asset_activity(
 		asset = asset,
 		asset_serial_no = serial_no,
-		activity_type = 'Depreciation',
+		activity_type = "Depreciation",
+		activity_date = depr_entry.posting_date,
 		reference_doctype = depr_entry.doctype,
 		reference_docname = depr_entry.name,
 		notes = _("{0} {1} depreciated by {2}.")
