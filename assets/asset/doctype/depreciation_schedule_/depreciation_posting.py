@@ -58,6 +58,7 @@ def post_depreciation_entries(schedule_name, date=None):
 
 	depr_schedule = frappe.get_doc("Depreciation Schedule_", schedule_name)
 	asset = frappe.get_doc("Asset_", depr_schedule.asset)
+	parent = get_parent(depr_schedule, asset)
 
 	credit_account, debit_account = get_depreciation_accounts(asset.asset_category, asset.company)
 	depreciation_cost_center, depreciation_series = get_depreciation_details(asset)
@@ -69,11 +70,19 @@ def post_depreciation_entries(schedule_name, date=None):
 				credit_account, debit_account, depreciation_cost_center, depreciation_series)
 
 			schedule.db_set("depreciation_entry", depr_entry.name)
+			record_depreciation_posting(parent, depr_entry)
 			decrease_in_value += schedule.depreciation_amount
 
-	parent = get_parent(depr_schedule, asset)
 	update_asset_value_in_parent(parent, depr_schedule.finance_book, decrease_in_value)
 	parent.set_status()
+
+def get_parent(depr_schedule, asset):
+	if depr_schedule.serial_no:
+		parent = frappe.get_doc("Asset Serial No", depr_schedule.serial_no)
+	else:
+		parent = asset
+
+	return parent
 
 @frappe.whitelist()
 def get_depreciation_accounts(asset_category, company):
@@ -194,14 +203,6 @@ def submit_depr_entry(depr_entry, depr_schedule):
 
 	depr_schedule.save()
 
-def get_parent(depr_schedule, asset):
-	if depr_schedule.serial_no:
-		parent = frappe.get_doc("Asset Serial No", depr_schedule.serial_no)
-	else:
-		parent = asset
-
-	return parent
-
 def update_asset_value_in_parent(parent, finance_book, decrease_in_value):
 	for fb in parent.get("finance_books"):
 		if fb.finance_book == finance_book:
@@ -262,3 +263,19 @@ def get_accounts_managers():
 		},
 		pluck = "parent"
 	)))
+
+def record_depreciation_posting(parent, depr_entry):
+	from assets.asset.doctype.asset_activity.asset_activity import create_asset_activity
+	from assets.asset.doctype.depreciation_schedule_.depreciation_schedule_ import get_asset_and_serial_no
+
+	asset, serial_no = get_asset_and_serial_no(parent)
+
+	create_asset_activity(
+		asset = asset,
+		asset_serial_no = serial_no,
+		activity_type = 'Depreciation',
+		reference_doctype = depr_entry.doctype,
+		reference_docname = depr_entry.name,
+		notes = _("{0} {1} depreciated by {2}.")
+			.format(parent.doctype, get_link_to_form(parent.doctype, parent.name), depr_entry.depreciation_amount)
+	)
