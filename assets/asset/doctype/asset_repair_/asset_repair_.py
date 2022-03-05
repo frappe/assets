@@ -37,6 +37,8 @@ class AssetRepair_(AccountsController):
 			if self.is_depreciable_asset() and self.get('increase_in_asset_life'):
 				self.increase_asset_life()
 
+		self.record_asset_repair()
+
 	def before_cancel(self):
 		self.get_asset_doc()
 
@@ -273,6 +275,21 @@ class AssetRepair_(AccountsController):
 
 	def has_enabled_finance_books(self):
 		return frappe.db.get_single_value("Accounts Settings", "enable_finance_books")
+
+	def record_asset_repair(self):
+		from assets.asset.doctype.asset_activity.asset_activity import create_asset_activity
+		from assets.asset.doctype.depreciation_schedule_.depreciation_schedule_ import get_asset_and_serial_no
+
+		asset, serial_no = get_asset_and_serial_no(self.asset_doc)
+
+		create_asset_activity(
+			asset = asset,
+			asset_serial_no = serial_no,
+			activity_type = "Repair",
+			activity_date = self.completion_date,
+			reference_doctype = self.doctype,
+			reference_docname = self.name
+		)
 
 @frappe.whitelist()
 def get_downtime(failure_date, completion_date):
