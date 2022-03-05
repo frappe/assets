@@ -22,34 +22,21 @@ class BaseAsset(Document):
 			self.get_asset_values()
 
 		self.validate_number_of_assets()
+		self.get_enable_finance_books_value()
 		self.set_missing_values()
 
 		if self.is_not_serialized_asset() and self.is_depreciable_asset():
-			self.get_enable_finance_books_value()
-			self.validate_depreciation_template_fields()
-			self.validate_available_for_use_date()
-			self.validate_depreciation_posting_start_date()
-
-			if self.is_new():
-				self.set_initial_asset_value_for_finance_books()
-			else:
+			# since depreciation details will only be entered later for Asset Serial Nos
+			if not(self.doctype == "Asset Serial No" and self.is_new()):
+				self.validate_depreciation_template_fields()
+				self.validate_available_for_use_date()
+				self.validate_depreciation_posting_start_date()
 				self.create_schedules_if_depr_details_have_been_updated()
 
+				if self.is_new():
+					self.set_initial_asset_value_for_finance_books()
+
 		self.status = self.get_status()
-
-	def after_insert(self):
-		if self.is_not_serialized_asset() and self.is_depreciable_asset():
-			if self.doctype == "Asset Serial No" and not self.has_depreciation_details():
-				return
-
-			create_depreciation_schedules(self)
-
-	def has_depreciation_details(self):
-		for fb in self.get('finance_books'):
-			if not(fb.depreciation_template and fb.depreciation_posting_start_date):
-				return False
-
-		return True
 
 	def before_submit(self):
 		if self.is_not_serialized_asset():
@@ -157,7 +144,7 @@ class BaseAsset(Document):
 		if not self.get('asset_value') and self.is_not_serialized_asset():
 			self.set_initial_asset_value()
 
-		if self.is_depreciable_asset() and not self.get('finance_books'):
+		if self.enable_finance_books and self.is_depreciable_asset() and not self.get('finance_books'):
 			asset_category = self.get_asset_category()
 			finance_books = get_finance_books(asset_category)
 			self.set('finance_books', finance_books)
@@ -291,6 +278,10 @@ class BaseAsset(Document):
 		)
 
 	def create_schedules_if_depr_details_have_been_updated(self):
+		if self.is_new():
+			create_depreciation_schedules(self)
+			return
+
 		if self.has_updated_basic_depr_details():
 			delete_existing_schedules(self)
 			create_depreciation_schedules(self)
@@ -317,11 +308,11 @@ class BaseAsset(Document):
 				create_depreciation_schedules(self)
 
 	def set_initial_asset_value_for_finance_books(self):
-		for row in self.finance_books:
+		for row in self.get("finance_books"):
 			row.asset_value = self.asset_value
 
 	def update_asset_value(self, change_in_value=0):
-		if self.get('finance_books'):
+		if self.get("finance_books"):
 			self.asset_value = self.finance_books[0].asset_value
 		else:
 			self.asset_value += change_in_value
