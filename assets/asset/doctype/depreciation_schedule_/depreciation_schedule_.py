@@ -27,7 +27,7 @@ def create_depreciation_schedules(asset, date_of_sale=None):
 		for row in asset.get('finance_books'):
 			create_a_single_depreciation_schedule(asset, row, purchase_value, date_of_sale)
 	else:
-		create_a_single_depreciation_schedule(asset, purchase_value, date_of_sale)
+		create_a_single_depreciation_schedule(asset, None, purchase_value, date_of_sale)
 
 def get_enable_finance_books_value():
 	return frappe.db.get_single_value("Accounts Settings", "enable_finance_books")
