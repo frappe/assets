@@ -31,12 +31,19 @@ class BaseAsset(Document):
 				self.validate_depreciation_template_fields()
 				self.validate_available_for_use_date()
 				self.validate_depreciation_posting_start_date()
-				self.create_schedules_if_depr_details_have_been_updated()
 
 				if self.is_new():
 					self.set_initial_asset_value_for_finance_books()
+				else:
+					self.create_schedules_if_depr_details_have_been_updated()
 
 		self.status = self.get_status()
+
+	def after_insert(self):
+		if self.doctype == "Asset_" and self.is_not_serialized_asset() and self.is_depreciable_asset():
+			# if this is moved to validate(), an error will be raised while
+			# linking depr schedules to assets during the first save
+			create_depreciation_schedules(self)
 
 	def before_submit(self):
 		if self.is_not_serialized_asset():
@@ -278,10 +285,6 @@ class BaseAsset(Document):
 		)
 
 	def create_schedules_if_depr_details_have_been_updated(self):
-		if self.is_new():
-			create_depreciation_schedules(self)
-			return
-
 		if self.has_updated_basic_depr_details():
 			delete_existing_schedules(self)
 			create_depreciation_schedules(self)

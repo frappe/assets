@@ -17,6 +17,9 @@ class Asset_(BaseAsset):
 		self.validate_purchase_document()
 		self.validate_item()
 
+	def after_insert(self):
+		super().after_insert()
+
 	def before_submit(self):
 		super().before_submit()
 
