@@ -5,7 +5,7 @@ import frappe
 from frappe import _
 from frappe.desk.form import assign_to
 from frappe.model.document import Document
-from frappe.utils import getdate
+from frappe.utils import getdate, add_days, add_months, add_years
 
 class AssetMaintenance_(Document):
 	def validate(self):
@@ -134,3 +134,32 @@ class AssetMaintenance_(Document):
 			}
 		)
 
+@frappe.whitelist()
+def calculate_next_due_date(periodicity, start_date = None, end_date = None, last_completion_date = None, next_due_date = None):
+	start_date = get_start_date(start_date, last_completion_date)
+
+	if periodicity == "Daily":
+		next_due_date = add_days(start_date, 1)
+	elif periodicity == "Weekly":
+		next_due_date = add_days(start_date, 7)
+	elif periodicity == "Monthly":
+		next_due_date = add_months(start_date, 1)
+	elif periodicity == "Yearly":
+		next_due_date = add_years(start_date, 1)
+	elif periodicity == "2 Yearly":
+		next_due_date = add_years(start_date, 2)
+	elif periodicity == "Quarterly":
+		next_due_date = add_months(start_date, 3)
+
+	if end_date and ((start_date and start_date >= end_date) or (last_completion_date and last_completion_date >= end_date) or next_due_date):
+		next_due_date = ""
+
+	return next_due_date
+
+def get_start_date(start_date, last_completion_date):
+	if not start_date and not last_completion_date:
+		return frappe.utils.now()
+	elif last_completion_date and ((start_date and last_completion_date > start_date) or not start_date):
+		return last_completion_date
+
+	return start_date
