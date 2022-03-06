@@ -12,6 +12,41 @@ frappe.ui.form.on('Asset Maintenance_', {
 			};
 		});
 	},
+
+	refresh: (frm) => {
+		if (!frm.is_new()) {
+			frm.trigger('make_dashboard');
+		}
+	},
+
+	make_dashboard: (frm) => {
+		if (!frm.is_new()) {
+			frappe.call({
+				method: 'assets.asset.doctype.asset_maintenance_.asset_maintenance_.get_maintenance_log',
+				args: {
+					asset_name: frm.doc.asset_name
+				},
+				callback: (r) => {
+					if(r.message) {
+						const section = frm.dashboard.add_section('', __("Maintenance Log"));
+						var rows = $('<div></div>').appendTo(section);
+
+						(r.message || []).forEach(function(d) {
+							$(`<div class='row' style='margin-bottom: 10px;'>
+								<div class='col-sm-3 small'>
+									<a onclick="frappe.set_route('List', 'Asset Maintenance Log_',
+										{'asset_name': '${d.asset_name}','maintenance_status': '${d.maintenance_status}' });">
+										${d.maintenance_status} <span class="badge">${d.count}</span>
+									</a>
+								</div>
+							</div>`).appendTo(rows);
+						});
+						frm.dashboard.show();
+					}
+				}
+			});
+		}
+	}
 });
 
 frappe.ui.form.on('Asset Maintenance Task_', {

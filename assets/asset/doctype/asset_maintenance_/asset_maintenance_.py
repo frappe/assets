@@ -1,6 +1,7 @@
 # Copyright (c) 2021, Ganga Manoj and contributors
 # For license information, please see license.txt
 
+from itertools import groupby
 import frappe
 from frappe import _
 from frappe.desk.form import assign_to
@@ -60,7 +61,7 @@ class AssetMaintenance_(Document):
 				"reference_type": args["doctype"],
 				"reference_name": args["name"],
 				"status": "Open",
-				"owner": args["assign_to"]
+				"owner": args["assign_to"][0]
 			}
 		)
 
@@ -172,4 +173,16 @@ def get_team_members(doctype, txt, searchfield, start, page_len, filters):
 			"parent": filters.get("maintenance_team")
 		},
 		"team_member"
+	)
+
+@frappe.whitelist()
+def get_maintenance_log(asset_name):
+	return frappe.db.sql(
+		"""
+			select maintenance_status, count(asset_name) as count, asset_name
+			from `tabAsset Maintenance Log_`
+			where asset_name=%s group by maintenance_status
+		""",
+		(asset_name),
+		as_dict = 1
 	)
