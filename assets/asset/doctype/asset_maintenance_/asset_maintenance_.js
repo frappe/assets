@@ -11,6 +11,21 @@ frappe.ui.form.on('Asset Maintenance_', {
 				}
 			};
 		});
+
+		frm.set_indicator_formatter('maintenance_status',
+			function(doc) {
+				let indicator = 'blue';
+
+				if (doc.maintenance_status == 'Overdue') {
+					indicator = 'orange';
+				}
+				else if (doc.maintenance_status == 'Cancelled') {
+					indicator = 'red';
+				}
+
+				return indicator;
+			}
+		);
 	},
 
 	refresh: (frm) => {
