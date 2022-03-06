@@ -163,3 +163,13 @@ def get_start_date(start_date, last_completion_date):
 		return last_completion_date
 
 	return start_date
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def get_team_members(doctype, txt, searchfield, start, page_len, filters):
+	return frappe.db.get_values(
+		"Maintenance Team Member_", {
+			"parent": filters.get("maintenance_team")
+		},
+		"team_member"
+	)

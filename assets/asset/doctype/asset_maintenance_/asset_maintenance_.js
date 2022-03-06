@@ -2,9 +2,16 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Asset Maintenance_', {
-	// refresh: function(frm) {
-
-	// }
+	setup: (frm) => {
+		frm.set_query("assign_to", "asset_maintenance_tasks", function(doc) {
+			return {
+				query: "assets.asset.doctype.asset_maintenance_.asset_maintenance_.get_team_members",
+				filters: {
+					maintenance_team: doc.maintenance_team
+				}
+			};
+		});
+	},
 });
 
 frappe.ui.form.on('Asset Maintenance Task_', {
