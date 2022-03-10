@@ -108,6 +108,20 @@ frappe.ui.form.on('Asset Maintenance_', {
 				}
 			});
 		}
+	},
+
+	num_of_assets: (frm) => {
+		frappe.db.get_value('Asset_', frm.doc.asset_name, ['is_serialized_asset', 'num_of_assets'], (r) => {
+			if (r && !r.is_serialized_asset) {
+				if (frm.doc.num_of_assets < r.num_of_assets) {
+					frappe.msgprint({
+						title: __('Warning'),
+						message: __('Asset {0} will be split on saving this document as the Number of Assets entered \
+							is less than {1}.', [frm.doc.asset_name, r.num_of_assets])
+					});
+				}
+			}
+		})
 	}
 });
 
