@@ -1,16 +1,18 @@
 # Copyright (c) 2021, Ganga Manoj and contributors
 # For license information, please see license.txt
 
-from itertools import groupby
 import frappe
 from frappe import _
 from frappe.desk.form import assign_to
 from frappe.model.document import Document
 from frappe.utils import getdate, add_days, add_months, add_years
 
+from assets.asset.doctype.asset_repair_.asset_repair_ import validate_serial_no, validate_num_of_assets
+
 class AssetMaintenance_(Document):
 	def validate(self):
 		self.validate_tasks()
+		self.validate_asset()
 
 	def on_update(self):
 		self.assign_tasks()
@@ -35,6 +37,18 @@ class AssetMaintenance_(Document):
 		if not task.assign_to and self.docstatus == 0:
 			frappe.throw(_("Row #{0}: Please asign task {1} to a team member.")
 				.format(task.idx, task.maintenance_task))
+
+	def validate_asset(self):
+		is_serialized_asset, num_of_assets = frappe.get_value(
+			"Asset_",
+			self.asset_name,
+			["is_serialized_asset", "num_of_assets"]
+		)
+
+		if is_serialized_asset:
+			validate_serial_no(self)
+		else:
+			validate_num_of_assets(self, num_of_assets)
 
 	def assign_tasks(self):
 		for task in self.get("asset_maintenance_tasks"):
