@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "naming_series:",
  "creation": "2022-02-04 21:28:02.570929",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -10,6 +11,7 @@
   "asset",
   "asset_category",
   "column_break_4",
+  "naming_series",
   "date",
   "serial_no",
   "num_of_assets",
@@ -129,15 +131,23 @@
    "fieldname": "num_of_assets",
    "fieldtype": "Int",
    "label": "Number of Assets"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "ACC-REV-.YYYY.-",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-02-10 02:24:55.915688",
+ "modified": "2022-03-10 16:14:14.503936",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Revaluation",
+ "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
