@@ -11,6 +11,8 @@
   "asset_category",
   "column_break_3",
   "company",
+  "serial_no",
+  "num_of_assets",
   "section_break_6",
   "maintenance_team",
   "column_break_9",
@@ -87,11 +89,22 @@
    "label": "Maintenance Tasks",
    "options": "Asset Maintenance Task_",
    "reqd": 1
+  },
+  {
+   "fieldname": "serial_no",
+   "fieldtype": "Link",
+   "label": "Serial No",
+   "options": "Asset Serial No"
+  },
+  {
+   "fieldname": "num_of_assets",
+   "fieldtype": "Int",
+   "label": "Number of Assets"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-06 03:56:54.697476",
+ "modified": "2022-03-10 16:18:20.112563",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Maintenance_",
