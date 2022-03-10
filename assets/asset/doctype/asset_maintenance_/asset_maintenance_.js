@@ -37,8 +37,47 @@ frappe.ui.form.on('Asset Maintenance_', {
 	},
 
 	refresh: (frm) => {
+		frm.trigger("set_serial_no_and_num_of_assets");
+
 		if (!frm.is_new()) {
 			frm.trigger('make_dashboard');
+		}
+	},
+
+	asset_name: (frm) => {
+		frm.trigger("set_serial_no_and_num_of_assets");
+	},
+
+	set_serial_no_and_num_of_assets: (frm) => {
+		if (frm.doc.asset_name) {
+			frappe.db.get_value('Asset_', frm.doc.asset_name, ['is_serialized_asset', 'num_of_assets'], (r) => {
+				if (r && r.is_serialized_asset) {
+					frm.set_df_property('serial_no', 'hidden', 0);
+					frm.set_df_property('serial_no', 'reqd', 1);
+
+					frm.set_value('num_of_assets', 0);
+					frm.set_df_property('num_of_assets', 'hidden', 1);
+					frm.set_df_property('num_of_assets', 'reqd', 0);
+				} else {
+					frm.set_df_property('serial_no', 'hidden', 1);
+					frm.set_df_property('serial_no', 'reqd', 0);
+					frm.set_value('serial_no', '');
+
+					if (r.num_of_assets > 1) {
+						if (!frm.doc.num_of_assets) {
+							frm.set_value('num_of_assets', r.num_of_assets);
+						}
+
+						frm.set_df_property('num_of_assets', 'hidden', 0);
+						frm.set_df_property('num_of_assets', 'reqd', 1);
+					} else {
+						frm.set_df_property('num_of_assets', 'reqd', 0);
+					}
+				}
+			});
+		} else {
+			frm.set_df_property('serial_no', 'hidden', 1);
+			frm.set_df_property('num_of_assets', 'hidden', 1);
 		}
 	},
 
