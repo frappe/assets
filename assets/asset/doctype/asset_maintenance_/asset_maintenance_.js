@@ -12,6 +12,14 @@ frappe.ui.form.on('Asset Maintenance_', {
 			};
 		});
 
+		frm.fields_dict.serial_no.get_query = function(doc) {
+			return {
+				filters: {
+					'asset': doc.asset_name
+				}
+			};
+		};
+
 		frm.set_indicator_formatter('maintenance_status',
 			function(doc) {
 				let indicator = 'blue';
