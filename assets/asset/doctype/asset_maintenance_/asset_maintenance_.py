@@ -7,6 +7,7 @@ from frappe.desk.form import assign_to
 from frappe.model.document import Document
 from frappe.utils import getdate, add_days, add_months, add_years
 
+from assets.asset.doctype.asset_.asset_ import split_asset
 from assets.asset.doctype.asset_repair_.asset_repair_ import validate_serial_no, validate_num_of_assets
 
 class AssetMaintenance_(Document):
@@ -49,6 +50,13 @@ class AssetMaintenance_(Document):
 			validate_serial_no(self)
 		else:
 			validate_num_of_assets(self, num_of_assets)
+			self.split_asset_if_required(num_of_assets)
+
+	def split_asset_if_required(self, num_of_assets_in_asset_doc):
+		if self.num_of_assets < num_of_assets_in_asset_doc:
+			num_of_assets_to_be_separated = num_of_assets_in_asset_doc - self.num_of_assets
+
+			split_asset(self.asset_name, num_of_assets_to_be_separated)
 
 	def assign_tasks(self):
 		for task in self.get("asset_maintenance_tasks"):
