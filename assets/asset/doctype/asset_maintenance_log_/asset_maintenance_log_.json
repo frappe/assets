@@ -160,7 +160,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-03-18 01:34:35.191561",
+ "modified": "2022-03-18 01:37:02.017064",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Maintenance Log_",
@@ -168,7 +168,6 @@
  "owner": "Administrator",
  "permissions": [
   {
-   "create": 1,
    "delete": 1,
    "email": 1,
    "export": 1,
