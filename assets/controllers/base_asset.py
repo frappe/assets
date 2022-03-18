@@ -538,7 +538,7 @@ def get_finance_books(asset_category):
 	for d in asset_category_doc.finance_books:
 		books.append({
 			"finance_book": d.finance_book,
-			"depreciation_posting_start_date": nowdate()
+			"depreciation_template": d.depreciation_template
 		})
 
 	return books
