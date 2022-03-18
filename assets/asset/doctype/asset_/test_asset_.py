@@ -74,6 +74,12 @@ class TestAsset_(unittest.TestCase):
 		item.is_stock_item = 1
 		self.assertRaises(frappe.ValidationError, asset.save)
 
+	def test_num_of_assets_greater_than_zero(self):
+		asset = create_asset(item_code="MacBook Pro", do_not_save=1)
+		asset.num_of_assets = 0
+
+		self.assertRaises(frappe.ValidationError, asset.save)
+
 def create_company():
 	if not frappe.db.exists("Company", "_Test Company"):
 		company = frappe.get_doc({
