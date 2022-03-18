@@ -13,12 +13,21 @@ class TestAsset_(unittest.TestCase):
 		create_asset_data()
 		enable_cwip_accounting("Computers")
 		enable_book_asset_depreciation_entry_automatically()
-		make_purchase_receipt(item_code="Macbook Pro", qty=1, rate=100000.0, location="Test Location")
+		# make_purchase_receipt(item_code="Macbook Pro", qty=1, rate=100000.0, location="Test Location")
 		frappe.db.sql("delete from `tabTax Rule`")
 
 	@classmethod
 	def tearDownClass(cls):
 		frappe.db.rollback()
+
+	def test_asset_category_is_fetched(self):
+		"""Tests if the Item's Asset Category value is assigned to the Asset, if the field is empty."""
+
+		asset = create_asset(item_code="Macbook Pro", do_not_save=1)
+		asset.asset_category = None
+		asset.save()
+
+		self.assertEqual(asset.asset_category, "Computers")
 
 def create_company():
 	if not frappe.db.exists("Company", "_Test Company"):
@@ -113,7 +122,7 @@ def create_depreciation_template(**args):
 	depreciation_template = frappe.get_doc({
 		"doctype": "Depreciation Template",
 		"template_name": args.template_name or "Straight Line Method Annually for 5 Years",
-		"depreciation_method": args.depreciation_method or "Straight Line Method",
+		"depreciation_method": args.depreciation_method or "Straight Line",
 		"frequency_of_depreciation": args.frequency_of_depreciation or "Yearly",
 		"asset_life": args.asset_life or 5,
 		"asset_life_unit": args.asset_life_unit or "Years",
