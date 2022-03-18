@@ -80,6 +80,18 @@ class TestAsset_(unittest.TestCase):
 
 		self.assertRaises(frappe.ValidationError, asset.save)
 
+	def test_asset_serial_nos_are_created(self):
+		asset = create_asset(is_serialized_asset=1, num_of_assets=3, submit=1)
+
+		serial_nos_created = frappe.get_all(
+			"Asset Serial No",
+			filters = {
+				"asset": asset.name
+			}
+		)
+
+		self.assertEqual(len(serial_nos_created), 3)
+
 def create_company():
 	if not frappe.db.exists("Company", "_Test Company"):
 		company = frappe.get_doc({
