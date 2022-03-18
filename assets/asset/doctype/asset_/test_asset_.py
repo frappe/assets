@@ -1,8 +1,10 @@
 # Copyright (c) 2021, Ganga Manoj and Contributors
 # See license.txt
 
-import frappe
 import unittest
+
+import frappe
+from frappe.utils import getdate
 
 from erpnext.stock.doctype.purchase_receipt.test_purchase_receipt import make_purchase_receipt
 
@@ -40,6 +42,14 @@ class TestAsset_(unittest.TestCase):
 
 		asset = create_asset(item_code="Macbook Pro", do_not_save=1)
 		asset.is_existing_asset=0
+
+		self.assertRaises(frappe.ValidationError, asset.save)
+
+	def test_available_for_use_date_is_after_purchase_date(self):
+		asset = create_asset(item_code="Macbook Pro", calculate_depreciation=1, do_not_save=1)
+		asset.is_existing_asset = 0
+		asset.purchase_date = getdate("2021-10-10")
+		asset.available_for_use_date = getdate("2021-10-1")
 
 		self.assertRaises(frappe.ValidationError, asset.save)
 
