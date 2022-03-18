@@ -35,6 +35,14 @@ class TestAsset_(unittest.TestCase):
 
 		self.assertRaises(frappe.MandatoryError, asset.save)
 
+	def test_pr_or_pi_mandatory_if_not_existing_asset(self):
+		"""Tests if either PI or PR is present if CWIP is enabled and is_existing_asset=0."""
+
+		asset = create_asset(item_code="Macbook Pro", do_not_save=1)
+		asset.is_existing_asset=0
+
+		self.assertRaises(frappe.ValidationError, asset.save)
+
 def create_company():
 	if not frappe.db.exists("Company", "_Test Company"):
 		company = frappe.get_doc({
