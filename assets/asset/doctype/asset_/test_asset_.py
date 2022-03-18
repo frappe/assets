@@ -92,6 +92,23 @@ class TestAsset_(unittest.TestCase):
 
 		self.assertEqual(len(serial_nos_created), 3)
 
+	def test_if_depreciation_details_are_fetched_from_asset_category(self):
+		enable_finance_books()
+
+		asset_category = frappe.get_doc("Asset Category_", "Computers")
+		asset_category.append("finance_books", {
+			"depreciation_template": "Straight Line Method Annually for 5 Years"
+		})
+		asset_category.save()
+
+		asset = create_asset(do_not_save=1, calculate_depreciation=1)
+		asset.finance_books = []
+		asset.save()
+
+		self.assertEqual(asset.finance_books[0].depreciation_template, "Straight Line Method Annually for 5 Years")
+
+		enable_finance_books(enable=False)
+
 def create_company():
 	if not frappe.db.exists("Company", "_Test Company"):
 		company = frappe.get_doc({
