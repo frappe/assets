@@ -142,15 +142,15 @@ class BaseAsset(Document):
 				title=_("Number of Assets Exceeded Limit"))
 
 	def set_missing_values(self):
-		if not self.get('asset_value') and self.is_not_serialized_asset():
+		if not self.get("asset_value") and self.is_not_serialized_asset():
 			self.set_initial_asset_value()
 
-		if self.enable_finance_books and self.is_depreciable_asset() and not self.get('finance_books'):
+		if self.enable_finance_books and self.is_depreciable_asset() and not self.get("finance_books"):
 			asset_category = self.get_asset_category()
 			finance_books = get_finance_books(asset_category)
-			self.set('finance_books', finance_books)
+			self.set("finance_books", finance_books)
 
-		elif self.doctype == "Asset_" and not self.get('asset_category'):
+		elif self.doctype == "Asset_" and not self.get("asset_category"):
 			self.set_asset_category()
 
 	def set_initial_asset_value(self):
@@ -169,7 +169,7 @@ class BaseAsset(Document):
 
 	def get_asset_category(self):
 		if self.doctype == "Asset_":
-			if not self.get('asset_category'):
+			if not self.get("asset_category"):
 				self.set_asset_category()
 
 			return self.asset_category
@@ -177,7 +177,7 @@ class BaseAsset(Document):
 			return self.asset_values["asset_category"]
 
 	def set_asset_category(self):
-		if not self.get('asset_category'):
+		if not self.get("asset_category"):
 			self.asset_category = frappe.get_cached_value("Item", self.item_code, "asset_category")
 
 	def get_gross_purchase_amount_and_opening_accumulated_depreciation(self):
@@ -384,7 +384,7 @@ class BaseAsset(Document):
 			create_asset_activity(
 				asset = asset,
 				asset_serial_no = serial_no,
-				activity_type = 'Purchase',
+				activity_type = "Purchase",
 				reference_doctype = purchase_doctype,
 				reference_docname = purchase_docname,
 				activity_date = self.get_purchase_date()
@@ -397,7 +397,7 @@ class BaseAsset(Document):
 		create_asset_activity(
 			asset = asset,
 			asset_serial_no = serial_no,
-			activity_type = 'Creation',
+			activity_type = "Creation",
 			reference_doctype = self.doctype,
 			reference_docname = self.name
 		)
@@ -416,21 +416,21 @@ class BaseAsset(Document):
 			transaction_date = get_datetime("{} {}".format(posting_date, posting_time))
 
 		assets = [{
-			'asset': asset,
-			'asset_name': asset_name,
-			'serial_no': serial_no,
-			'target_location': self.location,
-			'to_employee': self.custodian
+			"asset": asset,
+			"asset_name": asset_name,
+			"serial_no": serial_no,
+			"target_location": self.location,
+			"to_employee": self.custodian
 		}]
 
 		asset_movement = frappe.get_doc({
-			'doctype': 'Asset Movement_',
-			'assets': assets,
-			'purpose': 'Receipt',
-			'company': company,
-			'transaction_date': transaction_date,
-			'reference_doctype': reference_doctype,
-			'reference_name': reference_docname
+			"doctype": "Asset Movement_",
+			"assets": assets,
+			"purpose": "Receipt",
+			"company": company,
+			"transaction_date": transaction_date,
+			"reference_doctype": reference_doctype,
+			"reference_name": reference_docname
 		}).insert()
 		asset_movement.submit()
 
@@ -500,11 +500,11 @@ def get_default_finance_book(company=None):
 	if not company:
 		company = get_default_company()
 
-	if not hasattr(frappe.local, 'default_finance_book'):
+	if not hasattr(frappe.local, "default_finance_book"):
 		frappe.local.default_finance_book = {}
 
 	if not company in frappe.local.default_finance_book:
-		frappe.local.default_finance_book[company] = frappe.get_cached_value('Company',
+		frappe.local.default_finance_book[company] = frappe.get_cached_value("Company",
 			company,  "default_finance_book")
 
 	return frappe.local.default_finance_book[company]
@@ -519,26 +519,26 @@ def get_asset_account(account_name, asset=None, asset_category=None, company=Non
 		account = get_asset_category_account(account_name, asset_category = asset_category, company = company)
 
 	if not account:
-		account = frappe.get_cached_value('Company',  company,  account_name)
+		account = frappe.get_cached_value("Company",  company,  account_name)
 
 	if not account:
 		if not asset_category:
-			frappe.throw(_("Set {0} in company {1}").format(account_name.replace('_', ' ').title(), company))
+			frappe.throw(_("Set {0} in company {1}").format(account_name.replace("_", " ").title(), company))
 		else:
 			frappe.throw(_("Set {0} in asset category {1} or company {2}")
-				.format(account_name.replace('_', ' ').title(), asset_category, company))
+				.format(account_name.replace("_", " ").title(), asset_category, company))
 
 	return account
 
 @frappe.whitelist()
 def get_finance_books(asset_category):
-	asset_category_doc = frappe.get_doc('Asset Category_', asset_category)
+	asset_category_doc = frappe.get_doc("Asset Category_", asset_category)
 	books = []
 
 	for d in asset_category_doc.finance_books:
 		books.append({
-			'finance_book': d.finance_book,
-			'depreciation_posting_start_date': nowdate()
+			"finance_book": d.finance_book,
+			"depreciation_posting_start_date": nowdate()
 		})
 
 	return books
@@ -549,7 +549,7 @@ def make_asset_movement(assets, purpose=None):
 		assets = json.loads(assets)
 
 	if len(assets) == 0:
-		frappe.throw(_('Atleast one asset has to be selected.'))
+		frappe.throw(_("Atleast one asset has to be selected."))
 
 	asset_movement = frappe.new_doc("Asset Movement_")
 	asset_movement.quantity = len(assets)
@@ -560,13 +560,13 @@ def make_asset_movement(assets, purpose=None):
 
 		asset_movement.company = company
 		asset_movement.append("assets", {
-			'asset': asset_name,
-			'source_location': location,
-			'from_employee': custodian,
-			'serial_no': serial_no
+			"asset": asset_name,
+			"source_location": location,
+			"from_employee": custodian,
+			"serial_no": serial_no
 		})
 
-	if asset_movement.get('assets'):
+	if asset_movement.get("assets"):
 		return asset_movement.as_dict()
 
 def fetch_asset_tracking_details(asset):
@@ -598,7 +598,7 @@ def get_purchase_details(asset):
 			["purchase_receipt", "purchase_invoice"]
 		)
 
-	purchase_doctype = 'Purchase Receipt' if purchase_receipt else 'Purchase Invoice'
+	purchase_doctype = "Purchase Receipt" if purchase_receipt else "Purchase Invoice"
 	purchase_docname = purchase_receipt or purchase_invoice
 
 	return purchase_doctype, purchase_docname
@@ -628,7 +628,7 @@ def get_item(asset):
 		return frappe.db.get_value("Asset_", asset.asset, "item_code")
 
 def validate_serial_no(doc):
-	is_serialized_asset = frappe.db.get_value('Asset_', doc.asset, 'is_serialized_asset')
+	is_serialized_asset = frappe.db.get_value("Asset_", doc.asset, "is_serialized_asset")
 
 	if is_serialized_asset and not doc.serial_no:
 		frappe.throw(_("Please enter Serial No as {0} is a Serialized Asset")
@@ -652,7 +652,7 @@ def transfer_asset(asset, purpose, source_location, company):
 def make_sales_invoice(asset, item_code, company):
 	si = frappe.new_doc("Sales Invoice")
 	si.company = company
-	si.currency = frappe.get_cached_value('Company',  company,  "default_currency")
+	si.currency = frappe.get_cached_value("Company",  company,  "default_currency")
 	disposal_account, depreciation_cost_center = get_disposal_account_and_cost_center(company)
 
 	si.append("items", {
@@ -668,13 +668,13 @@ def make_sales_invoice(asset, item_code, company):
 	return si
 
 def get_disposal_account_and_cost_center(company):
-	disposal_account, depreciation_cost_center = frappe.get_cached_value('Company',  company,
+	disposal_account, depreciation_cost_center = frappe.get_cached_value("Company",  company,
 		["disposal_account", "depreciation_cost_center"])
 
 	if not disposal_account:
-		frappe.throw(_("Please set 'Gain/Loss Account on Asset Disposal' in Company {0}").format(company))
+		frappe.throw(_("Please set "Gain/Loss Account on Asset Disposal" in Company {0}").format(company))
 	if not depreciation_cost_center:
-		frappe.throw(_("Please set 'Asset Depreciation Cost Center' in Company {0}").format(company))
+		frappe.throw(_("Please set "Asset Depreciation Cost Center" in Company {0}").format(company))
 
 	return disposal_account, depreciation_cost_center
 
@@ -796,7 +796,7 @@ def check_if_pi_has_any_fixed_assets(purchase_invoice):
 def validate_cwip_accounts(purchase_receipt):
 	from assets.asset.doctype.asset_.asset_ import is_cwip_accounting_enabled
 
-	for item in purchase_receipt.get('items'):
+	for item in purchase_receipt.get("items"):
 		if item.is_fixed_asset and is_cwip_accounting_enabled(item.asset_category):
 			# check cwip accounts before making auto assets
 			# Improves UX by not giving messages of "Assets Created" before throwing error of not finding arbnb account
