@@ -3,7 +3,7 @@
 
 import frappe
 from frappe import _
-from frappe.utils import cint, get_link_to_form
+from frappe.utils import cint, get_link_to_form, flt
 
 from assets.asset.doctype.asset_activity.asset_activity import create_asset_activity
 from assets.asset.doctype.depreciation_schedule_.depreciation_schedule_ import create_depreciation_schedules
@@ -15,6 +15,7 @@ class Asset_(BaseAsset):
 		super().validate()
 
 		self.validate_purchase_document()
+		self.validate_gross_purchase_amount()
 		self.validate_item()
 
 	def after_insert(self):
@@ -67,6 +68,10 @@ class Asset_(BaseAsset):
 			frappe.throw(_("Item {0} must be a Fixed Asset Item").format(self.item_code))
 		elif item.is_stock_item:
 			frappe.throw(_("Item {0} must be a non-stock item").format(self.item_code))
+
+	def validate_gross_purchase_amount(self):
+		if not flt(self.gross_purchase_amount):
+			frappe.throw(_("Gross Purchase Amount is mandatory"), frappe.MandatoryError)
 
 def is_cwip_accounting_enabled(asset_category):
 	return cint(frappe.db.get_value("Asset Category", asset_category, "enable_cwip_accounting"))

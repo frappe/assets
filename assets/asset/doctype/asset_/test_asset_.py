@@ -29,6 +29,12 @@ class TestAsset_(unittest.TestCase):
 
 		self.assertEqual(asset.asset_category, "Computers")
 
+	def test_gross_purchase_amount_is_mandatory(self):
+		asset = create_asset(item_code="Macbook Pro", do_not_save=1)
+		asset.gross_purchase_amount = 0
+
+		self.assertRaises(frappe.MandatoryError, asset.save)
+
 def create_company():
 	if not frappe.db.exists("Company", "_Test Company"):
 		company = frappe.get_doc({
