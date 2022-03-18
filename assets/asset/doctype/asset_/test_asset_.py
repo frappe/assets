@@ -53,6 +53,11 @@ class TestAsset_(unittest.TestCase):
 
 		self.assertRaises(frappe.ValidationError, asset.save)
 
+	def test_item_exists(self):
+		asset = create_asset(item_code="MacBook", do_not_save=1)
+
+		self.assertRaises(frappe.DoesNotExistError, asset.save)
+
 def create_company():
 	if not frappe.db.exists("Company", "_Test Company"):
 		company = frappe.get_doc({
