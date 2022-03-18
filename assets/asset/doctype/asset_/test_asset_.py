@@ -54,6 +54,9 @@ def create_asset_data():
 	if not frappe.db.exists("Location_", "Test Location"):
 		create_location()
 
+	if not frappe.db.exists("Depreciation Template", "Straight Line Method Annually for 5 Years"):
+		create_depreciation_template()
+
 def create_asset_category():
 	asset_category = frappe.get_doc({
 		"doctype": "Asset Category_",
@@ -104,8 +107,73 @@ def create_location():
 		"location_name": "Test Location"
 	}).insert()
 
+def create_depreciation_template(**args):
+	args = frappe._dict(args)
+
+	depreciation_template = frappe.get_doc({
+		"doctype": "Depreciation Template",
+		"template_name": args.template_name or "Straight Line Method Annually for 5 Years",
+		"depreciation_method": args.depreciation_method or "Straight Line Method",
+		"frequency_of_depreciation": args.frequency_of_depreciation or "Yearly",
+		"asset_life": args.asset_life or 5,
+		"asset_life_unit": args.asset_life_unit or "Years",
+		"rate_of_depreciation": args.rate_of_depreciation or "0"
+	})
+	depreciation_template.insert()
+
+	return depreciation_template.name
+
 def enable_cwip_accounting(asset_category, enable=1):
 	frappe.db.set_value("Asset Category_", asset_category, "enable_cwip_accounting", enable)
 
 def enable_book_asset_depreciation_entry_automatically():
 	frappe.db.set_value("Accounts Settings", None, "book_asset_depreciation_entry_automatically", 1)
+
+def enable_finance_books(enable=1):
+	frappe.db.set_value("Accounts Settings", None, "enable_finance_books", enable)
+
+def create_asset(**args):
+	args = frappe._dict(args)
+
+	asset = frappe.get_doc({
+		"doctype": "Asset_",
+		"asset_name": args.asset_name or "Macbook Pro 1",
+		"asset_category": args.asset_category or "Computers",
+		"item_code": args.item_code or "Macbook Pro",
+		"num_of_assets": args.num_of_assets or 1,
+		"is_serialized_asset": args.is_serialized_asset or 0,
+		"asset_owner": args.asset_owner or "Company",
+		"company": args.company or "_Test Company",
+		"is_existing_asset": args.is_existing_asset or 1,
+		"purchase_date": args.purchase_date or "2020-01-01",
+		"gross_purchase_amount": args.gross_purchase_amount or 100000,
+		"calculate_depreciation": args.calculate_depreciation or 0
+	})
+
+	if not asset.is_serialized_asset:
+		asset.location = args.location or "Test Location"
+
+		if asset.calculate_depreciation:
+			asset.opening_accumulated_depreciation = args.opening_accumulated_depreciation or 0
+			asset.available_for_use_date = args.available_for_use_date or "2020-06-06"
+			asset.salvage_value = args.salvage_value or 0
+			asset.depreciation_posting_start_date = args.depreciation_posting_start_date or "2021-06-06"
+
+			if args.enable_finance_books:
+				asset.append("finance_books", {
+					"finance_book": args.finance_book,
+					"depreciation_template": args.depreciation_template or "Straight Line Method Annually for 5 Years"
+				})
+			else:
+				asset.depreciation_template = args.depreciation_template or "Straight Line Method Annually for 5 Years"
+
+	if not args.do_not_save:
+		try:
+			asset.insert(ignore_if_duplicate=True)
+		except frappe.DuplicateEntryError:
+			pass
+
+	if args.submit:
+		asset.submit()
+
+	return asset
