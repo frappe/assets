@@ -292,6 +292,21 @@ class TestAsset_(unittest.TestCase):
 		self.assertEqual(depr_schedule.docstatus, 1)
 		self.assertEqual(depr_schedule.status, "Active")
 
+	def test_asset_creation_is_recorded(self):
+		"""Tests if Asset Activity of type Creation is created on submitting an Asset."""
+
+		asset = create_asset(submit=1)
+		asset_activity = frappe.get_value(
+			"Asset Activity",
+			filters = {
+				"asset": asset.name,
+				"activity_type": "Creation"
+			},
+			fieldname = "name"
+		)
+
+		self.assertTrue(asset_activity)
+
 def get_linked_depreciation_schedules(asset_name, fields=["name"]):
 	return frappe.get_all(
 		"Depreciation Schedule_",
