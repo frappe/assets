@@ -109,7 +109,7 @@ class TestAsset_(unittest.TestCase):
 
 		enable_finance_books(enable=False)
 
-	def test_depreciation_template_is_mandatory(self):
+	def test_depreciation_template_is_mandatory_when_finance_books_are_not_enabled(self):
 		enable_finance_books(enable=False)
 
 		asset = create_asset(calculate_depreciation=1)
@@ -117,7 +117,7 @@ class TestAsset_(unittest.TestCase):
 
 		self.assertRaises(frappe.ValidationError, asset.save)
 
-	def test_depreciation_details_are_mandatory(self):
+	def test_depreciation_details_are_mandatory_when_finance_books_are_enabled(self):
 		enable_finance_books()
 
 		asset = create_asset(do_not_save=1, calculate_depreciation=1)
