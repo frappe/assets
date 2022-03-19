@@ -79,6 +79,24 @@ class TestAsset_(unittest.TestCase):
 
 		enable_finance_books(enable=False)
 
+	def test_if_depr_posting_start_date_is_too_late_when_finance_books_are_not_enabled(self):
+		"""
+			Tests if the period between Available for Use Date and Depreciation Posting Start Date
+			is less than or equal to the Frequency of Depreciation.
+		"""
+		enable_finance_books(enable=False)
+
+		asset = create_asset(
+			item_code = "Macbook Pro",
+			calculate_depreciation = 1,
+			enable_finance_books = 0,
+			do_not_save = 1
+		)
+		asset.available_for_use_date = getdate("2021-10-1")
+		asset.depreciation_posting_start_date = getdate("2022-11-1")
+
+		self.assertRaises(frappe.ValidationError, asset.save)
+
 	def test_item_exists(self):
 		asset = create_asset(item_code="MacBook", do_not_save=1)
 
