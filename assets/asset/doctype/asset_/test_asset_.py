@@ -387,7 +387,7 @@ def create_depreciation_template(**args):
 		"asset_life_unit": args.asset_life_unit or "Years",
 		"rate_of_depreciation": args.rate_of_depreciation or "0"
 	})
-	depreciation_template.insert()
+	depreciation_template.insert(ignore_if_duplicate = True)
 
 	return depreciation_template.name
 
