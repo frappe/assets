@@ -254,6 +254,31 @@ class TestAsset_(unittest.TestCase):
 
 		enable_finance_books(enable=False)
 
+	def test_new_schedule_is_created_on_changing_depr_template_when_finance_books_are_not_enabled(self):
+		"""Tests if old schedule is deleted and new one is created on changing the depr template."""
+
+		enable_finance_books(enable=False)
+
+		asset = create_asset(calculate_depreciation=1, enable_finance_books=0)
+		old_depreciation_schedule = get_linked_depreciation_schedules(asset.name)
+
+		new_depr_template = create_depreciation_template(
+			template_name = "Test Template",
+			depreciation_method = "Straight Line",
+			frequency_of_depreciation = "Yearly",
+			asset_life = 3,
+			asset_life_unit = "Years"
+		)
+
+		asset.depreciation_template = new_depr_template
+		asset.save()
+
+		new_depreciation_schedule = get_linked_depreciation_schedules(asset.name)
+		does_old_schedule_still_exist = frappe.db.exists("Depreciation Schedule", old_depreciation_schedule[0])
+
+		self.assertFalse(does_old_schedule_still_exist)
+		self.assertNotEqual(old_depreciation_schedule, new_depreciation_schedule)
+
 def get_linked_depreciation_schedules(asset_name):
 	return frappe.get_all(
 		"Depreciation Schedule_",
