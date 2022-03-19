@@ -140,6 +140,16 @@ class TestAsset_(unittest.TestCase):
 
 		enable_finance_books(enable=False)
 
+	def test_missing_template_values_are_fetched_when_finance_books_are_not_enabled(self):
+		enable_finance_books(enable=False)
+
+		asset = create_asset(calculate_depreciation=1)
+
+		self.assertEqual(asset.depreciation_method, "Straight Line")
+		self.assertEqual(asset.frequency_of_depreciation,"Yearly")
+		self.assertEqual(asset.asset_life_in_months, 60)
+		self.assertEqual(asset.rate_of_depreciation, 0.0)
+
 def create_company():
 	if not frappe.db.exists("Company", "_Test Company"):
 		company = frappe.get_doc({
