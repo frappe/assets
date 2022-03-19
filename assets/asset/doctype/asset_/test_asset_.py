@@ -307,6 +307,15 @@ class TestAsset_(unittest.TestCase):
 
 		self.assertTrue(asset_activity)
 
+	def test_asset_receipt_is_recorded(self):
+		"""Tests if Asset Movement of type Receipt is created on submitting an Asset."""
+
+		asset = create_asset(submit=1)
+		asset_movement = frappe.get_last_doc("Asset Movement_")
+
+		self.assertEqual(asset_movement.purpose, "Receipt")
+		self.assertEqual(asset_movement.assets[0].asset, asset.name)
+
 def get_linked_depreciation_schedules(asset_name, fields=["name"]):
 	return frappe.get_all(
 		"Depreciation Schedule_",
