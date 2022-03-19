@@ -247,7 +247,7 @@ class TestAsset_(unittest.TestCase):
 		asset.save()
 
 		new_depreciation_schedule = get_linked_depreciation_schedules(asset.name)
-		does_old_schedule_still_exist = frappe.db.exists("Depreciation Schedule", old_depreciation_schedule[0])
+		does_old_schedule_still_exist = frappe.db.exists("Depreciation Schedule", old_depreciation_schedule[0].name)
 
 		self.assertFalse(does_old_schedule_still_exist)
 		self.assertNotEqual(old_depreciation_schedule, new_depreciation_schedule)
@@ -279,13 +279,26 @@ class TestAsset_(unittest.TestCase):
 		self.assertFalse(does_old_schedule_still_exist)
 		self.assertNotEqual(old_depreciation_schedule, new_depreciation_schedule)
 
-def get_linked_depreciation_schedules(asset_name):
+	def test_schedule_gets_submitted_when_asset_gets_submitted(self):
+		asset = create_asset(calculate_depreciation=1)
+		depr_schedule = get_linked_depreciation_schedules(asset.name, ["docstatus", "status"])[0]
+
+		self.assertEqual(depr_schedule.docstatus, 0)
+		self.assertEqual(depr_schedule.status, "Draft")
+
+		asset.submit()
+		depr_schedule = get_linked_depreciation_schedules(asset.name, ["docstatus", "status"])[0]
+
+		self.assertEqual(depr_schedule.docstatus, 1)
+		self.assertEqual(depr_schedule.status, "Active")
+
+def get_linked_depreciation_schedules(asset_name, fields=["name"]):
 	return frappe.get_all(
 		"Depreciation Schedule_",
 		filters = {
 			"asset": asset_name
 		},
-		pluck = "name"
+		fields = fields
 	)
 
 def create_company():
