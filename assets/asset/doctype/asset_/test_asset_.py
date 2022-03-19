@@ -47,7 +47,6 @@ class TestAsset_(unittest.TestCase):
 
 	def test_available_for_use_date_is_after_purchase_date(self):
 		asset = create_asset(item_code="Macbook Pro", calculate_depreciation=1, do_not_save=1)
-		asset.is_existing_asset = 0
 		asset.purchase_date = getdate("2021-10-10")
 		asset.available_for_use_date = getdate("2021-10-1")
 
@@ -55,7 +54,6 @@ class TestAsset_(unittest.TestCase):
 
 	def test_depreciation_posting_start_date_and_available_for_use_date_are_not_the_same(self):
 		asset = create_asset(item_code="Macbook Pro", calculate_depreciation=1, do_not_save=1)
-		asset.is_existing_asset = 0
 		asset.available_for_use_date = getdate("2021-10-1")
 		asset.depreciation_posting_start_date = getdate("2021-10-1")
 
