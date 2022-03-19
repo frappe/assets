@@ -69,7 +69,7 @@ class TestAsset_(unittest.TestCase):
 		asset = create_asset(
 			item_code = "Macbook Pro",
 			calculate_depreciation = 1,
-			enable_finance_books = 1 ,
+			enable_finance_books = 1,
 			do_not_save = 1
 		)
 		asset.available_for_use_date = getdate("2021-10-1")
