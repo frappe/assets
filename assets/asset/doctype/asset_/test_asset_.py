@@ -212,12 +212,28 @@ class TestAsset_(unittest.TestCase):
 
 		self.assertTrue(depreciation_schedule)
 
+	def test_new_schedules_are_created_if_basic_depr_details_are_updated(self):
+		"""Tests if old schedule is deleted and new one is created on updating basic depr details."""
+
+		asset = create_asset(calculate_depreciation=1, enable_finance_books=0)
+		old_depreciation_schedule = get_linked_depreciation_schedules(asset.name)
+
+		asset.gross_purchase_amount = 150000
+		asset.save()
+
+		new_depreciation_schedule = get_linked_depreciation_schedules(asset.name)
+		does_old_schedule_still_exist = frappe.db.exists("Depreciation Schedule", old_depreciation_schedule[0])
+
+		self.assertFalse(does_old_schedule_still_exist)
+		self.assertNotEqual(old_depreciation_schedule, new_depreciation_schedule)
+
 def get_linked_depreciation_schedules(asset_name):
 	return frappe.get_all(
 		"Depreciation Schedule_",
 		filters = {
 			"asset": asset_name
-		}
+		},
+		pluck = "name"
 	)
 
 def create_company():
