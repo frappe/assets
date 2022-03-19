@@ -109,6 +109,14 @@ class TestAsset_(unittest.TestCase):
 
 		enable_finance_books(enable=False)
 
+	def test_depreciation_template_is_mandatory(self):
+		enable_finance_books(enable=False)
+
+		asset = create_asset(calculate_depreciation=1)
+		asset.depreciation_template = None
+
+		self.assertRaises(frappe.ValidationError, asset.save)
+
 def create_company():
 	if not frappe.db.exists("Company", "_Test Company"):
 		company = frappe.get_doc({
