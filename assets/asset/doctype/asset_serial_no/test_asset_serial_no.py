@@ -27,6 +27,14 @@ class TestAssetSerialNo(unittest.TestCase):
 	def tearDownClass(cls):
 		frappe.db.rollback()
 
+	def test_num_of_asset_serial_nos_created(self):
+		"""Tests if x Asset Serial Nos are created when num_of_assets = x in the Asset doc."""
+
+		asset = create_asset(is_serialized_asset=1, num_of_assets=5, submit=1)
+		asset_serial_nos = get_linked_asset_serial_nos(asset.name)
+
+		self.assertEqual(len(asset_serial_nos), 5)
+
 	def test_available_for_use_date_is_after_purchase_date(self):
 		asset = create_asset(is_serialized_asset=1, calculate_depreciation=1, submit=1)
 
