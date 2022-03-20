@@ -12,6 +12,7 @@ from assets.asset.doctype.asset_.test_asset_ import (
 	create_asset_data,
 	enable_finance_books,
 	enable_cwip_accounting,
+	create_depreciation_template,
 	enable_book_asset_depreciation_entry_automatically,
 )
 class TestAssetSerialNo(unittest.TestCase):
@@ -274,6 +275,84 @@ class TestAssetSerialNo(unittest.TestCase):
 
 		new_depreciation_schedule = get_linked_depreciation_schedules(asset_serial_no.name)
 		does_old_schedule_still_exist = frappe.db.exists("Depreciation Schedule", old_depreciation_schedule[0])
+
+		self.assertFalse(does_old_schedule_still_exist)
+		self.assertNotEqual(old_depreciation_schedule, new_depreciation_schedule)
+
+	def test_new_schedule_is_created_on_changing_depr_template_when_finance_books_are_enabled(self):
+		"""Tests if old schedule is deleted and new one is created on changing the depr template."""
+
+		enable_finance_books()
+
+		asset = create_asset(
+			is_serialized_asset = 1,
+			calculate_depreciation = 1,
+			enable_finance_books = 1,
+			submit = 1
+		)
+
+		asset_serial_no = get_asset_serial_no_doc(asset.name)
+		asset_serial_no.available_for_use_date = getdate("2021-10-1")
+		asset_serial_no.depreciation_posting_start_date = getdate("2021-12-1")
+		asset_serial_no.append("finance_books", {
+			"depreciation_template": "Straight Line Method Annually for 5 Years"
+		})
+		asset_serial_no.save()
+
+		old_depreciation_schedule = get_linked_depreciation_schedules(asset_serial_no.name)
+
+		new_depr_template = create_depreciation_template(
+			template_name = "Test Template",
+			depreciation_method = "Straight Line",
+			frequency_of_depreciation = "Yearly",
+			asset_life = 3,
+			asset_life_unit = "Years"
+		)
+
+		asset_serial_no.finance_books[0].depreciation_template = new_depr_template
+		asset_serial_no.save()
+
+		new_depreciation_schedule = get_linked_depreciation_schedules(asset_serial_no.name)
+		does_old_schedule_still_exist = frappe.db.exists("Depreciation Schedule", old_depreciation_schedule[0].name)
+
+		self.assertFalse(does_old_schedule_still_exist)
+		self.assertNotEqual(old_depreciation_schedule, new_depreciation_schedule)
+
+		enable_finance_books(enable=False)
+
+	def test_new_schedule_is_created_on_changing_depr_template_when_finance_books_are_not_enabled(self):
+		"""Tests if old schedule is deleted and new one is created on changing the depr template."""
+
+		enable_finance_books(enable=False)
+
+		asset = create_asset(
+			is_serialized_asset = 1,
+			calculate_depreciation = 1,
+			enable_finance_books = 0,
+			submit = 1
+		)
+
+		asset_serial_no = get_asset_serial_no_doc(asset.name)
+		asset_serial_no.available_for_use_date = getdate("2021-10-1")
+		asset_serial_no.depreciation_posting_start_date = getdate("2021-12-1")
+		asset_serial_no.depreciation_template = "Straight Line Method Annually for 5 Years"
+		asset_serial_no.save()
+
+		old_depreciation_schedule = get_linked_depreciation_schedules(asset_serial_no.name)
+
+		new_depr_template = create_depreciation_template(
+			template_name = "Test Template",
+			depreciation_method = "Straight Line",
+			frequency_of_depreciation = "Yearly",
+			asset_life = 3,
+			asset_life_unit = "Years"
+		)
+
+		asset_serial_no.depreciation_template = new_depr_template
+		asset_serial_no.save()
+
+		new_depreciation_schedule = get_linked_depreciation_schedules(asset_serial_no.name)
+		does_old_schedule_still_exist = frappe.db.exists("Depreciation Schedule", old_depreciation_schedule[0].name)
 
 		self.assertFalse(does_old_schedule_still_exist)
 		self.assertNotEqual(old_depreciation_schedule, new_depreciation_schedule)
