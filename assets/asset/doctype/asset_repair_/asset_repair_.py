@@ -19,6 +19,7 @@ class AssetRepair_(AccountsController):
 		self.update_status()
 
 		if self.get('stock_consumption'):
+			self.validate_consumed_items()
 			self.set_total_value()
 
 		self.calculate_total_repair_cost()
@@ -71,6 +72,10 @@ class AssetRepair_(AccountsController):
 			frappe.db.set_value(self.asset_doc.doctype, self.asset_doc.name, 'status', 'Out of Order')
 		else:
 			self.asset_doc.set_status()
+
+	def validate_consumed_items(self):
+		if not self.items:
+			frappe.throw(_("Please enter Consumed Items."), title=_("Missing Values"))
 
 	def set_total_value(self):
 		for item in self.get('items'):
