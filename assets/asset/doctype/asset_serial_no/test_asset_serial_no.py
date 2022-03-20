@@ -164,6 +164,52 @@ class TestAssetSerialNo(unittest.TestCase):
 
 		self.assertRaises(frappe.ValidationError, asset_serial_no.save)
 
+	def test_missing_template_values_are_fetched_when_finance_books_are_enabled(self):
+		enable_finance_books()
+
+		asset = create_asset(
+			is_serialized_asset = 1,
+			calculate_depreciation = 1,
+			enable_finance_books = 1,
+			submit = 1
+		)
+		asset_serial_no = get_asset_serial_no_doc(asset.name)
+		asset_serial_no.available_for_use_date = getdate("2021-10-1")
+		asset_serial_no.depreciation_posting_start_date = getdate("2021-12-1")
+
+		asset_serial_no.finance_books[0].depreciation_template = "Straight Line Method Annually for 5 Years"
+		asset_serial_no.save()
+
+		template_values = asset_serial_no.finance_books[0]
+
+		self.assertEqual(template_values.depreciation_method, "Straight Line")
+		self.assertEqual(template_values.frequency_of_depreciation,"Yearly")
+		self.assertEqual(template_values.asset_life_in_months, 60)
+		self.assertEqual(template_values.rate_of_depreciation, 0.0)
+
+		enable_finance_books(enable=False)
+
+	def test_missing_template_values_are_fetched_when_finance_books_are_not_enabled(self):
+		enable_finance_books(enable=False)
+
+		asset = create_asset(
+			is_serialized_asset = 1,
+			calculate_depreciation = 1,
+			enable_finance_books = 0,
+			submit = 1
+		)
+		asset_serial_no = get_asset_serial_no_doc(asset.name)
+		asset_serial_no.available_for_use_date = getdate("2021-10-1")
+		asset_serial_no.depreciation_posting_start_date = getdate("2021-12-1")
+
+		asset_serial_no.depreciation_template = "Straight Line Method Annually for 5 Years"
+		asset_serial_no.save()
+
+		self.assertEqual(asset_serial_no.depreciation_method, "Straight Line")
+		self.assertEqual(asset_serial_no.frequency_of_depreciation,"Yearly")
+		self.assertEqual(asset_serial_no.asset_life_in_months, 60)
+		self.assertEqual(asset_serial_no.rate_of_depreciation, 0.0)
+
 def get_asset_serial_no_doc(asset_name):
 	asset_serial_no = get_linked_asset_serial_nos(asset_name)[0]
 	asset_serial_no_doc = frappe.get_doc("Asset Serial No", asset_serial_no.name)
