@@ -327,6 +327,18 @@ class TestAsset_(unittest.TestCase):
 		asset = create_asset(is_serialized_asset=0, num_of_assets=5, submit=1)
 		self.assertRaises(frappe.ValidationError, split_asset, asset, 10)
 
+	def test_copies_of_depr_schedules_are_created_during_asset_split(self):
+		asset = create_asset(calculate_depreciation=1, is_serialized_asset=0, num_of_assets=5, submit=1)
+		split_asset(asset, 2)
+
+		new_asset = frappe.get_last_doc("Asset_")
+		schedule_linked_with_orginal_asset = get_linked_depreciation_schedules(asset.name)[0]
+		schedule_linked_with_new_asset = get_linked_depreciation_schedules(new_asset.name, ["name", "notes"])[0]
+
+		self.assertTrue(schedule_linked_with_new_asset)
+		self.assertTrue(schedule_linked_with_new_asset.notes)
+		self.assertNotEqual(schedule_linked_with_orginal_asset.name, schedule_linked_with_new_asset.name)
+
 def get_linked_depreciation_schedules(asset_name, fields=["name"]):
 	return frappe.get_all(
 		"Depreciation Schedule_",
