@@ -361,7 +361,6 @@ class TestAssetSerialNo(unittest.TestCase):
 		asset = create_asset(
 			is_serialized_asset = 1,
 			calculate_depreciation = 1,
-			enable_finance_books = 0,
 			submit = 1
 		)
 
@@ -382,6 +381,26 @@ class TestAssetSerialNo(unittest.TestCase):
 
 		self.assertEqual(depr_schedule.docstatus, 1)
 		self.assertEqual(depr_schedule.status, "Active")
+
+	def test_serial_no_creation_is_recorded(self):
+		"""Tests if Asset Activity of type Creation is created on submitting an Asset."""
+
+		asset = create_asset(is_serialized_asset = 1, submit = 1)
+
+		asset_serial_no = get_asset_serial_no_doc(asset.name)
+		asset_serial_no.location = "Test Location"
+		asset_serial_no.submit()
+
+		asset_activity = frappe.get_value(
+			"Asset Activity",
+			filters = {
+				"serial_no": asset_serial_no.name,
+				"activity_type": "Creation"
+			},
+			fieldname = "name"
+		)
+
+		self.assertTrue(asset_activity)
 
 def get_asset_serial_no_doc(asset_name):
 	asset_serial_no = get_linked_asset_serial_nos(asset_name)[0]
