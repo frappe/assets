@@ -70,6 +70,15 @@ class TestAssetRepair_(unittest.TestCase):
 			amount = flt(item.rate) * flt(item.qty)
 			self.assertEqual(item.amount, amount)
 
+	def test_total_repair_cost_calculation(self):
+		asset_repair = create_asset_repair(stock_consumption = 1)
+		total_repair_cost = asset_repair.repair_cost
+
+		for item in asset_repair.items:
+			total_repair_cost += item.amount
+
+		self.assertEqual(total_repair_cost, asset_repair.total_repair_cost)
+
 def create_asset_repair(**args):
 	from erpnext.accounts.doctype.purchase_invoice.test_purchase_invoice import make_purchase_invoice
 	from erpnext.stock.doctype.warehouse.test_warehouse import create_warehouse
