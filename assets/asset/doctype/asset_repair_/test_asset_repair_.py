@@ -4,7 +4,7 @@
 import unittest
 
 import frappe
-from frappe.utils import nowdate
+from frappe.utils import nowdate, flt
 
 from assets.asset.doctype.asset_.test_asset_ import (
 	create_asset,
@@ -63,6 +63,13 @@ class TestAssetRepair_(unittest.TestCase):
 
 		self.assertEqual(final_status, initial_status)
 
+	def test_amount_calculation_for_stock_items(self):
+		asset_repair = create_asset_repair(stock_consumption = 1)
+
+		for item in asset_repair.items:
+			amount = flt(item.rate) * flt(item.qty)
+			self.assertEqual(item.amount, amount)
+
 def create_asset_repair(**args):
 	from erpnext.accounts.doctype.purchase_invoice.test_purchase_invoice import make_purchase_invoice
 	from erpnext.stock.doctype.warehouse.test_warehouse import create_warehouse
@@ -89,7 +96,7 @@ def create_asset_repair(**args):
 	if args.stock_consumption:
 		asset_repair.stock_consumption = 1
 		asset_repair.warehouse = args.warehouse or create_warehouse("Test Warehouse", company = asset.company)
-		asset_repair.append("stock_items", {
+		asset_repair.append("items", {
 			"item_code": args.item_code or "_Test Stock Item",
 			"rate": args.rate if args.get("rate") is not None else 100,
 			"qty": args.qty or 1,
