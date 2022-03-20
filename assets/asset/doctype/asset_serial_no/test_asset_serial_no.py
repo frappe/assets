@@ -10,6 +10,7 @@ from assets.asset.doctype.asset_.test_asset_ import (
 	create_asset,
 	create_company,
 	create_asset_data,
+	enable_finance_books,
 	enable_cwip_accounting,
 	enable_book_asset_depreciation_entry_automatically,
 )
@@ -50,6 +51,48 @@ class TestAssetSerialNo(unittest.TestCase):
 
 		asset_serial_no.available_for_use_date = getdate("2021-10-1")
 		asset_serial_no.depreciation_posting_start_date = getdate("2021-10-1")
+
+		self.assertRaises(frappe.ValidationError, asset_serial_no.save)
+
+	def test_if_depr_posting_start_date_is_too_late_when_finance_books_are_enabled(self):
+		"""
+			Tests if the period between Available for Use Date and Depreciation Posting Start Date
+			is less than or equal to the Frequency of Depreciation.
+		"""
+		enable_finance_books()
+
+		asset = create_asset(
+			is_serialized_asset = 1,
+			calculate_depreciation = 1,
+			enable_finance_books = 1,
+			submit = 1
+		)
+		asset_serial_no = get_asset_serial_no_doc(asset.name)
+
+		asset_serial_no.available_for_use_date = getdate("2021-10-1")
+		asset_serial_no.depreciation_posting_start_date = getdate("2022-11-1")
+
+		self.assertRaises(frappe.ValidationError, asset_serial_no.save)
+
+		enable_finance_books(enable=False)
+
+	def test_if_depr_posting_start_date_is_too_late_when_finance_books_are_not_enabled(self):
+		"""
+			Tests if the period between Available for Use Date and Depreciation Posting Start Date
+			is less than or equal to the Frequency of Depreciation.
+		"""
+		enable_finance_books(enable=False)
+
+		asset = create_asset(
+			is_serialized_asset = 1,
+			calculate_depreciation = 1,
+			enable_finance_books = 0,
+			submit = 1
+		)
+		asset_serial_no = get_asset_serial_no_doc(asset.name)
+
+		asset_serial_no.available_for_use_date = getdate("2021-10-1")
+		asset_serial_no.depreciation_posting_start_date = getdate("2022-11-1")
 
 		self.assertRaises(frappe.ValidationError, asset_serial_no.save)
 
