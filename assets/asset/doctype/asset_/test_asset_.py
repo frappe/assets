@@ -6,6 +6,7 @@ import unittest
 import frappe
 from frappe.utils import getdate
 
+from assets.asset.doctype.asset_.asset_ import split_asset
 from erpnext.stock.doctype.purchase_receipt.test_purchase_receipt import make_purchase_receipt
 
 class TestAsset_(unittest.TestCase):
@@ -310,8 +311,6 @@ class TestAsset_(unittest.TestCase):
 		self.assertEqual(asset_movement.assets[0].asset, asset.name)
 
 	def test_asset_split(self):
-		from assets.asset.doctype.asset_.asset_ import split_asset
-
 		asset = create_asset(is_serialized_asset=0, num_of_assets=5, submit=1)
 		split_asset(asset, 2)
 
@@ -321,6 +320,12 @@ class TestAsset_(unittest.TestCase):
 		self.assertEqual(new_asset.num_of_assets, 2)
 		self.assertEqual(asset.num_of_assets, 3)
 		self.assertTrue(asset_activity)
+
+	def test_num_of_assets_to_be_separated_for_asset_split(self):
+		"""Tests if num_of_assets_to_be_separated is less than num_of_assets in the Asset doc."""
+
+		asset = create_asset(is_serialized_asset=0, num_of_assets=5, submit=1)
+		self.assertRaises(frappe.ValidationError, split_asset, asset, 10)
 
 def get_linked_depreciation_schedules(asset_name, fields=["name"]):
 	return frappe.get_all(
