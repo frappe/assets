@@ -39,18 +39,18 @@ class Asset_(BaseAsset):
 					.format(self.name))
 
 		else:
-			purchase_doc = 'Purchase Invoice' if self.purchase_invoice else 'Purchase Receipt'
+			purchase_doc = "Purchase Invoice" if self.purchase_invoice else "Purchase Receipt"
 			purchase_docname = self.purchase_invoice or self.purchase_receipt
 			purchase_doc = frappe.get_doc(purchase_doc, purchase_docname)
 
-			if purchase_doc.get('company') != self.company:
+			if purchase_doc.get("company") != self.company:
 				frappe.throw(_("Company of asset {0} and purchase document {1} doesn't match.")
-					.format(self.name, purchase_doc.get('name')))
+					.format(self.name, purchase_doc.get("name")))
 
 			if (is_cwip_accounting_enabled(self.asset_category)
 				and not self.purchase_receipt
 				and self.purchase_invoice
-				and not frappe.db.get_value('Purchase Invoice', self.purchase_invoice, 'update_stock')):
+				and not frappe.db.get_value("Purchase Invoice", self.purchase_invoice, "update_stock")):
 				frappe.throw(_("Update stock must be enable for the purchase invoice {0}")
 					.format(self.purchase_invoice))
 
@@ -176,7 +176,7 @@ def merge_dictionaries(new_schedules_dict, original_schedules_dict, new_schedule
 	return map_to_original_schedules
 
 def get_finance_books(new_schedules):
-	return [schedule['finance_book'] for schedule in new_schedules]
+	return [schedule["finance_book"] for schedule in new_schedules]
 
 def update_existing_asset(asset, num_of_assets_to_be_separated):
 	asset.flags.ignore_validate_update_after_submit = True
@@ -190,7 +190,7 @@ def record_asset_split(asset, new_asset, num_of_assets_to_be_separated):
 	for split_asset in split_assets:
 		create_asset_activity(
 			asset = split_asset,
-			activity_type = 'Split',
+			activity_type = "Split",
 			reference_doctype = asset.doctype,
 			reference_docname = asset.name,
 			notes = _("{0} asset{1} separated from {2} into {3}.")

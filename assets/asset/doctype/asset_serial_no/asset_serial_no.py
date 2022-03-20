@@ -18,7 +18,7 @@ class AssetSerialNo(BaseAsset):
 		self.validate_location()
 
 	def validate_asset(self):
-		is_serialized_asset = frappe.db.get_value('Asset_', self.asset, 'is_serialized_asset')
+		is_serialized_asset = frappe.db.get_value("Asset_", self.asset, "is_serialized_asset")
 
 		if not is_serialized_asset:
 			frappe.throw(_("{0} is not a Serialized Asset")
