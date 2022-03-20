@@ -1,8 +1,10 @@
 # Copyright (c) 2021, Ganga Manoj and Contributors
 # See license.txt
 
-import frappe
 import unittest
+
+import frappe
+from frappe.utils import nowdate
 
 from assets.asset.doctype.asset_.test_asset_ import (
 	create_asset,
@@ -22,3 +24,83 @@ class TestAssetRepair_(unittest.TestCase):
 	@classmethod
 	def tearDownClass(cls):
 		frappe.db.rollback()
+
+	def test_asset_status_gets_updated_on_repair(self):
+		asset = create_asset(submit=1)
+		initial_status = asset.status
+		asset_repair = create_asset_repair(asset = asset)
+
+		if asset_repair.repair_status == "Pending":
+			asset.reload()
+			self.assertEqual(asset.status, "Out of Order")
+
+		asset_repair.repair_status = "Completed"
+		asset_repair.save()
+
+		asset_status = frappe.db.get_value("Asset_", asset_repair.asset, "status")
+		self.assertEqual(asset_status, initial_status)
+
+def create_asset_repair(**args):
+	from erpnext.accounts.doctype.purchase_invoice.test_purchase_invoice import make_purchase_invoice
+	from erpnext.stock.doctype.warehouse.test_warehouse import create_warehouse
+
+	args = frappe._dict(args)
+
+	if args.asset:
+		asset = args.asset
+	else:
+		asset = create_asset(submit=1)
+
+	asset_repair = frappe.new_doc("Asset Repair_")
+	asset_repair.update({
+		"asset": asset.name,
+		"asset_name": asset.asset_name,
+		"serial_no": args.asset_serial_no,
+		"num_of_assets": args.num_of_assets or (0 if args.asset_serial_no else 1),
+		"failure_date": args.failure_date or nowdate(),
+		"description": "Test Description",
+		"repair_cost": args.repair_cost,
+		"company": asset.company
+	})
+
+	if args.stock_consumption:
+		asset_repair.stock_consumption = 1
+		asset_repair.warehouse = args.warehouse or create_warehouse("Test Warehouse", company = asset.company)
+		asset_repair.append("stock_items", {
+			"item_code": args.item_code or "_Test Stock Item",
+			"rate": args.rate if args.get("rate") is not None else 100,
+			"qty": args.qty or 1,
+			"serial_no": args.stock_item_serial_no
+		})
+
+	asset_repair.insert(ignore_if_duplicate=True)
+
+	if args.submit:
+		asset_repair.repair_status = "Completed"
+		asset_repair.cost_center = "_Test Cost Center - _TC"
+
+		if args.stock_consumption:
+			stock_entry = frappe.get_doc({
+				"doctype": "Stock Entry",
+				"stock_entry_type": "Material Receipt",
+				"company": asset.company
+			})
+			stock_entry.append('items', {
+				"t_warehouse": asset_repair.warehouse,
+				"item_code": asset_repair.stock_items[0].item_code,
+				"qty": asset_repair.stock_items[0].consumed_quantity
+			})
+			stock_entry.submit()
+
+		if args.capitalize_repair_cost:
+			asset_repair.capitalize_repair_cost = 1
+			asset_repair.repair_cost = 1000
+
+			if asset.calculate_depreciation:
+				asset_repair.increase_in_asset_life = 12
+
+			asset_repair.purchase_invoice = make_purchase_invoice().name
+
+		asset_repair.submit()
+
+	return asset_repair
