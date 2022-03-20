@@ -10,12 +10,12 @@ from assets.controllers.base_asset import BaseAsset, get_finance_books
 
 class AssetSerialNo(BaseAsset):
 	def validate(self):
-		super().validate()
 		self.validate_asset()
+		super().validate()
 
 	def before_submit(self):
-		super().before_submit()
 		self.validate_location()
+		super().before_submit()
 
 	def validate_asset(self):
 		is_serialized_asset = frappe.db.get_value("Asset_", self.asset, "is_serialized_asset")
