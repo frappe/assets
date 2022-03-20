@@ -252,6 +252,32 @@ class TestAssetSerialNo(unittest.TestCase):
 
 		self.assertTrue(depreciation_schedule)
 
+	def test_new_schedules_are_created_if_basic_depr_details_are_updated(self):
+		"""Tests if old schedule is deleted and new one is created on updating basic depr details."""
+
+		asset = create_asset(
+			is_serialized_asset = 1,
+			calculate_depreciation = 1,
+			submit = 1
+		)
+
+		asset_serial_no = get_asset_serial_no_doc(asset.name)
+		asset_serial_no.available_for_use_date = getdate("2021-10-1")
+		asset_serial_no.depreciation_posting_start_date = getdate("2021-12-1")
+		asset_serial_no.depreciation_template = "Straight Line Method Annually for 5 Years"
+		asset_serial_no.save()
+
+		old_depreciation_schedule = get_linked_depreciation_schedules(asset_serial_no.name)
+
+		asset_serial_no.depreciation_posting_start_date = getdate("2021-12-15")
+		asset_serial_no.save()
+
+		new_depreciation_schedule = get_linked_depreciation_schedules(asset_serial_no.name)
+		does_old_schedule_still_exist = frappe.db.exists("Depreciation Schedule", old_depreciation_schedule[0])
+
+		self.assertFalse(does_old_schedule_still_exist)
+		self.assertNotEqual(old_depreciation_schedule, new_depreciation_schedule)
+
 def get_asset_serial_no_doc(asset_name):
 	asset_serial_no = get_linked_asset_serial_nos(asset_name)[0]
 	asset_serial_no_doc = frappe.get_doc("Asset Serial No", asset_serial_no.name)
