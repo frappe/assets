@@ -20,6 +20,7 @@ class AssetRepair_(AccountsController):
 
 		if self.get('stock_consumption'):
 			self.validate_consumed_items()
+			self.validate_warehouse()
 			self.set_total_value()
 
 		self.calculate_total_repair_cost()
@@ -76,6 +77,10 @@ class AssetRepair_(AccountsController):
 	def validate_consumed_items(self):
 		if not self.items:
 			frappe.throw(_("Please enter Consumed Items."), title=_("Missing Values"))
+
+	def validate_warehouse(self):
+		if not self.warehouse:
+			frappe.throw(_("Please enter Warehouse."), title=_("Missing Value"))
 
 	def set_total_value(self):
 		for item in self.get('items'):
