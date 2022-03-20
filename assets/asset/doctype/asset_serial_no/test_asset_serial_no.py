@@ -126,6 +126,44 @@ class TestAssetSerialNo(unittest.TestCase):
 
 		enable_finance_books(enable=False)
 
+	def test_depreciation_details_are_mandatory_when_finance_books_are_enabled(self):
+		enable_finance_books()
+
+		asset = create_asset(
+			is_serialized_asset = 1,
+			calculate_depreciation = 1,
+			enable_finance_books = 1,
+			submit = 1
+		)
+
+		asset_serial_no = get_asset_serial_no_doc(asset.name)
+		asset_serial_no.available_for_use_date = getdate("2021-10-1")
+		asset_serial_no.depreciation_posting_start_date = getdate("2021-12-1")
+
+		asset_serial_no.finance_books = []
+
+		self.assertRaises(frappe.ValidationError, asset_serial_no.save)
+
+		enable_finance_books(enable=False)
+
+	def test_depreciation_template_is_mandatory_when_finance_books_are_not_enabled(self):
+		enable_finance_books(enable=False)
+
+		asset = create_asset(
+			is_serialized_asset = 1,
+			calculate_depreciation = 1,
+			enable_finance_books = 0,
+			submit = 1
+		)
+
+		asset_serial_no = get_asset_serial_no_doc(asset.name)
+		asset_serial_no.available_for_use_date = getdate("2021-10-1")
+		asset_serial_no.depreciation_posting_start_date = getdate("2021-12-1")
+
+		asset_serial_no.depreciation_template = None
+
+		self.assertRaises(frappe.ValidationError, asset_serial_no.save)
+
 def get_asset_serial_no_doc(asset_name):
 	asset_serial_no = get_linked_asset_serial_nos(asset_name)[0]
 	asset_serial_no_doc = frappe.get_doc("Asset Serial No", asset_serial_no.name)
