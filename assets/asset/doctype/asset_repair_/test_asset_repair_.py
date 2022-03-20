@@ -89,6 +89,12 @@ class TestAssetRepair_(unittest.TestCase):
 
 		self.assertRaises(frappe.ValidationError, asset_repair.save)
 
+	def test_warehouse_is_mandatory_when_stock_consumption_is_checked(self):
+		asset_repair = create_asset_repair(stock_consumption = 1)
+		asset_repair.warehouse = None
+
+		self.assertRaises(frappe.ValidationError, asset_repair.save)
+
 def create_asset_repair(**args):
 	from erpnext.accounts.doctype.purchase_invoice.test_purchase_invoice import make_purchase_invoice
 	from erpnext.stock.doctype.warehouse.test_warehouse import create_warehouse
