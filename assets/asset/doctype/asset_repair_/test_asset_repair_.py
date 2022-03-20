@@ -79,6 +79,10 @@ class TestAssetRepair_(unittest.TestCase):
 
 		self.assertEqual(total_repair_cost, asset_repair.total_repair_cost)
 
+	def test_repair_status_after_submit(self):
+		asset_repair = create_asset_repair(submit = 1)
+		self.assertNotEqual(asset_repair.repair_status, "Pending")
+
 def create_asset_repair(**args):
 	from erpnext.accounts.doctype.purchase_invoice.test_purchase_invoice import make_purchase_invoice
 	from erpnext.stock.doctype.warehouse.test_warehouse import create_warehouse
