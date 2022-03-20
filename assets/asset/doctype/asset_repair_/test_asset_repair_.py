@@ -11,6 +11,8 @@ from assets.asset.doctype.asset_.test_asset_ import (
 	create_company,
 	create_asset_data,
 )
+from assets.asset.doctype.asset_serial_no.test_asset_serial_no import get_asset_serial_no_doc
+
 from erpnext.stock.doctype.item.test_item import create_item
 
 class TestAssetRepair_(unittest.TestCase):
@@ -26,7 +28,7 @@ class TestAssetRepair_(unittest.TestCase):
 		frappe.db.rollback()
 
 	def test_asset_status_gets_updated_on_repair(self):
-		asset = create_asset(submit=1)
+		asset = create_asset(submit = 1)
 		initial_status = asset.status
 		asset_repair = create_asset_repair(asset = asset)
 
@@ -37,8 +39,29 @@ class TestAssetRepair_(unittest.TestCase):
 		asset_repair.repair_status = "Completed"
 		asset_repair.save()
 
-		asset_status = frappe.db.get_value("Asset_", asset_repair.asset, "status")
-		self.assertEqual(asset_status, initial_status)
+		asset.reload()
+		final_status = asset.status
+
+		self.assertEqual(final_status, initial_status)
+
+	def test_asset_serial_no_status_gets_updated_on_repair(self):
+		asset = create_asset(is_serialized_asset = 1, submit = 1)
+		asset_serial_no = get_asset_serial_no_doc(asset.name)
+
+		initial_status = asset_serial_no.status
+		asset_repair = create_asset_repair(asset = asset, asset_serial_no = asset_serial_no.name)
+
+		if asset_repair.repair_status == "Pending":
+			asset_serial_no.reload()
+			self.assertEqual(asset_serial_no.status, "Out of Order")
+
+		asset_repair.repair_status = "Completed"
+		asset_repair.save()
+
+		asset_serial_no.reload()
+		final_status = asset_serial_no.status
+
+		self.assertEqual(final_status, initial_status)
 
 def create_asset_repair(**args):
 	from erpnext.accounts.doctype.purchase_invoice.test_purchase_invoice import make_purchase_invoice
