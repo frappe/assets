@@ -296,14 +296,7 @@ class TestAsset_(unittest.TestCase):
 		"""Tests if Asset Activity of type Creation is created on submitting an Asset."""
 
 		asset = create_asset(submit=1)
-		asset_activity = frappe.get_value(
-			"Asset Activity",
-			filters = {
-				"asset": asset.name,
-				"activity_type": "Creation"
-			},
-			fieldname = "name"
-		)
+		asset_activity = get_linked_asset_activity(asset.name, "Creation")
 
 		self.assertTrue(asset_activity)
 
@@ -316,6 +309,19 @@ class TestAsset_(unittest.TestCase):
 		self.assertEqual(asset_movement.purpose, "Receipt")
 		self.assertEqual(asset_movement.assets[0].asset, asset.name)
 
+	def test_asset_split(self):
+		from assets.asset.doctype.asset_.asset_ import split_asset
+
+		asset = create_asset(is_serialized_asset=0, num_of_assets=5, submit=1)
+		split_asset(asset, 2)
+
+		new_asset = frappe.get_last_doc("Asset_")
+		asset_activity = get_linked_asset_activity(asset.name, "Split")
+
+		self.assertEqual(new_asset.num_of_assets, 2)
+		self.assertEqual(asset.num_of_assets, 3)
+		self.assertTrue(asset_activity)
+
 def get_linked_depreciation_schedules(asset_name, fields=["name"]):
 	return frappe.get_all(
 		"Depreciation Schedule_",
@@ -323,6 +329,16 @@ def get_linked_depreciation_schedules(asset_name, fields=["name"]):
 			"asset": asset_name
 		},
 		fields = fields
+	)
+
+def get_linked_asset_activity(asset_name, activity_type):
+	return frappe.get_value(
+		"Asset Activity",
+		filters = {
+			"asset": asset_name,
+			"activity_type": activity_type
+		},
+		fieldname = "name"
 	)
 
 def create_company():
