@@ -357,6 +357,32 @@ class TestAssetSerialNo(unittest.TestCase):
 		self.assertFalse(does_old_schedule_still_exist)
 		self.assertNotEqual(old_depreciation_schedule, new_depreciation_schedule)
 
+	def test_schedule_gets_submitted_when_asset_gets_submitted(self):
+		asset = create_asset(
+			is_serialized_asset = 1,
+			calculate_depreciation = 1,
+			enable_finance_books = 0,
+			submit = 1
+		)
+
+		asset_serial_no = get_asset_serial_no_doc(asset.name)
+		asset_serial_no.available_for_use_date = getdate("2021-10-1")
+		asset_serial_no.depreciation_posting_start_date = getdate("2021-12-1")
+		asset_serial_no.depreciation_template = "Straight Line Method Annually for 5 Years"
+		asset_serial_no.location = "Test Location"
+		asset_serial_no.save()
+
+		depr_schedule = get_linked_depreciation_schedules(asset_serial_no.name, ["docstatus", "status"])[0]
+
+		self.assertEqual(depr_schedule.docstatus, 0)
+		self.assertEqual(depr_schedule.status, "Draft")
+
+		asset_serial_no.submit()
+		depr_schedule = get_linked_depreciation_schedules(asset_serial_no.name, ["docstatus", "status"])[0]
+
+		self.assertEqual(depr_schedule.docstatus, 1)
+		self.assertEqual(depr_schedule.status, "Active")
+
 def get_asset_serial_no_doc(asset_name):
 	asset_serial_no = get_linked_asset_serial_nos(asset_name)[0]
 	asset_serial_no_doc = frappe.get_doc("Asset Serial No", asset_serial_no.name)
