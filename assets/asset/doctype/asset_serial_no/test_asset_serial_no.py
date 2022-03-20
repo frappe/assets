@@ -96,6 +96,36 @@ class TestAssetSerialNo(unittest.TestCase):
 
 		self.assertRaises(frappe.ValidationError, asset_serial_no.save)
 
+	def test_if_depreciation_details_are_fetched_from_asset_category(self):
+		enable_finance_books()
+
+		asset_category = frappe.get_doc("Asset Category_", "Computers")
+		asset_category.append("finance_books", {
+			"depreciation_template": "Straight Line Method Annually for 5 Years"
+		})
+		asset_category.save()
+
+		asset = create_asset(
+			is_serialized_asset = 1,
+			calculate_depreciation = 1,
+			enable_finance_books = 1,
+			submit = 1
+		)
+
+		asset_serial_no = get_asset_serial_no_doc(asset.name)
+		asset_serial_no.available_for_use_date = getdate("2021-10-1")
+		asset_serial_no.depreciation_posting_start_date = getdate("2021-12-1")
+
+		asset_serial_no.finance_books = []
+		asset_serial_no.save()
+
+		self.assertEqual(
+			asset_serial_no.finance_books[0].depreciation_template,
+			"Straight Line Method Annually for 5 Years"
+		)
+
+		enable_finance_books(enable=False)
+
 def get_asset_serial_no_doc(asset_name):
 	asset_serial_no = get_linked_asset_serial_nos(asset_name)[0]
 	asset_serial_no_doc = frappe.get_doc("Asset Serial No", asset_serial_no.name)
