@@ -417,6 +417,12 @@ class TestAssetSerialNo(unittest.TestCase):
 		self.assertEqual(asset_movement.assets[0].asset, asset.name)
 		self.assertEqual(asset_movement.assets[0].serial_no, asset_serial_no.name)
 
+	def test_location_is_mandatory(self):
+		asset = create_asset(is_serialized_asset = 1, submit = 1)
+		asset_serial_no = get_asset_serial_no_doc(asset.name)
+
+		self.assertRaises(frappe.ValidationError, asset_serial_no.submit)
+
 def get_asset_serial_no_doc(asset_name):
 	asset_serial_no = get_linked_asset_serial_nos(asset_name)[0]
 	asset_serial_no_doc = frappe.get_doc("Asset Serial No", asset_serial_no.name)
