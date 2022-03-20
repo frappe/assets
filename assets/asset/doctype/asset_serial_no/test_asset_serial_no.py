@@ -46,6 +46,17 @@ class TestAssetSerialNo(unittest.TestCase):
 
 		self.assertRaises(frappe.ValidationError, asset_serial_no_doc.save)
 
+	def test_depreciation_posting_start_date_and_available_for_use_date_are_not_the_same(self):
+		asset = create_asset(is_serialized_asset=1, calculate_depreciation=1, submit=1)
+
+		asset_serial_no = get_linked_asset_serial_nos(asset.name)[0]
+		asset_serial_no_doc = frappe.get_doc("Asset Serial No", asset_serial_no.name)
+
+		asset_serial_no_doc.available_for_use_date = getdate("2021-10-1")
+		asset_serial_no_doc.depreciation_posting_start_date = getdate("2021-10-1")
+
+		self.assertRaises(frappe.ValidationError, asset_serial_no_doc.save)
+
 def get_linked_asset_serial_nos(asset_name, fields=["name"]):
 	return frappe.get_all(
 		"Asset Serial No",
