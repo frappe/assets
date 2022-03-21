@@ -151,6 +151,20 @@ class TestAssetRepair_(unittest.TestCase):
 
 		self.assertEqual(asset_repair.name, gl_entry.voucher_no)
 
+	def test_increase_in_asset_life(self):
+		asset = create_asset(calculate_depreciation = 1, enable_finance_books = 0, submit=1)
+		initial_asset_life = asset.asset_life_in_months
+
+		create_asset_repair(
+			asset = asset,
+			capitalize_repair_cost = 1,
+			increase_in_asset_life = 12,
+			submit = 1
+		)
+		asset.reload()
+
+		self.assertEqual((initial_asset_life + 12), asset.asset_life_in_months)
+
 def create_asset_repair(**args):
 	from erpnext.accounts.doctype.purchase_invoice.test_purchase_invoice import make_purchase_invoice
 	from erpnext.stock.doctype.warehouse.test_warehouse import create_warehouse
@@ -170,7 +184,7 @@ def create_asset_repair(**args):
 		"num_of_assets": args.num_of_assets or (0 if args.asset_serial_no else 1),
 		"failure_date": args.failure_date or nowdate(),
 		"description": "Test Description",
-		"repair_cost": args.repair_cost,
+		"repair_cost": args.repair_cost or 1000,
 		"company": asset.company
 	})
 
@@ -206,10 +220,9 @@ def create_asset_repair(**args):
 
 		if args.capitalize_repair_cost:
 			asset_repair.capitalize_repair_cost = 1
-			asset_repair.repair_cost = 1000
 
 			if asset.calculate_depreciation:
-				asset_repair.increase_in_asset_life = 12
+				asset_repair.increase_in_asset_life = args.increase_in_asset_life or 12
 
 			asset_repair.purchase_invoice = make_purchase_invoice().name
 
