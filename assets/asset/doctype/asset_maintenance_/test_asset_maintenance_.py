@@ -1,13 +1,17 @@
 # Copyright (c) 2021, Ganga Manoj and Contributors
 # See license.txt
 
-import frappe
 import unittest
 
+import frappe
+from frappe.utils import nowdate, add_days
+
 from assets.asset.doctype.asset_.test_asset_ import (
+	create_asset,
 	create_company,
 	create_asset_data,
 )
+from assets.asset.doctype.asset_maintenance_.asset_maintenance_ import calculate_next_due_date
 
 class TestAssetMaintenance_(unittest.TestCase):
 	@classmethod
@@ -20,8 +24,17 @@ class TestAssetMaintenance_(unittest.TestCase):
 	def tearDownClass(cls):
 		frappe.db.rollback()
 
+	def test_start_date_is_before_end_date(self):
+		asset = create_asset(maintenance_required = 1, submit = 1)
+
+		asset_maintenance = create_asset_maintenance(asset.name)
+		asset_maintenance.asset_maintenance_tasks[0].start_date = nowdate()
+		asset_maintenance.asset_maintenance_tasks[0].end_date = add_days(nowdate(), -1)
+
+		self.assertRaises(frappe.ValidationError, asset_maintenance.save)
+
 def create_maintenance_personnel():
-	user_list = ["dwight@dm.com", "jim@dm.com", "stanley@dm.com"]
+	user_list = ["dwight@dm.com", "jim@dm.com", "pam@dm.com"]
 
 	if not frappe.db.exists("Role", "Technician"):
 		create_role("Technician")
@@ -68,3 +81,36 @@ def get_maintenance_team_members(user_list):
 		})
 
 	return maintenance_team_members
+
+def create_asset_maintenance(asset_name, num_of_assets=0, serial_no=None):
+	asset_maintenance =	frappe.get_doc({
+		"doctype": "Asset Maintenance_",
+		"asset_name": asset_name,
+		"num_of_assets": num_of_assets or (0 if serial_no else 1),
+		"serial_no": serial_no,
+		"maintenance_team": "Team Dunder Mifflin",
+		"company": "_Test Company",
+		"asset_maintenance_tasks": get_maintenance_tasks()
+	}).insert(ignore_if_duplicate=True)
+
+	return asset_maintenance
+
+def get_maintenance_tasks():
+	return [
+		{
+			"maintenance_task": "Antivirus Scan",
+			"start_date": nowdate(),
+			"periodicity": "Monthly",
+			"maintenance_type": "Preventive Maintenance",
+			"maintenance_status": "Planned",
+			"assign_to": "jim@dm.com"
+		},
+		{
+			"maintenance_task": "Check Gears",
+			"start_date": nowdate(),
+			"periodicity": "Yearly",
+			"maintenance_type": "Calibration",
+			"maintenance_status": "Planned",
+			"assign_to": "pam@dm.com"
+		}
+	]
