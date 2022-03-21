@@ -58,6 +58,14 @@ class TestAssetMaintenance_(unittest.TestCase):
 		maintenance_status = asset_maintenance.asset_maintenance_tasks[0].maintenance_status
 		self.assertEqual(maintenance_status, "Overdue")
 
+	def test_assignee_is_mandatory(self):
+		asset = create_asset(maintenance_required = 1, submit = 1)
+
+		asset_maintenance = create_asset_maintenance(asset.name)
+		asset_maintenance.asset_maintenance_tasks[0].assign_to = None
+
+		self.assertRaises(frappe.ValidationError, asset_maintenance.save)
+
 def create_maintenance_personnel():
 	user_list = ["dwight@dm.com", "jim@dm.com", "pam@dm.com"]
 
