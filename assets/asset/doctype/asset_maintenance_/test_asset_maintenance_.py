@@ -119,6 +119,25 @@ class TestAssetMaintenance_(unittest.TestCase):
 		asset.reload()
 		self.assertEqual(asset.num_of_assets, 1)
 
+	def test_assign_tasks(self):
+		"""Test if ToDos are created for assignees."""
+
+		asset = create_asset(maintenance_required = 1, submit = 1)
+
+		asset_maintenance = create_asset_maintenance(asset.name)
+
+		todos = frappe.get_all(
+			"ToDo",
+			filters = {
+				"reference_type":asset_maintenance.doctype,
+				"reference_name": asset_maintenance.name,
+				"status": "Open",
+				"allocated_to": asset_maintenance.asset_maintenance_tasks[0].assign_to
+			}
+		)
+
+		self.assertTrue(todos)
+
 def create_maintenance_personnel():
 	user_list = ["dwight@dm.com", "jim@dm.com", "pam@dm.com"]
 
