@@ -439,10 +439,10 @@ def get_naming_series():
 
 	return naming_series
 
-def create_location():
+def create_location(location_name=None):
 	frappe.get_doc({
 		"doctype": "Location_",
-		"location_name": "Test Location"
+		"location_name": location_name or "Test Location"
 	}).insert()
 
 def create_depreciation_template(**args):
