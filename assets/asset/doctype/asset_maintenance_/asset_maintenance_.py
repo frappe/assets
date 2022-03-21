@@ -92,7 +92,7 @@ class AssetMaintenance_(Document):
 				"reference_type": args["doctype"],
 				"reference_name": args["name"],
 				"status": "Open",
-				"owner": args["assign_to"][0]
+				"allocated_to": args["assign_to"][0]
 			}
 		)
 
