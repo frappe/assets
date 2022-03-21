@@ -112,6 +112,33 @@ class TestAssetRepair_(unittest.TestCase):
 		self.assertEqual(stock_entry.items[0].item_code, asset_repair.items[0].item_code)
 		self.assertEqual(stock_entry.items[0].qty, asset_repair.items[0].qty)
 
+	def test_serialized_item_consumption(self):
+		from erpnext.stock.doctype.serial_no.serial_no import SerialNoRequiredError
+		from erpnext.stock.doctype.stock_entry.test_stock_entry import make_serialized_item
+
+		stock_entry = make_serialized_item()
+		serial_nos = stock_entry.get("items")[0].serial_no
+		serial_no = serial_nos.split("\n")[0]
+
+		# should not raise any error
+		create_asset_repair(
+			stock_consumption = 1,
+			item_code = stock_entry.get("items")[0].item_code,
+			warehouse = "_Test Warehouse - _TC",
+			stock_item_serial_no = serial_no,
+			submit = 1
+		)
+
+		# should raise error
+		asset_repair = create_asset_repair(
+			stock_consumption = 1,
+			warehouse = "_Test Warehouse - _TC",
+			item_code = stock_entry.get("items")[0].item_code
+		)
+		asset_repair.repair_status = "Completed"
+
+		self.assertRaises(SerialNoRequiredError, asset_repair.submit)
+
 def create_asset_repair(**args):
 	from erpnext.accounts.doctype.purchase_invoice.test_purchase_invoice import make_purchase_invoice
 	from erpnext.stock.doctype.warehouse.test_warehouse import create_warehouse
