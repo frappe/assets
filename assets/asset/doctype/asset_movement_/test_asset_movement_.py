@@ -74,6 +74,23 @@ class TestAssetMovement_(unittest.TestCase):
 
 		self.assertRaises(frappe.ValidationError, asset_movement.save)
 
+	def test_source_location_is_fetched_from_asset(self):
+		asset = create_asset()
+		asset.location = "Test Location"
+		asset.submit()
+
+		asset_movement = create_asset_movement(
+			purpose = "Transfer",
+			company = asset.company,
+			assets = [{
+				"asset": asset.name,
+				"source_location": None,
+				"target_location": "Test Location2"
+			}]
+		)
+
+		self.assertEqual(asset_movement.assets[0].source_location, asset.location)
+
 def create_asset_movement(**args):
 	args = frappe._dict(args)
 
