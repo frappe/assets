@@ -88,6 +88,20 @@ class TestAssetMaintenance_(unittest.TestCase):
 
 		self.assertRaises(frappe.ValidationError, asset_maintenance.save)
 
+	def test_num_of_assets_is_entered_when_the_asset_is_non_serialized(self):
+		asset = create_asset(
+			maintenance_required = 0,
+			is_serialized_asset = 0,
+			submit = 1
+		)
+		asset_maintenance = create_asset_maintenance(
+			asset_name = asset.name,
+			do_not_save = 1
+		)
+		asset_maintenance.num_of_assets = 0
+
+		self.assertRaises(frappe.ValidationError, asset_maintenance.save)
+
 def create_maintenance_personnel():
 	user_list = ["dwight@dm.com", "jim@dm.com", "pam@dm.com"]
 
