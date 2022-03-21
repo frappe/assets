@@ -186,6 +186,20 @@ class TestAssetRepair_(unittest.TestCase):
 
 		enable_finance_books(enable=False)
 
+	def test_asset_repair_gets_recorded(self):
+		asset_repair = create_asset_repair(submit = 1)
+
+		asset_activity = frappe.get_all(
+			"Asset Activity",
+			filters = {
+				"reference_docname": asset_repair.name
+			},
+			fields = ["activity_type"]
+		)[0]
+
+		self.assertTrue(asset_activity)
+		self.assertEqual(asset_activity.activity_type, "Repair")
+
 def create_asset_repair(**args):
 	from erpnext.accounts.doctype.purchase_invoice.test_purchase_invoice import make_purchase_invoice
 	from erpnext.stock.doctype.warehouse.test_warehouse import create_warehouse
