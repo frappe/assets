@@ -95,6 +95,17 @@ class TestAssetRepair_(unittest.TestCase):
 
 		self.assertRaises(frappe.ValidationError, asset_repair.save)
 
+	def test_stock_quantity_gets_decreased(self):
+		"""Tests if qty is decreased for Stock Items once they get consumed during Asset Repairs."""
+
+		asset_repair = create_asset_repair(stock_consumption = 1, submit = 1)
+		stock_entry = frappe.get_doc("Stock Entry", asset_repair.stock_entry)
+
+		self.assertEqual(stock_entry.stock_entry_type, "Material Issue")
+		self.assertEqual(stock_entry.items[0].s_warehouse, asset_repair.warehouse)
+		self.assertEqual(stock_entry.items[0].item_code, asset_repair.items[0].item_code)
+		self.assertEqual(stock_entry.items[0].qty, asset_repair.items[0].qty)
+
 def create_asset_repair(**args):
 	from erpnext.accounts.doctype.purchase_invoice.test_purchase_invoice import make_purchase_invoice
 	from erpnext.stock.doctype.warehouse.test_warehouse import create_warehouse
@@ -140,10 +151,10 @@ def create_asset_repair(**args):
 				"stock_entry_type": "Material Receipt",
 				"company": asset.company
 			})
-			stock_entry.append('items', {
+			stock_entry.append("items", {
 				"t_warehouse": asset_repair.warehouse,
-				"item_code": asset_repair.stock_items[0].item_code,
-				"qty": asset_repair.stock_items[0].consumed_quantity
+				"item_code": asset_repair.items[0].item_code,
+				"qty": asset_repair.items[0].qty
 			})
 			stock_entry.submit()
 
