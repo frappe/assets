@@ -485,7 +485,8 @@ def create_asset(**args):
 		"is_existing_asset": args.is_existing_asset or 1,
 		"purchase_date": args.purchase_date or "2020-01-01",
 		"gross_purchase_amount": args.gross_purchase_amount or 100000,
-		"calculate_depreciation": args.calculate_depreciation or 0
+		"calculate_depreciation": args.calculate_depreciation or 0,
+		"maintenance_required": args.maintenance_required or 0
 	})
 
 	if not asset.is_serialized_asset:
