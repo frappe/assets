@@ -11,10 +11,7 @@ from assets.asset.doctype.asset_.test_asset_ import (
 	create_company,
 	create_asset_data,
 )
-from assets.asset.doctype.asset_maintenance_.asset_maintenance_ import (
-	calculate_next_due_date,
-	get_maintenance_log
-)
+from assets.asset.doctype.asset_maintenance_.asset_maintenance_ import calculate_next_due_date
 
 class TestAssetMaintenance_(unittest.TestCase):
 	@classmethod
