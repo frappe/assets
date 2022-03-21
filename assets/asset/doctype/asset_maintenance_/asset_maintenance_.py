@@ -14,6 +14,7 @@ class AssetMaintenance_(Document):
 	def validate(self):
 		self.validate_tasks()
 		self.validate_asset()
+		self.set_next_due_date()
 
 	def on_update(self):
 		self.assign_tasks()
@@ -57,6 +58,10 @@ class AssetMaintenance_(Document):
 			num_of_assets_to_be_separated = num_of_assets_in_asset_doc - self.num_of_assets
 
 			split_asset(self.asset_name, num_of_assets_to_be_separated)
+
+	def set_next_due_date(self):
+		for task in self.asset_maintenance_tasks:
+			task.next_due_date = calculate_next_due_date(task.periodicity, task.start_date)
 
 	def assign_tasks(self):
 		for task in self.get("asset_maintenance_tasks"):
