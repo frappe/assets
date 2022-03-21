@@ -46,6 +46,18 @@ class TestAssetMaintenance_(unittest.TestCase):
 
 		self.assertEqual(ideal_next_due_date, actual_next_due_date)
 
+	def test_maintenance_status_is_overdue(self):
+		"""Test if maintenance_status is set to Overdue after next_due_date has passed."""
+
+		asset = create_asset(maintenance_required = 1, submit = 1)
+
+		asset_maintenance = create_asset_maintenance(asset.name)
+		asset_maintenance.asset_maintenance_tasks[0].next_due_date = add_days(nowdate(), -1)
+		asset_maintenance.save()
+
+		maintenance_status = asset_maintenance.asset_maintenance_tasks[0].maintenance_status
+		self.assertEqual(maintenance_status, "Overdue")
+
 def create_maintenance_personnel():
 	user_list = ["dwight@dm.com", "jim@dm.com", "pam@dm.com"]
 
