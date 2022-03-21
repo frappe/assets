@@ -66,6 +66,15 @@ class TestAssetMaintenance_(unittest.TestCase):
 
 		self.assertRaises(frappe.ValidationError, asset_maintenance.save)
 
+	def test_maintenance_required_is_enabled(self):
+		asset = create_asset(maintenance_required = 0, submit = 1)
+		asset_maintenance = create_asset_maintenance(
+			asset_name = asset.name,
+			do_not_save = 1
+		)
+
+		self.assertRaises(frappe.ValidationError, asset_maintenance.save)
+
 def create_maintenance_personnel():
 	user_list = ["dwight@dm.com", "jim@dm.com", "pam@dm.com"]
 
@@ -115,7 +124,7 @@ def get_maintenance_team_members(user_list):
 
 	return maintenance_team_members
 
-def create_asset_maintenance(asset_name, num_of_assets=0, serial_no=None):
+def create_asset_maintenance(asset_name, num_of_assets=0, serial_no=None, do_not_save=False):
 	asset_maintenance =	frappe.get_doc({
 		"doctype": "Asset Maintenance_",
 		"asset_name": asset_name,
@@ -124,7 +133,13 @@ def create_asset_maintenance(asset_name, num_of_assets=0, serial_no=None):
 		"maintenance_team": "Team Dunder Mifflin",
 		"company": "_Test Company",
 		"asset_maintenance_tasks": get_maintenance_tasks()
-	}).insert(ignore_if_duplicate=True)
+	})
+
+	if not do_not_save:
+		try:
+			asset_maintenance.insert(ignore_if_duplicate=True)
+		except frappe.DuplicateEntryError:
+			pass
 
 	return asset_maintenance
 
