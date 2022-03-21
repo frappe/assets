@@ -11,7 +11,10 @@ from assets.asset.doctype.asset_.test_asset_ import (
 	create_company,
 	create_asset_data,
 )
-from assets.asset.doctype.asset_maintenance_.asset_maintenance_ import calculate_next_due_date
+from assets.asset.doctype.asset_maintenance_.asset_maintenance_ import (
+	calculate_next_due_date,
+	get_maintenance_log
+)
 
 class TestAssetMaintenance_(unittest.TestCase):
 	@classmethod
@@ -123,7 +126,6 @@ class TestAssetMaintenance_(unittest.TestCase):
 		"""Test if ToDos are created for assignees."""
 
 		asset = create_asset(maintenance_required = 1, submit = 1)
-
 		asset_maintenance = create_asset_maintenance(asset.name)
 
 		todos = frappe.get_all(
@@ -137,6 +139,14 @@ class TestAssetMaintenance_(unittest.TestCase):
 		)
 
 		self.assertTrue(todos)
+
+	def test_maintenance_logs_are_created(self):
+		asset = create_asset(maintenance_required = 1, submit = 1)
+		asset_maintenance = create_asset_maintenance(asset.name)
+
+		for task in asset_maintenance.asset_maintenance_tasks:
+			maintenance_log = asset_maintenance.get_maintenance_log(task)
+			self.assertTrue(maintenance_log)
 
 def create_maintenance_personnel():
 	user_list = ["dwight@dm.com", "jim@dm.com", "pam@dm.com"]
