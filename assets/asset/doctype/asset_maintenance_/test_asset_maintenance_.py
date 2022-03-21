@@ -33,6 +33,19 @@ class TestAssetMaintenance_(unittest.TestCase):
 
 		self.assertRaises(frappe.ValidationError, asset_maintenance.save)
 
+	def test_next_due_date_calculation(self):
+		asset = create_asset(maintenance_required = 1, submit = 1)
+
+		asset_maintenance = create_asset_maintenance(asset.name)
+
+		start_date = asset_maintenance.asset_maintenance_tasks[0].start_date
+		periodicity = asset_maintenance.asset_maintenance_tasks[0].periodicity
+
+		ideal_next_due_date = calculate_next_due_date(periodicity, start_date)
+		actual_next_due_date = asset_maintenance.asset_maintenance_tasks[0].next_due_date
+
+		self.assertEqual(ideal_next_due_date, actual_next_due_date)
+
 def create_maintenance_personnel():
 	user_list = ["dwight@dm.com", "jim@dm.com", "pam@dm.com"]
 
@@ -43,7 +56,7 @@ def create_maintenance_personnel():
 		if not frappe.db.get_value("User", user):
 			create_user(user)
 
-	if not frappe.db.exists("Asset Maintenance Team", "Team Dunder Mifflin"):
+	if not frappe.db.exists("Asset Maintenance Team_", "Team Dunder Mifflin"):
 		create_maintenance_team(user_list)
 
 def create_role(role_name):
