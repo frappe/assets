@@ -47,7 +47,7 @@ class TestAssetMaintenance_(unittest.TestCase):
 		self.assertEqual(ideal_next_due_date, actual_next_due_date)
 
 	def test_maintenance_status_is_overdue(self):
-		"""Test if maintenance_status is set to Overdue after next_due_date has passed."""
+		"""Tests if maintenance_status is set to Overdue after next_due_date has passed."""
 
 		asset = create_asset(maintenance_required = 1, submit = 1)
 
@@ -77,7 +77,7 @@ class TestAssetMaintenance_(unittest.TestCase):
 
 	def test_serial_no_is_entered_when_the_asset_is_serialized(self):
 		asset = create_asset(
-			maintenance_required = 0,
+			maintenance_required = 1,
 			is_serialized_asset = 1,
 			submit = 1
 		)
@@ -90,7 +90,7 @@ class TestAssetMaintenance_(unittest.TestCase):
 
 	def test_num_of_assets_is_entered_when_the_asset_is_non_serialized(self):
 		asset = create_asset(
-			maintenance_required = 0,
+			maintenance_required = 1,
 			is_serialized_asset = 0,
 			submit = 1
 		)
@@ -101,6 +101,23 @@ class TestAssetMaintenance_(unittest.TestCase):
 		asset_maintenance.num_of_assets = 0
 
 		self.assertRaises(frappe.ValidationError, asset_maintenance.save)
+
+	def test_asset_split(self):
+		"""Tests if Asset gets split on creating Asset Maintenance with num_of_assets < the Asset's num_of_assets."""
+
+		asset = create_asset(
+			maintenance_required = 1,
+			is_serialized_asset = 0,
+			num_of_assets = 3,
+			submit = 1
+		)
+		create_asset_maintenance(
+			asset_name = asset.name,
+			num_of_assets = 1
+		)
+
+		asset.reload()
+		self.assertEqual(asset.num_of_assets, 1)
 
 def create_maintenance_personnel():
 	user_list = ["dwight@dm.com", "jim@dm.com", "pam@dm.com"]
