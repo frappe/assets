@@ -139,6 +139,12 @@ class TestAssetRepair_(unittest.TestCase):
 
 		self.assertRaises(SerialNoRequiredError, asset_repair.submit)
 
+	def test_purchase_invoice_is_mandatory(self):
+		asset_repair = create_asset_repair(capitalize_repair_cost = 1)
+		asset_repair.purchase_invoice = None
+
+		self.assertRaises(frappe.ValidationError, asset_repair.submit)
+
 def create_asset_repair(**args):
 	from erpnext.accounts.doctype.purchase_invoice.test_purchase_invoice import make_purchase_invoice
 	from erpnext.stock.doctype.warehouse.test_warehouse import create_warehouse
