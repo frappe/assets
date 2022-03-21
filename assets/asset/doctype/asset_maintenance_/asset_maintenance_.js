@@ -145,7 +145,7 @@ var get_next_due_date = function (frm, cdt, cdn) {
 
 	if (d.start_date && d.periodicity) {
 		return frappe.call({
-			method: 'erpnext.assets.doctype.asset_maintenance.asset_maintenance.calculate_next_due_date',
+			method: 'assets.asset.doctype.asset_maintenance_.asset_maintenance_.calculate_next_due_date',
 			args: {
 				start_date: d.start_date,
 				periodicity: d.periodicity,
