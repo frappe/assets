@@ -12,6 +12,14 @@ frappe.ui.form.on('Asset Maintenance_', {
 			};
 		});
 
+		frm.fields_dict.asset_name.get_query = function(doc) {
+			return {
+				filters: {
+					'maintenance_required': 1
+				}
+			};
+		};
+
 		frm.fields_dict.serial_no.get_query = function(doc) {
 			return {
 				filters: {
