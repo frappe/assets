@@ -243,6 +243,7 @@ class AssetRepair_(AccountsController):
 
 	def increase_asset_life(self):
 		self.asset_doc.flags.ignore_validate_update_after_submit = True
+		self.asset_doc.enable_finance_books = self.has_enabled_finance_books()
 
 		self.update_asset_life_in_asset_doc()
 		self.asset_doc.create_schedules_if_depr_details_have_been_updated()
@@ -256,7 +257,7 @@ class AssetRepair_(AccountsController):
 		self.asset_doc.save()
 
 	def update_asset_life_in_asset_doc(self):
-		if self.has_enabled_finance_books():
+		if self.asset_doc.enable_finance_books:
 			for row in self.asset_doc.finance_books:
 				row.asset_life_in_months += self.increase_in_asset_life
 		else:
@@ -264,6 +265,7 @@ class AssetRepair_(AccountsController):
 
 	def decrease_asset_life(self):
 		self.asset_doc.flags.ignore_validate_update_after_submit = True
+		self.asset_doc.enable_finance_books = self.has_enabled_finance_books()
 
 		self.reset_asset_life_in_asset_doc()
 		self.asset_doc.create_schedules_if_depr_details_have_been_updated()
@@ -277,7 +279,7 @@ class AssetRepair_(AccountsController):
 		self.asset_doc.save()
 
 	def reset_asset_life_in_asset_doc(self):
-		if self.has_enabled_finance_books():
+		if self.asset_doc.enable_finance_books:
 			for row in self.asset_doc.finance_books:
 				row.asset_life_in_months -= self.increase_in_asset_life
 		else:
