@@ -127,6 +127,22 @@ class TestAssetMovement_(unittest.TestCase):
 
 		self.assertRaises(frappe.ValidationError, asset_movement.save)
 
+	def test_to_employee_mandatory_for_asset_issue(self):
+		asset = create_asset(submit = 1)
+
+		asset_movement = create_asset_movement(
+			purpose = "Issue",
+			company = asset.company,
+			assets = [{
+				"asset": asset.name,
+				"source_location": "Test Location",
+				"to_employee": None
+			}],
+			do_not_save = 1
+		)
+
+		self.assertRaises(frappe.ValidationError, asset_movement.save)
+
 def create_asset_movement(**args):
 	args = frappe._dict(args)
 
