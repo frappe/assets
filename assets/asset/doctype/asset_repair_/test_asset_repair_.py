@@ -145,6 +145,12 @@ class TestAssetRepair_(unittest.TestCase):
 
 		self.assertRaises(frappe.ValidationError, asset_repair.submit)
 
+	def test_gl_entries_are_created_on_submission(self):
+		asset_repair = create_asset_repair(capitalize_repair_cost = 1, submit = 1)
+		gl_entry = frappe.get_last_doc("GL Entry")
+
+		self.assertEqual(asset_repair.name, gl_entry.voucher_no)
+
 def create_asset_repair(**args):
 	from erpnext.accounts.doctype.purchase_invoice.test_purchase_invoice import make_purchase_invoice
 	from erpnext.stock.doctype.warehouse.test_warehouse import create_warehouse
