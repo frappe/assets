@@ -10,6 +10,7 @@ from assets.asset.doctype.asset_.test_asset_ import (
 	create_asset,
 	create_company,
 	create_asset_data,
+	enable_finance_books
 )
 from assets.asset.doctype.asset_serial_no.test_asset_serial_no import get_asset_serial_no_doc
 
@@ -151,7 +152,9 @@ class TestAssetRepair_(unittest.TestCase):
 
 		self.assertEqual(asset_repair.name, gl_entry.voucher_no)
 
-	def test_increase_in_asset_life(self):
+	def test_increase_in_asset_life_when_finance_books_are_disabled(self):
+		enable_finance_books(enable=False)
+
 		asset = create_asset(calculate_depreciation = 1, enable_finance_books = 0, submit=1)
 		initial_asset_life = asset.asset_life_in_months
 
@@ -164,6 +167,24 @@ class TestAssetRepair_(unittest.TestCase):
 		asset.reload()
 
 		self.assertEqual((initial_asset_life + 12), asset.asset_life_in_months)
+
+	def test_increase_in_asset_life_when_finance_books_are_enabled(self):
+		enable_finance_books()
+
+		asset = create_asset(calculate_depreciation = 1, enable_finance_books = 1, submit=1)
+		initial_asset_life = asset.finance_books[0].asset_life_in_months
+
+		create_asset_repair(
+			asset = asset,
+			capitalize_repair_cost = 1,
+			increase_in_asset_life = 12,
+			submit = 1
+		)
+		asset.reload()
+
+		self.assertEqual((initial_asset_life + 12), asset.finance_books[0].asset_life_in_months)
+
+		enable_finance_books(enable=False)
 
 def create_asset_repair(**args):
 	from erpnext.accounts.doctype.purchase_invoice.test_purchase_invoice import make_purchase_invoice
