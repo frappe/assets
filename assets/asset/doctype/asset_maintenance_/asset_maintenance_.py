@@ -41,11 +41,15 @@ class AssetMaintenance_(Document):
 				.format(task.idx, task.maintenance_task))
 
 	def validate_asset(self):
-		is_serialized_asset, num_of_assets = frappe.get_value(
+		is_serialized_asset, num_of_assets, maintenance_required = frappe.get_value(
 			"Asset_",
 			self.asset_name,
-			["is_serialized_asset", "num_of_assets"]
+			["is_serialized_asset", "num_of_assets", "maintenance_required"]
 		)
+
+		if not maintenance_required:
+			frappe.throw(_("Maintenance records can only be created for Assets with \
+				Maintenance Required enabled."), title=_("Invalid Asset"))
 
 		if is_serialized_asset:
 			validate_serial_no(self)
