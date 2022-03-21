@@ -91,6 +91,26 @@ class TestAssetMovement_(unittest.TestCase):
 
 		self.assertEqual(asset_movement.assets[0].source_location, asset.location)
 
+	def test_source_location_is_the_same_as_asset_location(self):
+		create_location("Test Location3")
+
+		asset = create_asset()
+		asset.location = "Test Location"
+		asset.submit()
+
+		asset_movement = create_asset_movement(
+			purpose = "Transfer",
+			company = asset.company,
+			assets = [{
+				"asset": asset.name,
+				"source_location": "Test Location2",
+				"target_location": "Test Location3"
+			}],
+			do_not_save = 1
+		)
+
+		self.assertRaises(frappe.ValidationError, asset_movement.save)
+
 def create_asset_movement(**args):
 	args = frappe._dict(args)
 
