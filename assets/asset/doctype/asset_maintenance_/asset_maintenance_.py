@@ -43,7 +43,7 @@ class AssetMaintenance_(Document):
 	def validate_asset(self):
 		is_serialized_asset, num_of_assets, maintenance_required = frappe.get_value(
 			"Asset_",
-			self.asset_name,
+			self.asset,
 			["is_serialized_asset", "num_of_assets", "maintenance_required"]
 		)
 
@@ -61,7 +61,7 @@ class AssetMaintenance_(Document):
 		if self.num_of_assets < num_of_assets_in_asset_doc:
 			num_of_assets_to_be_separated = num_of_assets_in_asset_doc - self.num_of_assets
 
-			split_asset(self.asset_name, num_of_assets_to_be_separated)
+			split_asset(self.asset, num_of_assets_to_be_separated)
 
 	def set_next_due_date(self):
 		for task in self.asset_maintenance_tasks:
@@ -138,7 +138,7 @@ class AssetMaintenance_(Document):
 		asset_maintenance_log = frappe.get_doc({
 			"doctype": "Asset Maintenance Log_",
 			"asset_maintenance": self.name,
-			"asset_name": self.asset_name,
+			"asset_name": self.asset,
 			"task": task.name,
 			"has_certificate": task.certificate_required,
 			"description": task.description,

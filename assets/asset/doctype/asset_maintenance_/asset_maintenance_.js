@@ -12,7 +12,7 @@ frappe.ui.form.on('Asset Maintenance_', {
 			};
 		});
 
-		frm.fields_dict.asset_name.get_query = function(doc) {
+		frm.fields_dict.asset.get_query = function(doc) {
 			return {
 				filters: {
 					'maintenance_required': 1
@@ -23,7 +23,7 @@ frappe.ui.form.on('Asset Maintenance_', {
 		frm.fields_dict.serial_no.get_query = function(doc) {
 			return {
 				filters: {
-					'asset': doc.asset_name
+					'asset': doc.asset
 				}
 			};
 		};
@@ -52,13 +52,13 @@ frappe.ui.form.on('Asset Maintenance_', {
 		}
 	},
 
-	asset_name: (frm) => {
+	asset: (frm) => {
 		frm.trigger("set_serial_no_and_num_of_assets");
 	},
 
 	set_serial_no_and_num_of_assets: (frm) => {
-		if (frm.doc.asset_name) {
-			frappe.db.get_value('Asset_', frm.doc.asset_name, ['is_serialized_asset', 'num_of_assets'], (r) => {
+		if (frm.doc.asset) {
+			frappe.db.get_value('Asset_', frm.doc.asset, ['is_serialized_asset', 'num_of_assets'], (r) => {
 				if (r && r.is_serialized_asset) {
 					frm.set_df_property('serial_no', 'hidden', 0);
 					frm.set_df_property('serial_no', 'reqd', 1);
@@ -94,7 +94,7 @@ frappe.ui.form.on('Asset Maintenance_', {
 			frappe.call({
 				method: 'assets.asset.doctype.asset_maintenance_.asset_maintenance_.get_maintenance_log',
 				args: {
-					asset_name: frm.doc.asset_name
+					asset_name: frm.doc.asset
 				},
 				callback: (r) => {
 					if(r.message) {
@@ -119,13 +119,13 @@ frappe.ui.form.on('Asset Maintenance_', {
 	},
 
 	num_of_assets: (frm) => {
-		frappe.db.get_value('Asset_', frm.doc.asset_name, ['is_serialized_asset', 'num_of_assets'], (r) => {
+		frappe.db.get_value('Asset_', frm.doc.asset, ['is_serialized_asset', 'num_of_assets'], (r) => {
 			if (r && !r.is_serialized_asset) {
 				if (frm.doc.num_of_assets < r.num_of_assets) {
 					frappe.msgprint({
 						title: __('Warning'),
 						message: __('Asset {0} will be split on saving this document as the Number of Assets entered \
-							is less than {1}.', [frm.doc.asset_name, r.num_of_assets])
+							is less than {1}.', [frm.doc.asset, r.num_of_assets])
 					});
 				}
 			}

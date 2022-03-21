@@ -1,13 +1,13 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:asset_name",
+ "autoname": "field:asset",
  "creation": "2022-01-31 20:58:22.785183",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "asset_name",
+  "asset",
   "asset_category",
   "column_break_3",
   "company",
@@ -22,15 +22,6 @@
   "asset_maintenance_tasks"
  ],
  "fields": [
-  {
-   "fieldname": "asset_name",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Asset Name",
-   "options": "Asset_",
-   "reqd": 1,
-   "unique": 1
-  },
   {
    "fetch_from": "asset_name.asset_category",
    "fieldname": "asset_category",
@@ -100,11 +91,20 @@
    "fieldname": "num_of_assets",
    "fieldtype": "Int",
    "label": "Number of Assets"
+  },
+  {
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Asset",
+   "options": "Asset_",
+   "reqd": 1,
+   "unique": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-10 16:18:20.112563",
+ "modified": "2022-03-21 23:31:04.141674",
  "modified_by": "Administrator",
  "module": "Asset",
  "name": "Asset Maintenance_",

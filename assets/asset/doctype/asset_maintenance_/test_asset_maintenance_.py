@@ -171,7 +171,7 @@ def get_maintenance_team_members(user_list):
 def create_asset_maintenance(asset_name, num_of_assets=0, serial_no=None, do_not_save=False):
 	asset_maintenance =	frappe.get_doc({
 		"doctype": "Asset Maintenance_",
-		"asset_name": asset_name,
+		"asset": asset_name,
 		"num_of_assets": num_of_assets or (0 if serial_no else 1),
 		"serial_no": serial_no,
 		"maintenance_team": "Team Dunder Mifflin",
