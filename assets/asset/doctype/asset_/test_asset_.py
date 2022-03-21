@@ -80,7 +80,7 @@ class TestAsset_(unittest.TestCase):
 
 		enable_finance_books(enable=False)
 
-	def test_if_depr_posting_start_date_is_too_late_when_finance_books_are_not_enabled(self):
+	def test_if_depr_posting_start_date_is_too_late_when_finance_books_are_disabled(self):
 		"""
 			Tests if the period between Available for Use Date and Depreciation Posting Start Date
 			is less than or equal to the Frequency of Depreciation.
@@ -154,7 +154,7 @@ class TestAsset_(unittest.TestCase):
 
 		enable_finance_books(enable=False)
 
-	def test_depreciation_template_is_mandatory_when_finance_books_are_not_enabled(self):
+	def test_depreciation_template_is_mandatory_when_finance_books_are_disabled(self):
 		enable_finance_books(enable=False)
 
 		asset = create_asset(calculate_depreciation=1)
@@ -185,7 +185,7 @@ class TestAsset_(unittest.TestCase):
 
 		enable_finance_books(enable=False)
 
-	def test_missing_template_values_are_fetched_when_finance_books_are_not_enabled(self):
+	def test_missing_template_values_are_fetched_when_finance_books_are_disabled(self):
 		enable_finance_books(enable=False)
 
 		asset = create_asset(calculate_depreciation=1)
@@ -205,7 +205,7 @@ class TestAsset_(unittest.TestCase):
 
 		enable_finance_books(enable=False)
 
-	def test_depreciation_schedule_is_created_when_finance_books_are_not_enabled(self):
+	def test_depreciation_schedule_is_created_when_finance_books_are_disabled(self):
 		enable_finance_books(enable=False)
 
 		asset = create_asset(calculate_depreciation=1, enable_finance_books=0)
@@ -255,7 +255,7 @@ class TestAsset_(unittest.TestCase):
 
 		enable_finance_books(enable=False)
 
-	def test_new_schedule_is_created_on_changing_depr_template_when_finance_books_are_not_enabled(self):
+	def test_new_schedule_is_created_on_changing_depr_template_when_finance_books_are_disabled(self):
 		"""Tests if old schedule is deleted and new one is created on changing the depr template."""
 
 		enable_finance_books(enable=False)
