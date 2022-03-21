@@ -143,6 +143,22 @@ class TestAssetMovement_(unittest.TestCase):
 
 		self.assertRaises(frappe.ValidationError, asset_movement.save)
 
+	def test_target_location_mandatory_for_asset_transfer(self):
+		asset = create_asset(submit = 1)
+
+		asset_movement = create_asset_movement(
+			purpose = "Transfer",
+			company = asset.company,
+			assets = [{
+				"asset": asset.name,
+				"source_location": "Test Location",
+				"target_location": None
+			}],
+			do_not_save = 1
+		)
+
+		self.assertRaises(frappe.ValidationError, asset_movement.save)
+
 def create_asset_movement(**args):
 	args = frappe._dict(args)
 
