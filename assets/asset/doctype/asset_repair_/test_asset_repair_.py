@@ -95,6 +95,12 @@ class TestAssetRepair_(unittest.TestCase):
 
 		self.assertRaises(frappe.ValidationError, asset_repair.save)
 
+	def test_stock_entry_gets_linked(self):
+		"""Tests if Stock Entry gets linked when there's stock consumption."""
+
+		asset_repair = create_asset_repair(stock_consumption = 1, submit = 1)
+		self.assertTrue(asset_repair.stock_entry)
+
 	def test_stock_quantity_gets_decreased(self):
 		"""Tests if qty is decreased for Stock Items once they get consumed during Asset Repairs."""
 
@@ -146,6 +152,7 @@ def create_asset_repair(**args):
 		asset_repair.cost_center = "_Test Cost Center - _TC"
 
 		if args.stock_consumption:
+			# since the Stock Item needs to be received before it can be issued
 			stock_entry = frappe.get_doc({
 				"doctype": "Stock Entry",
 				"stock_entry_type": "Material Receipt",
