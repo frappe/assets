@@ -1,9 +1,9 @@
 # Copyright (c) 2021, Ganga Manoj and Contributors
 # See license.txt
 
-import frappe
 import unittest
 
+import frappe
 from frappe.utils import nowdate
 
 from assets.asset.doctype.asset_.test_asset_ import (
@@ -12,6 +12,7 @@ from assets.asset.doctype.asset_.test_asset_ import (
 	create_location,
 	create_asset_data,
 )
+from erpnext.hr.doctype.employee.test_employee import make_employee
 
 class TestAssetMovement_(unittest.TestCase):
 	@classmethod
@@ -19,6 +20,7 @@ class TestAssetMovement_(unittest.TestCase):
 		create_company()
 		create_asset_data()
 		create_location("Test Location2")
+		make_employee("testassetmovemp@example.com", company = "_Test Company")
 
 	@classmethod
 	def tearDownClass(cls):
@@ -169,6 +171,22 @@ class TestAssetMovement_(unittest.TestCase):
 				"asset": asset.name,
 				"source_location": "Test Location",
 				"target_location": "Test Location"
+			}],
+			do_not_save = 1
+		)
+
+		self.assertRaises(frappe.ValidationError, asset_movement.save)
+
+	def test_transfer_asset_to_employee(self):
+		asset = create_asset(submit = 1)
+
+		asset_movement = create_asset_movement(
+			purpose = "Transfer",
+			company = asset.company,
+			assets = [{
+				"asset": asset.name,
+				"source_location": "Test Location",
+				"to_employee": "EMP-00001"
 			}],
 			do_not_save = 1
 		)
