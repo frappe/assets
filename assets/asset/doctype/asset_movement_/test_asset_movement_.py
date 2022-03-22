@@ -20,8 +20,7 @@ class TestAssetMovement_(unittest.TestCase):
 		create_company()
 		create_asset_data()
 		create_location("Test Location2")
-		employee = make_employee("testassetmovemp@example.com", company = "_Test Company")
-		print(employee)
+		make_employee("assetmovement@abc.com", company = "_Test Company")
 
 	@classmethod
 	def tearDownClass(cls):
@@ -222,6 +221,25 @@ class TestAssetMovement_(unittest.TestCase):
 				"source_location": "Test Location",
 				"target_location": None,
 				"from_employee": "EMP-00001"
+			}],
+			do_not_save = 1
+		)
+
+		self.assertRaises(frappe.ValidationError, asset_movement.save)
+
+	def test_receipt_has_both_target_location_and_to_employee(self):
+		asset = create_asset(submit = 1)
+		to_employee = make_employee("assetmovement2@abc.com", company = "_Test Company")
+
+		asset_movement = create_asset_movement(
+			purpose = "Receipt",
+			company = asset.company,
+			assets = [{
+				"asset": asset.name,
+				"source_location": "Test Location",
+				"target_location": "Test Location2",
+				"from_employee": "EMP-00001",
+				"to_employee": to_employee
 			}],
 			do_not_save = 1
 		)
