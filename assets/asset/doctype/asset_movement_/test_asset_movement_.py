@@ -246,6 +246,24 @@ class TestAssetMovement_(unittest.TestCase):
 
 		self.assertRaises(frappe.ValidationError, asset_movement.save)
 
+	def test_from_employee_is_asset_custodian(self):
+		asset = create_asset(custodian = "EMP-00001", submit = 1)
+		from_employee = make_employee("assetmovement2@abc.com", company = "_Test Company")
+
+		asset_movement = create_asset_movement(
+			purpose = "Transfer",
+			company = asset.company,
+			assets = [{
+				"asset": asset.name,
+				"source_location": "Test Location",
+				"target_location": "Test Location2",
+				"from_employee": from_employee
+			}],
+			do_not_save = 1
+		)
+
+		self.assertRaises(frappe.ValidationError, asset_movement.save)
+
 def create_asset_movement(**args):
 	args = frappe._dict(args)
 
