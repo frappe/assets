@@ -491,6 +491,7 @@ def create_asset(**args):
 
 	if not asset.is_serialized_asset:
 		asset.location = args.location or "Test Location"
+		asset.custodian = args.custodian
 
 		if asset.calculate_depreciation:
 			asset.opening_accumulated_depreciation = args.opening_accumulated_depreciation or 0
