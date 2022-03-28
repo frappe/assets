@@ -1,0 +1,102 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2022-01-31 20:58:23.139426",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "asset",
+  "source_location",
+  "from_employee",
+  "serial_no",
+  "number_of_assets",
+  "column_break_2",
+  "asset_name",
+  "target_location",
+  "to_employee"
+ ],
+ "fields": [
+  {
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Asset",
+   "options": "Asset_",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "asset.asset_name",
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "label": "Asset Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source_location",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Source Location",
+   "options": "Location_"
+  },
+  {
+   "fieldname": "target_location",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Target Location",
+   "options": "Location_"
+  },
+  {
+   "fieldname": "from_employee",
+   "fieldtype": "Link",
+   "ignore_user_permissions": 1,
+   "in_list_view": 1,
+   "label": "From Employee",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "to_employee",
+   "fieldtype": "Link",
+   "ignore_user_permissions": 1,
+   "in_list_view": 1,
+   "label": "To Employee",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1
+  },
+  {
+   "fieldname": "serial_no",
+   "fieldtype": "Link",
+   "label": "Serial No",
+   "options": "Asset Serial No"
+  },
+  {
+   "fieldname": "number_of_assets",
+   "fieldtype": "Int",
+   "label": "Number of Assets"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2022-02-09 23:59:33.765498",
+ "modified_by": "Administrator",
+ "module": "Asset",
+ "name": "Asset Movement Item_",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

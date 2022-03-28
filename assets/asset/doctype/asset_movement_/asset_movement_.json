@@ -1,0 +1,121 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:ACC-ASM-{YYYY}-{#####}",
+ "creation": "2021-12-15 00:23:14.908578",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+    "company",
+    "purpose",
+    "column_break_4",
+    "transaction_date",
+    "section_break_10",
+    "assets",
+    "reference",
+    "reference_doctype",
+    "column_break_9",
+    "reference_name",
+    "amended_from"
+   ],
+"fields": [
+    {
+     "fieldname": "company",
+     "fieldtype": "Link",
+     "in_list_view": 1,
+     "in_standard_filter": 1,
+     "label": "Company",
+     "options": "Company",
+     "remember_last_selected_value": 1,
+     "reqd": 1
+    },
+    {
+     "fieldname": "purpose",
+     "fieldtype": "Select",
+     "label": "Purpose",
+     "options": "\nIssue\nReceipt\nTransfer",
+     "reqd": 1
+    },
+    {
+     "fieldname": "transaction_date",
+     "fieldtype": "Datetime",
+     "in_list_view": 1,
+     "label": "Transaction Date",
+     "reqd": 1
+    },
+    {
+     "fieldname": "column_break_4",
+     "fieldtype": "Column Break"
+    },
+    {
+     "collapsible": 1,
+     "fieldname": "reference",
+     "fieldtype": "Section Break",
+     "label": "Reference"
+    },
+    {
+     "fieldname": "reference_doctype",
+     "fieldtype": "Link",
+     "label": "Reference Document Type",
+     "no_copy": 1,
+     "options": "DocType"
+    },
+    {
+     "fieldname": "reference_name",
+     "fieldtype": "Dynamic Link",
+     "label": "Reference Document Name",
+     "no_copy": 1,
+     "options": "reference_doctype"
+    },
+    {
+     "fieldname": "amended_from",
+     "fieldtype": "Link",
+     "label": "Amended From",
+     "no_copy": 1,
+     "options": "Asset Movement",
+     "print_hide": 1,
+     "read_only": 1
+    },
+    {
+     "fieldname": "section_break_10",
+     "fieldtype": "Section Break"
+    },
+    {
+     "fieldname": "assets",
+     "fieldtype": "Table",
+     "label": "Assets",
+     "options": "Asset Movement Item_",
+     "reqd": 1
+    },
+    {
+     "fieldname": "column_break_9",
+     "fieldtype": "Column Break"
+    }
+   ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2021-12-15 00:23:14.908578",
+ "modified_by": "Administrator",
+ "module": "Asset",
+ "name": "Asset Movement_",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

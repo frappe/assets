@@ -1,0 +1,26 @@
+{
+ "add_total_row": 0,
+ "columns": [],
+ "creation": "2022-02-28 19:01:28.199566",
+ "disable_prepared_report": 0,
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "modified": "2022-02-28 19:03:18.995020",
+ "modified_by": "Administrator",
+ "module": "Asset",
+ "name": "Asset Timeline",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Asset Activity",
+ "report_name": "Asset Timeline",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ]
+}

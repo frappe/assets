@@ -4,3 +4,4 @@
 *.swp
 tags
 assets/docs/current
+__pycache__/
